@@ -1,11 +1,12 @@
 import { useEffect, useState, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { FiMenu, FiX, FiChevronDown, FiUser } from "react-icons/fi";
+import { FiMenu, FiX, FiChevronDown, FiUser, FiTrash2 } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import config from "../resources/config/config";
-import { Image, useToast, Avatar, useBreakpointValue } from "@chakra-ui/react";
+import { Image, useToast, Avatar, useBreakpointValue, useDisclosure } from "@chakra-ui/react";
 import hushhLogo from "../components/images/Hushhogo.png";
 import LanguageSwitcher from "./LanguageSwitcher";
+import DeleteAccountModal from "./DeleteAccountModal";
 
 export default function Navbar() {
   const { t } = useTranslation();
@@ -15,6 +16,7 @@ export default function Navbar() {
   const [careerDropdownOpen, setCareerDropdownOpen] = useState(false);
   const [mobileCareerDropdownOpen, setMobileCareerDropdownOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const { isOpen: isDeleteModalOpen, onOpen: onDeleteModalOpen, onClose: onDeleteModalClose } = useDisclosure();
   const navigate = useNavigate();
   const location = useLocation();
   const drawerRef = useRef<HTMLDivElement>(null);
@@ -94,6 +96,12 @@ export default function Navbar() {
 
   const toggleProfileDropdown = () => {
     setProfileDropdownOpen((prev) => !prev);
+  };
+
+  const handleAccountDeleted = () => {
+    setSession(null);
+    onDeleteModalClose();
+    navigate("/");
   };
 
   return (
@@ -229,6 +237,19 @@ export default function Navbar() {
                         {t('nav.viewProfile')}
                       </div>
                     </Link>
+                    <div className="border-t border-gray-100 my-1"></div>
+                    <button
+                      onClick={() => {
+                        setProfileDropdownOpen(false);
+                        onDeleteModalOpen();
+                      }}
+                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                    >
+                      <div className="flex items-center">
+                        <FiTrash2 className="mr-2" />
+                        {t('nav.deleteAccount')}
+                      </div>
+                    </button>
                   </div>
                 </div>
               </>
@@ -391,6 +412,13 @@ export default function Navbar() {
           </div>
         </div>
       )}
+
+      {/* Delete Account Modal */}
+      <DeleteAccountModal
+        isOpen={isDeleteModalOpen}
+        onClose={onDeleteModalClose}
+        onAccountDeleted={handleAccountDeleted}
+      />
     </nav>
   );
 }

@@ -12,7 +12,25 @@
     "logout": "Déconnexion",
     "viewProfile": "Voir le Profil",
     "home": "Accueil",
-    "kycStudio": "KYC Studio Alpha"
+    "kycStudio": "KYC Studio Alpha",
+    "deleteAccount": "Supprimer le Compte"
+  },
+  "deleteAccount": {
+    "title": "Supprimer le Compte",
+    "warningMessage": "Cette action est permanente et ne peut pas être annulée. Toutes vos données seront définitivement supprimées de nos systèmes.",
+    "willDelete": "Cela supprimera définitivement :",
+    "deleteItem1": "Votre compte et informations de profil",
+    "deleteItem2": "Toutes vos données et préférences d'investisseur",
+    "deleteItem3": "Votre historique de discussion et messages",
+    "deleteItem4": "Tous les documents et vérifications associés",
+    "confirmPrompt": "Tapez DELETE pour confirmer",
+    "cancel": "Annuler",
+    "confirmDelete": "Supprimer le Compte",
+    "deleting": "Suppression...",
+    "successTitle": "Compte Supprimé",
+    "successMessage": "Votre compte et toutes les données associées ont été définitivement supprimés.",
+    "errorTitle": "Échec de la Suppression",
+    "errorMessage": "Échec de la suppression de votre compte. Veuillez réessayer ou contacter le support."
   },
   "hero": {
     "eyebrow": "Investir dans l'Avenir.",
