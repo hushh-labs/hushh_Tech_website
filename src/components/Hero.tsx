@@ -12,7 +12,6 @@ import HushhLogo from "./images/Hushhogo.png";
 // Motion components
 const MotionBox = motion(Box);
 const MotionButton = motion(Button);
-const MotionText = motion(Text);
 
 // Apple-like smooth animation variants
 const containerVariants = {
@@ -20,44 +19,31 @@ const containerVariants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.1,
+      staggerChildren: 0.08,
       delayChildren: 0.05,
     },
   },
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 0, y: 16 },
   visible: {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.5,
+      duration: 0.45,
       ease: [0.25, 0.46, 0.45, 0.94],
     },
   },
 };
 
 const logoVariants = {
-  hidden: { opacity: 0, scale: 0.9 },
+  hidden: { opacity: 0, scale: 0.95 },
   visible: {
     opacity: 1,
     scale: 1,
     transition: {
-      duration: 0.6,
-      ease: [0.25, 0.46, 0.45, 0.94],
-    },
-  },
-};
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.6,
-      delay: 0.2,
+      duration: 0.5,
       ease: [0.25, 0.46, 0.45, 0.94],
     },
   },
@@ -73,6 +59,19 @@ const buttonHoverVariants = {
     scale: 0.98,
     transition: { duration: 0.1 }
   },
+};
+
+// Apple Design Tokens
+const tokens = {
+  bg: "#F5F5F7",
+  surface: "#FFFFFF",
+  textPrimary: "#1D1D1F",
+  textSecondary: "#515154",
+  textMuted: "#8E8E93",
+  accent: "#0A84FF",
+  gradientStart: "#00A9E0",
+  gradientEnd: "#6DD3EF",
+  separator: "#E5E5EA",
 };
 
 export default function Hero() {
@@ -100,17 +99,17 @@ export default function Hero() {
         <>
           {/* Hero Section - Apple-like design */}
           <Box
-            bg="#F5F5F7"
+            bg={tokens.bg}
             minH="100vh"
             display="flex"
             alignItems="center"
             justifyContent="center"
-            px={{ base: 4, sm: 6 }}
-            py={{ base: 8, md: 12 }}
-            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", Inter, system-ui, sans-serif' }}
+            px={{ base: "24px", sm: "32px" }}
+            py={{ base: "48px", md: "64px" }}
+            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif' }}
           >
             <MotionBox
-              maxW="480px"
+              maxW="420px"
               w="100%"
               initial="hidden"
               animate="visible"
@@ -120,80 +119,76 @@ export default function Hero() {
               <MotionBox 
                 display="flex" 
                 justifyContent="center" 
-                mb={6}
+                mb={{ base: 6, md: 8 }}
                 variants={logoVariants}
               >
                 <Image
                   src={HushhLogo}
                   alt="Hushh Logo"
-                  h={{ base: "80px", md: "100px" }}
+                  h={{ base: "72px", md: "88px" }}
                   objectFit="contain"
                 />
               </MotionBox>
 
-              {/* Eyebrow */}
-              <MotionBox textAlign="center" mb={2} variants={itemVariants}>
+              {/* Eyebrow - Apple style */}
+              <MotionBox textAlign="center" mb={3} variants={itemVariants}>
                 <Text
-                  fontSize="14px"
-                  color="#8E8E93"
-                  fontWeight="500"
-                  letterSpacing="0.02em"
+                  fontSize="12px"
+                  color={tokens.textMuted}
+                  fontWeight="600"
+                  letterSpacing="0.12em"
+                  textTransform="uppercase"
                 >
                   {t('hero.eyebrow')}
                 </Text>
               </MotionBox>
 
-              {/* Main Heading */}
+              {/* Main Heading - Apple typography */}
               <MotionBox textAlign="center" mb={4} variants={itemVariants}>
                 <Text
-                  fontSize={{ base: "38px", md: "44px" }}
+                  fontSize={{ base: "36px", md: "44px" }}
                   fontWeight="600"
-                  color="#1D1D1F"
+                  color={tokens.textPrimary}
                   lineHeight="1.08"
-                  letterSpacing="-0.02em"
+                  letterSpacing="-0.015em"
                 >
                   {t('hero.mainTitle')}
                 </Text>
               </MotionBox>
 
-              {/* Subheading */}
-              <MotionBox textAlign="center" mb={8} variants={itemVariants}>
+              {/* Subheading - Generous line height */}
+              <MotionBox textAlign="center" mb={{ base: 8, md: 10 }} variants={itemVariants}>
                 <Text
                   fontSize={{ base: "17px", md: "19px" }}
-                  color="#515154"
-                  lineHeight="1.5"
-                  maxW="400px"
+                  color={tokens.textSecondary}
+                  lineHeight="1.55"
+                  fontWeight="400"
+                  maxW="380px"
                   mx="auto"
                 >
                   {t('hero.mainSubtitle')}
                 </Text>
               </MotionBox>
 
-              {/* Main Card with CTA Buttons */}
-              <MotionBox
-                bg="white"
-                borderRadius="24px"
-                p={6}
-                boxShadow="0 2px 20px rgba(0,0,0,0.06)"
-                variants={cardVariants}
-              >
+              {/* CTA Buttons - No card, direct buttons Apple style */}
+              <MotionBox variants={itemVariants}>
                 <VStack spacing={3}>
                   <MotionButton
                     onClick={() => navigate("/discover-fund-a")}
                     w="100%"
-                    h="54px"
-                    borderRadius="14px"
-                    bgGradient="linear(135deg, #00A9E0 0%, #6DD3EF 100%)"
+                    h="50px"
+                    borderRadius="full"
+                    bgGradient={`linear(135deg, ${tokens.gradientStart} 0%, ${tokens.gradientEnd} 100%)`}
                     color="white"
                     fontSize="17px"
-                    fontWeight="500"
+                    fontWeight="600"
                     _hover={{ 
-                      bgGradient: "linear(135deg, #00A9E0 0%, #6DD3EF 100%)",
+                      bgGradient: `linear(135deg, ${tokens.gradientStart} 0%, ${tokens.gradientEnd} 100%)`,
                     }}
                     _active={{
-                      bgGradient: "linear(135deg, #0097CB 0%, #5FC3E5 100%)",
+                      transform: "scale(0.98)",
                     }}
-                    boxShadow="0 4px 14px rgba(0, 169, 224, 0.35)"
+                    boxShadow={`0 14px 24px rgba(0, 169, 224, 0.25)`}
                     variants={buttonHoverVariants}
                     initial="rest"
                     whileHover="hover"
@@ -205,19 +200,19 @@ export default function Hero() {
                   <MotionButton
                     onClick={() => navigate("/investor-profile")}
                     w="100%"
-                    h="54px"
-                    borderRadius="14px"
-                    bg="white"
-                    borderColor="#E5E7EB"
-                    borderWidth="1px"
-                    color="#1D1D1F"
+                    h="50px"
+                    borderRadius="full"
+                    bg="transparent"
+                    border="1px solid"
+                    borderColor={tokens.separator}
+                    color={tokens.textPrimary}
                     fontSize="17px"
-                    fontWeight="500"
+                    fontWeight="600"
                     _hover={{ 
-                      bg: "#F9FAFB",
+                      bg: "rgba(0,0,0,0.02)",
                     }}
                     _active={{ 
-                      bg: "#F3F4F6",
+                      bg: "rgba(0,0,0,0.04)",
                     }}
                     variants={buttonHoverVariants}
                     initial="rest"
@@ -232,14 +227,15 @@ export default function Hero() {
               {/* Footer Text */}
               <MotionBox
                 textAlign="center"
-                mt={6}
+                mt={{ base: 8, md: 10 }}
                 variants={itemVariants}
               >
                 <Text
                   fontSize="13px"
-                  color="#8E8E93"
+                  color={tokens.textMuted}
+                  fontWeight="400"
                 >
-                  Secure. Private. AI-Powered.
+                  Secure · Private · AI-Powered
                 </Text>
               </MotionBox>
             </MotionBox>
@@ -253,26 +249,26 @@ export default function Hero() {
       
       {/* Fund A Section - Apple-like design */}
       <Box 
-        bg="#F5F5F7" 
-        pt={{ base: 16, md: 20 }} 
-        pb={{ base: 16, md: 20 }} 
-        px={{ base: 4, sm: 6 }}
-        style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", Inter, system-ui, sans-serif' }}
+        bg={tokens.bg}
+        pt={{ base: "48px", md: "64px" }} 
+        pb={{ base: "48px", md: "64px" }} 
+        px={{ base: "24px", sm: "32px" }}
+        style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif' }}
       >
-        <Container maxW="520px">
+        <Container maxW="540px" px={0}>
           <MotionBox
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
+            viewport={{ once: true, margin: "-80px" }}
             variants={containerVariants}
           >
-            {/* Section Label */}
+            {/* Section Label - Eyebrow */}
             <MotionBox textAlign="center" mb={3} variants={itemVariants}>
               <Text
-                fontSize="13px"
-                letterSpacing="0.06em"
-                fontWeight="500"
-                color="#8E8E93"
+                fontSize="12px"
+                letterSpacing="0.12em"
+                fontWeight="600"
+                color={tokens.textMuted}
                 textTransform="uppercase"
               >
                 {t('hero.investorProfileLabel')}
@@ -282,138 +278,141 @@ export default function Hero() {
             {/* Section Title */}
             <MotionBox textAlign="center" mb={4} variants={itemVariants}>
               <Text
-                fontSize={{ base: "32px", md: "38px" }}
+                fontSize={{ base: "32px", md: "40px" }}
                 fontWeight="600"
-                color="#1D1D1F"
-                lineHeight="1.1"
-                letterSpacing="-0.02em"
+                color={tokens.textPrimary}
+                lineHeight="1.08"
+                letterSpacing="-0.015em"
               >
                 {t('hero.fundATitle')}
               </Text>
             </MotionBox>
 
             {/* Section Description */}
-            <MotionBox textAlign="center" mb={8} variants={itemVariants}>
+            <MotionBox textAlign="center" mb={{ base: 8, md: 10 }} variants={itemVariants}>
               <Text
-                fontSize={{ base: "16px", md: "17px" }}
-                color="#515154"
-                lineHeight="1.5"
-                maxW="440px"
+                fontSize={{ base: "17px", md: "18px" }}
+                color={tokens.textSecondary}
+                lineHeight="1.55"
+                fontWeight="400"
+                maxW="460px"
                 mx="auto"
               >
                 {t('hero.fundADescription')}
               </Text>
             </MotionBox>
 
-            {/* Card */}
-            <MotionBox
-              bg="white"
-              borderRadius="24px"
-              p={6}
-              boxShadow="0 2px 20px rgba(0,0,0,0.06)"
-              variants={cardVariants}
+            {/* Key Points - Simple stacked statements */}
+            <MotionBox 
+              variants={itemVariants}
+              mb={{ base: 8, md: 10 }}
             >
-              <VStack align="stretch" spacing={5}>
-                {/* Main Text */}
-                <Text fontSize="18px" fontWeight="500" color="#1D1D1F" lineHeight="1.4">
-                  {t('hero.targetingIRR')} <Text as="span" fontWeight="600">{t('hero.netIRR')}</Text>* {t('hero.withOur')}{" "}
-                  <Text 
-                    as="a"
-                    href="/sell-the-wall"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    display="inline"
-                    color="#00A9E0"
-                    textDecoration="none"
-                    cursor="pointer"
-                    transition="all 0.2s"
-                    _hover={{
-                      color: "#4BC0C8",
-                      textDecoration: "underline"
-                    }}
-                  >
-                    "{t('hero.sellTheWall')}"
+              <VStack align="start" spacing={5} maxW="460px" mx="auto">
+                {/* Point 1 */}
+                <Box>
+                  <Text fontSize="18px" fontWeight="500" color={tokens.textPrimary} lineHeight="1.4" mb={1}>
+                    {t('hero.targetingIRR')} <Text as="span" fontWeight="600">{t('hero.netIRR')}</Text>* {t('hero.withOur')}{" "}
+                    <Text 
+                      as="a"
+                      href="/sell-the-wall"
+                      display="inline"
+                      color={tokens.accent}
+                      textDecoration="none"
+                      cursor="pointer"
+                      _hover={{
+                        textDecoration: "underline"
+                      }}
+                    >
+                      "{t('hero.sellTheWall')}"
+                    </Text>
+                    {" "}{t('hero.approach')}
                   </Text>
-                  {" "}{t('hero.approach')}
-                </Text>
+                </Box>
 
-                <Text fontSize="16px" color="#515154" lineHeight="1.55">
+                {/* Point 2 */}
+                <Text fontSize="17px" color={tokens.textSecondary} lineHeight="1.55">
                   {t('hero.aiFirstInvesting')}
                 </Text>
 
-                <Text fontSize="16px" color="#515154" lineHeight="1.55">
+                {/* Point 3 */}
+                <Text fontSize="17px" color={tokens.textSecondary} lineHeight="1.55">
                   {t('hero.provenRiskFramework')}
                 </Text>
-
-                {/* Stats Grid */}
-                <Box 
-                  display="grid" 
-                  gridTemplateColumns="1fr 1fr" 
-                  gap={3}
-                  pt={4}
-                  borderTop="1px solid"
-                  borderColor="#F0F0F0"
-                >
-                  <Box
-                    bg="#F5F5F7"
-                    borderRadius="16px"
-                    p={4}
-                    textAlign="center"
-                  >
-                    <Text fontSize="11px" letterSpacing="0.04em" fontWeight="500" color="#8E8E93" textTransform="uppercase" mb={1}>
-                      {t('hero.targetNetIRR')}
-                    </Text>
-                    <Text fontSize="32px" fontWeight="600" color="#1D1D1F">
-                      18-23%
-                    </Text>
-                  </Box>
-                  <Box
-                    bg="#F5F5F7"
-                    borderRadius="16px"
-                    p={4}
-                    textAlign="center"
-                  >
-                    <Text fontSize="11px" letterSpacing="0.04em" fontWeight="500" color="#8E8E93" textTransform="uppercase" mb={1}>
-                      {t('hero.inception')}
-                    </Text>
-                    <Text fontSize="32px" fontWeight="600" color="#1D1D1F">
-                      2024
-                    </Text>
-                  </Box>
-                </Box>
               </VStack>
+            </MotionBox>
+
+            {/* Stats - Two-up layout with thin divider */}
+            <MotionBox variants={itemVariants} mb={{ base: 6, md: 8 }}>
+              <Box 
+                display="flex" 
+                justifyContent="center"
+                gap={{ base: 8, md: 12 }}
+                pt={6}
+                borderTop="1px solid"
+                borderColor={tokens.separator}
+                maxW="360px"
+                mx="auto"
+              >
+                <Box textAlign="center">
+                  <Text fontSize="11px" letterSpacing="0.12em" fontWeight="600" color={tokens.textMuted} textTransform="uppercase" mb={2}>
+                    {t('hero.targetNetIRR')}
+                  </Text>
+                  <Text fontSize={{ base: "28px", md: "32px" }} fontWeight="700" color={tokens.textPrimary}>
+                    18-23%
+                  </Text>
+                </Box>
+                <Box 
+                  w="1px" 
+                  bg={tokens.separator} 
+                  opacity={0.6}
+                  alignSelf="stretch"
+                />
+                <Box textAlign="center">
+                  <Text fontSize="11px" letterSpacing="0.12em" fontWeight="600" color={tokens.textMuted} textTransform="uppercase" mb={2}>
+                    {t('hero.inception')}
+                  </Text>
+                  <Text fontSize={{ base: "28px", md: "32px" }} fontWeight="700" color={tokens.textPrimary}>
+                    2024
+                  </Text>
+                </Box>
+              </Box>
             </MotionBox>
 
             {/* Disclaimer */}
             <Text
               fontSize="12px"
-              color="#8E8E93"
+              color={tokens.textMuted}
               fontStyle="italic"
-              mt={4}
+              mb={6}
               textAlign="center"
-              lineHeight="1.4"
+              lineHeight="1.5"
+              maxW="420px"
+              mx="auto"
             >
               {t('hero.disclaimer')}
             </Text>
 
-            {/* CTA Button */}
-            <MotionBox mt={5} variants={itemVariants}>
+            {/* CTA Button - Pill style */}
+            <MotionBox variants={itemVariants}>
               <MotionButton
                 onClick={() => navigate("/discover-fund-a")}
                 w="100%"
-                h="54px"
-                borderRadius="14px"
-                bgGradient="linear(135deg, #00A9E0 0%, #6DD3EF 100%)"
+                maxW="320px"
+                h="50px"
+                borderRadius="full"
+                bgGradient={`linear(135deg, ${tokens.gradientStart} 0%, ${tokens.gradientEnd} 100%)`}
                 color="white"
                 fontSize="17px"
-                fontWeight="500"
+                fontWeight="600"
+                mx="auto"
+                display="block"
                 _hover={{ 
-                  bgGradient: "linear(135deg, #00A9E0 0%, #6DD3EF 100%)",
+                  bgGradient: `linear(135deg, ${tokens.gradientStart} 0%, ${tokens.gradientEnd} 100%)`,
                 }}
                 _active={{
-                  bgGradient: "linear(135deg, #0097CB 0%, #5FC3E5 100%)",
+                  transform: "scale(0.98)",
                 }}
-                boxShadow="0 4px 14px rgba(0, 169, 224, 0.35)"
+                boxShadow={`0 14px 24px rgba(0, 169, 224, 0.25)`}
                 variants={buttonHoverVariants}
                 initial="rest"
                 whileHover="hover"
@@ -428,70 +427,66 @@ export default function Hero() {
       
       {/* Ready to Transform Section - Apple-like design */}
       <Box
-        bg="#FFFFFF"
-        pt={{ base: 16, md: 20 }}
-        pb={{ base: 16, md: 20 }}
-        px={{ base: 4, sm: 6 }}
-        style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", Inter, system-ui, sans-serif' }}
+        bg={tokens.surface}
+        pt={{ base: "48px", md: "64px" }}
+        pb={{ base: "48px", md: "64px" }}
+        px={{ base: "24px", sm: "32px" }}
+        style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif' }}
       >
-        <Container maxW="480px">
+        <Container maxW="480px" px={0}>
           <MotionBox
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
+            viewport={{ once: true, margin: "-80px" }}
             variants={containerVariants}
             textAlign="center"
           >
             {/* Section Title */}
             <MotionBox mb={4} variants={itemVariants}>
               <Text
-                fontSize={{ base: "32px", md: "38px" }}
+                fontSize={{ base: "32px", md: "40px" }}
                 fontWeight="600"
-                color="#1D1D1F"
-                lineHeight="1.1"
-                letterSpacing="-0.02em"
+                color={tokens.textPrimary}
+                lineHeight="1.08"
+                letterSpacing="-0.015em"
               >
                 {t('hero.readyToTransform')}
               </Text>
             </MotionBox>
 
             {/* Section Description */}
-            <MotionBox mb={8} variants={itemVariants}>
+            <MotionBox mb={{ base: 8, md: 10 }} variants={itemVariants}>
               <Text
-                fontSize={{ base: "16px", md: "17px" }}
-                color="#515154"
-                lineHeight="1.5"
-                maxW="400px"
+                fontSize={{ base: "17px", md: "18px" }}
+                color={tokens.textSecondary}
+                lineHeight="1.55"
+                fontWeight="400"
+                maxW="380px"
                 mx="auto"
               >
                 {t('hero.joinInvestors')}
               </Text>
             </MotionBox>
 
-            {/* CTA Card */}
-            <MotionBox
-              bg="#F5F5F7"
-              borderRadius="24px"
-              p={6}
-              variants={cardVariants}
-            >
-              <VStack spacing={3}>
+            {/* CTA Buttons */}
+            <MotionBox variants={itemVariants}>
+              <VStack spacing={3} maxW="320px" mx="auto">
                 <MotionButton
                   onClick={() => navigate("/about")}
                   w="100%"
-                  h="54px"
-                  borderRadius="14px"
-                  bgGradient="linear(135deg, #00A9E0 0%, #6DD3EF 100%)"
+                  h="50px"
+                  borderRadius="full"
+                  bgGradient={`linear(135deg, ${tokens.gradientStart} 0%, ${tokens.gradientEnd} 100%)`}
                   color="white"
                   fontSize="17px"
-                  fontWeight="500"
+                  fontWeight="600"
                   _hover={{ 
-                    bgGradient: "linear(135deg, #00A9E0 0%, #6DD3EF 100%)",
+                    bgGradient: `linear(135deg, ${tokens.gradientStart} 0%, ${tokens.gradientEnd} 100%)`,
                   }}
                   _active={{
-                    bgGradient: "linear(135deg, #0097CB 0%, #5FC3E5 100%)",
+                    transform: "scale(0.98)",
                   }}
-                  boxShadow="0 4px 14px rgba(0, 169, 224, 0.35)"
+                  boxShadow={`0 14px 24px rgba(0, 169, 224, 0.25)`}
                   variants={buttonHoverVariants}
                   initial="rest"
                   whileHover="hover"
@@ -503,19 +498,19 @@ export default function Hero() {
                 <MotionButton
                   onClick={() => navigate("/contact")}
                   w="100%"
-                  h="54px"
-                  borderRadius="14px"
-                  bg="white"
-                  borderColor="#E5E7EB"
-                  borderWidth="1px"
-                  color="#1D1D1F"
+                  h="50px"
+                  borderRadius="full"
+                  bg="transparent"
+                  border="1px solid"
+                  borderColor={tokens.separator}
+                  color={tokens.textPrimary}
                   fontSize="17px"
-                  fontWeight="500"
+                  fontWeight="600"
                   _hover={{ 
-                    bg: "#FFFFFF",
+                    bg: "rgba(0,0,0,0.02)",
                   }}
                   _active={{ 
-                    bg: "#F9FAFB",
+                    bg: "rgba(0,0,0,0.04)",
                   }}
                   variants={buttonHoverVariants}
                   initial="rest"
