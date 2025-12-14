@@ -4,8 +4,6 @@ import {
   Container,
   Heading,
   Text,
-  Icon,
-  Flex,
   VStack,
   Button,
   Link,
