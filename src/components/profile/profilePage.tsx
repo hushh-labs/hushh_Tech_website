@@ -3,23 +3,13 @@ import {
   Box,
   VStack,
   Image,
-  Heading,
   Text,
   Button,
-  useBreakpointValue,
-  Badge,
-  Icon,
   useToast,
-  SimpleGrid,
   Flex,
-  Center,
-  HStack,
-  Container,
 } from "@chakra-ui/react";
 import { motion } from "framer-motion";
-import { PrimaryCtaButton } from "../PrimaryCtaButton";
-import { FaFileAlt, FaUserShield } from "react-icons/fa";
-import { CheckCircleIcon, InfoIcon } from "lucide-react";
+import { keyframes } from "@emotion/react";
 import HushhLogo from "../images/Hushhogo.png";
 import NDARequestModal from "../NDARequestModal";
 import NDADocumentModal from "../NDADocumentModal";
@@ -27,79 +17,73 @@ import axios from "axios";
 import config from "../../resources/config/config";
 import { useNavigate } from "react-router-dom";
 
-const ApprovedGif = "/gif/nda_approved.gif";
-const PendingGif = "/gif/nda_pending.gif";
-const RejectedGif = "/gif/nda_rejected.gif";
-const NotappliedGif = "/gif/nda_notApplied.gif";
-
 // Motion components
 const MotionBox = motion(Box);
-const MotionImage = motion(Image);
 const MotionButton = motion(Button);
+const MotionFlex = motion(Flex);
 
-// Animation variants for Apple-like smooth animations
+// Apple-like easing curve - typed as tuple for framer-motion compatibility
+const appleEase: [number, number, number, number] = [0.25, 0.46, 0.45, 0.94];
+
+// Subtle pulse animation for loading states
+const pulseKeyframes = keyframes`
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+`;
+
+// Animation variants - refined for smoother Apple-like feel
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.08,
-      delayChildren: 0.1,
+      staggerChildren: 0.12,
+      delayChildren: 0.08,
+      duration: 0.5,
+      ease: appleEase,
     },
   },
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 0, y: 24 },
   visible: {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.5,
-      ease: [0.25, 0.46, 0.45, 0.94],
+      duration: 0.6,
+      ease: appleEase,
     },
   },
 };
 
 const logoVariants = {
-  hidden: { opacity: 0, scale: 0.9 },
+  hidden: { opacity: 0, scale: 0.92 },
   visible: {
     opacity: 1,
     scale: 1,
     transition: {
-      duration: 0.6,
-      ease: [0.25, 0.46, 0.45, 0.94],
+      duration: 0.7,
+      ease: appleEase,
     },
   },
 };
 
-const buttonHoverVariants = {
-  rest: { scale: 1 },
-  hover: { 
-    scale: 1.02,
-    transition: { duration: 0.2, ease: "easeOut" }
-  },
-  tap: { 
-    scale: 0.98,
-    transition: { duration: 0.1 }
-  },
-};
-
 const cardVariants = {
-  hidden: { opacity: 0, y: 30 },
+  hidden: { opacity: 0, y: 32, scale: 0.98 },
   visible: {
     opacity: 1,
     y: 0,
+    scale: 1,
     transition: {
-      duration: 0.6,
-      delay: 0.3,
-      ease: [0.25, 0.46, 0.45, 0.94],
+      duration: 0.65,
+      delay: 0.2,
+      ease: appleEase,
     },
   },
 };
 
 const ProfilePage: React.FC = () => {
-  const isMobile = useBreakpointValue({ base: true, md: false });
   const toast = useToast();
   const navigate = useNavigate();
 
@@ -111,10 +95,6 @@ const ProfilePage: React.FC = () => {
   const [ndaApproved, setNdaApproved] = useState(false);
   const [isMetadataLoading, setIsMetadataLoading] = useState(false);
   const metadataFetchedRef = useRef<boolean>(false);
-
-  const [kycStatus, setKycStatus] = useState<string>('');
-  const [kycStatusLoading, setKycStatusLoading] = useState<boolean>(false);
-  const [kycStatusMessage, setKycStatusMessage] = useState<string>('');
 
   // Onboarding status state
   const [onboardingStatus, setOnboardingStatus] = useState<{
@@ -232,7 +212,6 @@ const ProfilePage: React.FC = () => {
     
     setIsMetadataLoading(true);
     try {
-      console.log("Fetching NDA metadata...");
       const ndaResponse = await axios.post(
         "https://gsqmwxqgqrgzhlhmbscg.supabase.co/rest/v1/rpc/get_nda_metadata",
         {},
@@ -250,33 +229,15 @@ const ProfilePage: React.FC = () => {
         setNdaMetadata(metadata);
         
         if (metadata && Object.keys(metadata).length > 0) {
-          console.log("Metadata fetched successfully");
           metadataFetchedRef.current = true;
         }
         
         if (metadata && ndaStatus === "Pending: Waiting for NDA Process") {
           setShowNdaDocModal(true);
         }
-      } else {
-        if (ndaStatus === "Pending: Waiting for NDA Process") {
-          toast({
-            title: "Error",
-            description: ndaResponse.data.message || "Error fetching NDA metadata.",
-            status: "error",
-            duration: 4000,
-            isClosable: true,
-          });
-        }
       }
     } catch (error) {
       metadataFetchedRef.current = false;
-      toast({
-        title: "Error",
-        description: "Failed to fetch NDA metadata.",
-        status: "error",
-        duration: 4000,
-        isClosable: true,
-      });
     } finally {
       setIsMetadataLoading(false);
     }
@@ -288,319 +249,276 @@ const ProfilePage: React.FC = () => {
     }
   }, [ndaStatus]);
 
-  const handleDownloadNda = async () => {
-    const FETCH_NDA_URL =
-      "https://hushhtech-nda-generation-53407187172.us-central1.run.app/fetch-nda";
-    
-    const loadingToastId = toast({
-      title: "Preparing Download",
-      description: "Generating your NDA document for download, please wait...",
-      status: "loading",
-      duration: null,
-      isClosable: false,
-    });
-    
-    try {
-      console.log("Fetching NDA document for download...");
-      const response = await axios.get(FETCH_NDA_URL, {
-        headers: {
-          "jwt-token": session.access_token,
-        },
-        responseType: "blob",
-      });
-      
-      toast.close(loadingToastId);
-      
-      if (response.status === 200) {
-        toast({
-          title: "Download Ready",
-          description: "Your NDA document is ready to download.",
-          status: "success",
-          duration: 3000,
-          isClosable: true,
-        });
-        
-        const blob = new Blob([response.data], { type: "application/pdf" });
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", "NDA.pdf");
-        document.body.appendChild(link);
-        link.click();
-        link.parentNode?.removeChild(link);
-        
-        window.URL.revokeObjectURL(url);
-      } else {
-        toast({
-          title: "Download Error",
-          description: "Unexpected response code: " + response.status,
-          status: "error",
-          duration: 4000,
-          isClosable: true,
-        });
-      }
-    } catch (error: any) {
-      toast.close(loadingToastId);
-      
-      console.error("Error downloading NDA:", error);
-      toast({
-        title: "Download Error",
-        description: "Failed to download NDA. Please try again.",
-        status: "error",
-        duration: 4000,
-        isClosable: true,
-      });
+  // Get primary CTA text and action
+  const getPrimaryCTAContent = () => {
+    if (onboardingStatus.loading) {
+      return { text: "Loading...", action: () => {} };
     }
-  };
-
-  const getNdaButtonProps = () => {
-    if (ndaStatus === "Approved") {
-      return { text: "Download Your NDA", disabled: false, bgClass: "blue-gradient-bg" };
-    } else if (ndaStatus === "Not Applied") {
-      return { text: "Start NDA Process", disabled: false, bgClass: "blue-gradient-bg" };
-    } else if (ndaStatus === "Requested permission for the sensitive file." || ndaStatus === "Pending") {
-      return { text: "Waiting for approval", disabled: true, bgClass: "" };
-    } else if (ndaStatus === "Pending: Waiting for NDA Process") {
-      return { text: "Sign NDA Document", disabled: false, bgClass: "blue-gradient-bg" };
-    } else if (ndaStatus === "Rejected") {
-      return { text: "Re-apply for NDA Process", disabled: false, bgClass: "blue-gradient-bg" };
+    if (onboardingStatus.hasProfile || onboardingStatus.isCompleted) {
+      return { 
+        text: "View Your Profile", 
+        action: () => navigate("/hushh-user-profile") 
+      };
     }
-    return { text: "Start NDA Process", disabled: false, bgClass: "blue-gradient-bg" };
-  };
-
-  const { text: ndaButtonText, disabled: ndaButtonDisabled } = getNdaButtonProps();
-
-  const handleNdaAccepted = () => {
-    setNdaStatus("Approved");
-    setNdaApproved(true);
-  };
-
-  const handleStartNdaProcess = () => {
-    if (ndaStatus === "Approved") {
-      handleDownloadNda();
-      return;
-    } else if (ndaStatus === "Not Applied" || ndaStatus === "Rejected") {
-      navigate("/nda-form");
-    } else if (ndaStatus === "Pending: Waiting for NDA Process") {
-      if (ndaMetadata) {
-        setShowNdaDocModal(true);
-      } else {
-        fetchNdaMetadata();
-      }
+    if (onboardingStatus.currentStep > 1) {
+      return { 
+        text: `Continue Onboarding (Step ${onboardingStatus.currentStep})`, 
+        action: () => navigate(`/onboarding/step-${onboardingStatus.currentStep}`) 
+      };
     }
+    return { 
+      text: "Complete Your Hushh Profile", 
+      action: () => navigate("/onboarding/step-1") 
+    };
   };
 
-  const handleViewPublicDocs = () => {
-    localStorage.setItem("communityFilter", "all");
-    navigate("/community");
-  };
-
-  const handleViewPrivateDocs = () => {
-    if (ndaStatus === "Approved") {
-      localStorage.setItem("communityFilter", "nda");
-      navigate("/community");
-    }
-  };
-
-  const getStatusIndicator = (status: string) => {
-    if (status === "Not Started") {
-      return (
-        <Badge px={3} py={1} bg="gray.600" color="white" borderRadius="full" fontSize="xs">
-          Not Started
-        </Badge>
-      );
-    } else if (status === "Coming Soon") {
-      return (
-        <Badge px={3} py={1} bg="blue.900" color="blue.300" borderRadius="full" fontSize="xs">
-          Coming Soon
-        </Badge>
-      );
-    }
-    return null;
-  };
-
-  useEffect(() => {
-    async function fetchKycStatus() {
-      if (!session?.user?.email) return;
-      setKycStatusLoading(true);
-      try {
-        const response = await fetch(`https://hushh-techh.onrender.com/api/admin/kyc-verification-status/${session.user.email}`);
-        const data = await response.json();
-        setKycStatus(data.status || 'Not Applied');
-        setKycStatusMessage(data.message || '');
-      } catch (error) {
-        setKycStatus('Not Applied');
-        setKycStatusMessage('');
-      } finally {
-        setKycStatusLoading(false);
-      }
-    }
-    fetchKycStatus();
-    const intervalId = setInterval(() => {
-      fetchKycStatus();
-    }, 5000);
-    return () => clearInterval(intervalId);
-  }, [session?.user?.email]);
+  const primaryCTA = getPrimaryCTAContent();
 
   return (
     <Box
-      bg="#F5F5F7"
+      bg="#FFFFFF"
       minH="100vh"
       display="flex"
-      alignItems="center"
+      flexDirection="column"
       justifyContent="center"
-      px={{ base: 4, sm: 6 }}
-      py={{ base: 8, md: 12 }}
-      style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", Inter, system-ui, sans-serif' }}
+      alignItems="center"
+      px={{ base: 5, sm: 6, md: 8 }}
+      py={{ base: 10, md: 16 }}
+      position="relative"
+      overflow="hidden"
+      style={{ 
+        fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", Inter, system-ui, sans-serif' 
+      }}
     >
+      {/* Subtle background gradient */}
+      <Box
+        position="absolute"
+        top="0"
+        left="0"
+        right="0"
+        bottom="0"
+        bg="linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 50%, #F0F4F8 100%)"
+        pointerEvents="none"
+        zIndex={0}
+      />
+
+      {/* Content Container */}
       <MotionBox
-        maxW="420px"
+        maxW="440px"
         w="100%"
         initial="hidden"
         animate="visible"
         variants={containerVariants}
+        position="relative"
+        zIndex={1}
       >
-        {/* Logo */}
+        {/* Logo Section */}
         <MotionBox 
           display="flex" 
           justifyContent="center" 
-          mb={6}
+          mb={10}
           variants={logoVariants}
         >
-          <Image
-            src={HushhLogo}
-            alt="Hushh Logo"
-            h={{ base: "100px", md: "120px" }}
-            objectFit="contain"
-          />
+          <Box
+            position="relative"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+          >
+            {/* Subtle glow behind logo */}
+            <Box
+              position="absolute"
+              w="160px"
+              h="160px"
+              bg="radial-gradient(circle, rgba(0, 169, 224, 0.08) 0%, transparent 70%)"
+              borderRadius="full"
+              filter="blur(20px)"
+              zIndex={-1}
+            />
+            <Image
+              src={HushhLogo}
+              alt="Hushh Logo"
+              h={{ base: "100px", md: "120px" }}
+              objectFit="contain"
+              filter="drop-shadow(0 4px 24px rgba(0, 169, 224, 0.12))"
+            />
+          </Box>
         </MotionBox>
 
-        {/* Header */}
-        <MotionBox textAlign="center" mb={6} variants={itemVariants}>
+        {/* Header Section */}
+        <MotionBox 
+          textAlign="center" 
+          mb={10}
+          variants={itemVariants}
+        >
+          {/* Headline */}
           <Text
-            fontSize={{ base: "32px", md: "36px" }}
+            as="h1"
+            fontSize={{ base: "34px", md: "40px" }}
             fontWeight="600"
             color="#1D1D1F"
-            lineHeight="1.12"
-            letterSpacing="-0.015em"
-            mb={3}
+            lineHeight="1.08"
+            letterSpacing="-0.025em"
+            mb={4}
           >
             Investing in the Future.
           </Text>
+
+          {/* Subheadline */}
           <Text
-            fontSize={{ base: "16px", md: "17px" }}
+            fontSize={{ base: "17px", md: "19px" }}
             color="#515154"
-            lineHeight="1.5"
-            maxW="340px"
+            lineHeight="1.55"
+            maxW="360px"
             mx="auto"
+            fontWeight="400"
           >
             The AI-Powered Berkshire Hathaway. We combine AI and human expertise to invest in exceptional businesses for long-term value creation.
           </Text>
         </MotionBox>
 
-        {/* Main Card */}
+        {/* Main Action Card */}
         <MotionBox
-          bg="white"
-          borderRadius="24px"
-          p={6}
-          boxShadow="0 2px 20px rgba(0,0,0,0.06)"
+          bg="rgba(255, 255, 255, 0.95)"
+          backdropFilter="blur(20px)"
+          borderRadius="28px"
+          p={{ base: 6, md: 8 }}
+          boxShadow="0 4px 40px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04)"
+          border="1px solid rgba(0, 0, 0, 0.04)"
           variants={cardVariants}
         >
-          {/* CTA Buttons */}
-          <VStack spacing={3}>
+          <VStack spacing={4}>
+            {/* Primary CTA Button */}
             <MotionButton
-              onClick={() => {
-                if (onboardingStatus.hasProfile) {
-                  navigate("/hushh-user-profile");
-                } else if (onboardingStatus.isCompleted) {
-                  navigate("/hushh-user-profile");
-                } else {
-                  const step = onboardingStatus.currentStep;
-                  navigate(`/onboarding/step-${step}`);
-                }
-              }}
+              onClick={primaryCTA.action}
               w="100%"
-              h="52px"
-              borderRadius="14px"
+              h="56px"
+              borderRadius="16px"
               bg="linear-gradient(135deg, #00A9E0 0%, #6DD3EF 100%)"
-              bgGradient="linear(135deg, #00A9E0 0%, #6DD3EF 100%)"
               color="white"
-              fontSize="16px"
+              fontSize="17px"
               fontWeight="500"
+              letterSpacing="-0.01em"
               isLoading={onboardingStatus.loading}
               loadingText="Loading..."
+              position="relative"
+              overflow="hidden"
               _hover={{ 
-                bgGradient: "linear(135deg, #00A9E0 0%, #6DD3EF 100%)",
-                transform: "scale(1.02)"
+                transform: "translateY(-1px)",
+                boxShadow: "0 12px 32px rgba(0, 169, 224, 0.4)",
               }}
               _active={{
                 transform: "scale(0.98)",
-                bgGradient: "linear(135deg, #0097CB 0%, #5FC3E5 100%)",
               }}
-              transition="all 0.2s ease"
-              boxShadow="0 4px 14px rgba(0, 169, 224, 0.35)"
-              variants={buttonHoverVariants}
-              initial="rest"
-              whileHover="hover"
-              whileTap="tap"
+              _disabled={{
+                opacity: 0.7,
+                cursor: "not-allowed",
+              }}
+              transition="all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94)"
+              boxShadow="0 8px 24px rgba(0, 169, 224, 0.35)"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
-              {onboardingStatus.loading 
-                ? "Loading..." 
-                : onboardingStatus.hasProfile || onboardingStatus.isCompleted
-                  ? "View Your Profile"
-                  : onboardingStatus.currentStep > 1
-                    ? `Continue Onboarding (Step ${onboardingStatus.currentStep})`
-                    : "Complete your hushh profile"
-              }
+              {/* Subtle shine effect */}
+              <Box
+                position="absolute"
+                top="0"
+                left="-100%"
+                w="100%"
+                h="100%"
+                bg="linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)"
+                animation={onboardingStatus.loading ? `${pulseKeyframes} 2s ease-in-out infinite` : "none"}
+              />
+              {primaryCTA.text}
             </MotionButton>
 
+            {/* Secondary CTA Button */}
             <MotionButton
               onClick={() => navigate("/discover-fund-a")}
               w="100%"
-              h="52px"
-              borderRadius="14px"
+              h="56px"
+              borderRadius="16px"
               bg="white"
-              borderColor="#E5E7EB"
-              borderWidth="1px"
+              border="1.5px solid #E5E7EB"
               color="#1D1D1F"
-              fontSize="16px"
+              fontSize="17px"
               fontWeight="500"
+              letterSpacing="-0.01em"
               _hover={{ 
-                bg: "#F9FAFB",
-                transform: "scale(1.02)"
+                bg: "#FAFAFA",
+                borderColor: "#D1D5DB",
+                transform: "translateY(-1px)",
+                boxShadow: "0 4px 16px rgba(0, 0, 0, 0.08)",
               }}
               _active={{ 
                 bg: "#F3F4F6",
-                transform: "scale(0.98)"
+                transform: "scale(0.98)",
               }}
-              transition="all 0.2s ease"
-              variants={buttonHoverVariants}
-              initial="rest"
-              whileHover="hover"
-              whileTap="tap"
+              transition="all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94)"
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.98 }}
             >
               Discover Fund A
             </MotionButton>
           </VStack>
         </MotionBox>
 
-        {/* Footer */}
+        {/* Footer Tagline */}
         <MotionBox
           textAlign="center"
-          mt={6}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
+          mt={8}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7, duration: 0.5, ease: appleEase }}
         >
           <Text
-            fontSize="12px"
+            fontSize="13px"
+            fontWeight="500"
             color="#8E8E93"
+            letterSpacing="0.02em"
           >
             Secure. Private. AI-Powered.
           </Text>
         </MotionBox>
+
+        {/* Trust indicators - subtle */}
+        <MotionBox
+          display="flex"
+          justifyContent="center"
+          gap={6}
+          mt={6}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.9, duration: 0.5 }}
+        >
+          <Box display="flex" alignItems="center" gap={2}>
+            <Box 
+              w="6px" 
+              h="6px" 
+              borderRadius="full" 
+              bg="#34C759"
+              boxShadow="0 0 8px rgba(52, 199, 89, 0.4)"
+            />
+            <Text fontSize="12px" color="#6E6E73" fontWeight="500">
+              Encrypted
+            </Text>
+          </Box>
+          <Box display="flex" alignItems="center" gap={2}>
+            <Box 
+              w="6px" 
+              h="6px" 
+              borderRadius="full" 
+              bg="#34C759"
+              boxShadow="0 0 8px rgba(52, 199, 89, 0.4)"
+            />
+            <Text fontSize="12px" color="#6E6E73" fontWeight="500">
+              SOC 2
+            </Text>
+          </Box>
+        </MotionBox>
       </MotionBox>
 
+      {/* NDA Modals - kept for compatibility but hidden */}
       {false && showNdaModal && session && (
         <NDARequestModal
           isOpen={showNdaModal}
