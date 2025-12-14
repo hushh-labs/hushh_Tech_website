@@ -4,177 +4,147 @@ import {
   Container,
   Heading,
   Text,
-  Icon,
-  Flex,
   VStack,
-  HStack,
 } from "@chakra-ui/react";
 import { keyframes } from "@emotion/react";
-import { FaRocket, FaChartBar, FaBrain, FaSearch } from "react-icons/fa";
-import { FiChevronRight } from "react-icons/fi";
 
+// Apple Design Tokens
 const tokens = {
-  label: "#0B1120",
-  body: "#111827",
-  secondary: "#475569",
-  muted: "#6B7280",
-  separator: "#E5E7EB",
-  navy: "#0B1120",
-  iconBg: "#F5F5F7",
-  gradientStart: "#00A9E0",
-  gradientEnd: "#6DD3EF",
+  textPrimary: "#1D1D1F",
+  textSecondary: "#515154",
+  textMuted: "#8E8E93",
+  separator: "#E5E5EA",
+  surface: "#FFFFFF",
+  accent: "#0A84FF",
 };
 
 const advantages = [
   {
     title: "AI-Driven Alpha",
     body: "Proprietary AI algorithms systematically extract alpha and adapt to market changes.",
-    icon: FaRocket,
   },
   {
     title: "Systematic Risk Management",
     body: "Rigorous quantitative analysis and AI meticulously control risk every day.",
-    icon: FaChartBar,
   },
   {
-    title: "Hushh Enterprise x AI Synergy",
+    title: "Hushh Enterprise × AI Synergy",
     body: "AI provides speed and scale; human insight delivers deep understanding and strategic oversight.",
-    icon: FaBrain,
   },
   {
     title: "Transparency You Trust",
     body: "Clear reporting and ethical practices you can depend on.",
-    icon: FaSearch,
   },
 ];
 
 const WhyChooseSection = () => {
   const fadeUp = keyframes`
-    from { opacity: 0; transform: translateY(10px); }
+    from { opacity: 0; transform: translateY(12px); }
     to { opacity: 1; transform: translateY(0); }
   `;
 
   return (
     <Box
-      bg="#FFFFFF"
-      pt={{ base: 16, md: 16 }}
-      pb={{ base: 16, md: 16 }}
-      px={{ base: 6, sm: 8 }}
+      bg={tokens.surface}
+      pt={{ base: "48px", md: "64px" }}
+      pb={{ base: "48px", md: "64px" }}
+      px={{ base: "24px", sm: "32px" }}
+      style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif' }}
     >
-      <Container maxW="760px">
-        <Box animation={`${fadeUp} 0.26s ease-out`}>
+      <Container maxW="640px" px={0}>
+        <Box animation={`${fadeUp} 0.4s ease-out`}>
+          {/* Eyebrow */}
+          <Text
+            fontSize="12px"
+            color={tokens.textMuted}
+            fontWeight="600"
+            letterSpacing="0.12em"
+            textTransform="uppercase"
+            textAlign="center"
+            mb={3}
+          >
+            Why Hushh
+          </Text>
+
+          {/* Section Title */}
           <Heading
             as="h2"
-            fontSize={{ base: "34px", md: "36px" }}
-            fontWeight="500"
-            color={tokens.label}
-            lineHeight="1.10"
+            fontSize={{ base: "32px", md: "40px" }}
+            fontWeight="600"
+            color={tokens.textPrimary}
+            lineHeight="1.08"
             textAlign="center"
-            letterSpacing="-0.01em"
-            fontFamily="Inter, -apple-system, system-ui, 'SF Pro Display', sans-serif"
+            letterSpacing="-0.015em"
+            mb={4}
           >
             The Hushh Advantage
           </Heading>
+
+          {/* Subtitle */}
           <Text
-            fontSize={{ base: "18px", md: "18px" }}
-            color={tokens.secondary}
-            lineHeight="1.65"
+            fontSize={{ base: "17px", md: "18px" }}
+            color={tokens.textSecondary}
+            lineHeight="1.55"
             fontWeight="400"
             textAlign="center"
-            mt={3}
-            mb={7}
-            maxW="640px"
+            mb={{ base: 10, md: 12 }}
+            maxW="480px"
             mx="auto"
-            fontFamily="Inter, -apple-system, system-ui, 'SF Pro Text', sans-serif"
           >
             What you reliably get with every Hushh investor profile.
           </Text>
-          <Box position="relative" w="100%" h="1px" bg={tokens.separator}>
-            <Box
-              position="absolute"
-              left="50%"
-              top="50%"
-              transform="translate(-50%, -50%)"
-              w="16px"
-              h="2px"
-              bg={tokens.gradientStart}
-            />
-          </Box>
         </Box>
 
-        <Box mt={6}>
-          <Box
-            border="1px solid"
-            borderColor={tokens.separator}
-            borderRadius="20px"
-            bg="#FFFFFF"
-            overflow="hidden"
-            animation={`${fadeUp} 0.28s ease-out 0.08s`}
-          >
-            {advantages.map((item, idx) => (
-              <HStack
-                key={item.title}
-                align="flex-start"
-                spacing={4}
-                px={4}
-                py="18px"
-                minH="76px"
-                borderBottom={idx !== advantages.length - 1 ? "1px solid" : "none"}
-                borderColor={tokens.separator}
-                role="group"
-                transition="background 140ms ease"
-                _active={{ bg: "#F9FAFB" }}
-              >
-                <Flex
-                  w="40px"
-                  h="40px"
+        {/* Advantages List - Simple stacked statements with blue dots */}
+        <VStack 
+          align="stretch" 
+          spacing={0}
+          animation={`${fadeUp} 0.45s ease-out 0.1s`}
+          sx={{ animationFillMode: "backwards" }}
+        >
+          {advantages.map((item, idx) => (
+            <Box
+              key={item.title}
+              py={5}
+              borderTop={idx === 0 ? "1px solid" : "none"}
+              borderBottom="1px solid"
+              borderColor={tokens.separator}
+            >
+              {/* Title with blue dot */}
+              <Box display="flex" alignItems="flex-start" mb={2}>
+                <Box
+                  w="6px"
+                  h="6px"
                   borderRadius="full"
-                  align="center"
-                  justify="center"
-                  bg={tokens.iconBg}
-                  border="1px solid"
-                  borderColor={tokens.separator}
-                  color={tokens.navy}
-                  flexShrink={0}
-                  transition="box-shadow 140ms ease, border-color 140ms ease"
-                  _groupActive={{
-                    boxShadow: `0 0 0 1px ${tokens.gradientStart}`,
-                    borderColor: tokens.gradientStart,
-                  }}
-                >
-                  <Icon as={item.icon} boxSize={4} />
-                </Flex>
-                <VStack align="start" spacing={1.5} flex="1">
-                  <Text
-                    fontSize="18px"
-                    fontWeight="450"
-                    color={tokens.label}
-                    lineHeight="1.25"
-                    fontFamily="Inter, -apple-system, system-ui, 'SF Pro Display', sans-serif"
-                  >
-                    {item.title}
-                  </Text>
-                  <Text
-                    fontSize="16px"
-                    fontWeight="400"
-                    color={tokens.secondary}
-                    lineHeight="1.55"
-                    fontFamily="Inter, -apple-system, system-ui, 'SF Pro Text', sans-serif"
-                  >
-                    {item.body}
-                  </Text>
-                </VStack>
-                <Icon
-                  as={FiChevronRight}
-                  boxSize={4.5}
-                  color="#9CA3AF"
-                  mt="4px"
+                  bg={tokens.accent}
+                  mt="8px"
+                  mr={3}
                   flexShrink={0}
                 />
-              </HStack>
-            ))}
-          </Box>
-        </Box>
+                <Text
+                  fontSize="18px"
+                  fontWeight="500"
+                  color={tokens.textPrimary}
+                  lineHeight="1.35"
+                >
+                  {item.title}
+                </Text>
+              </Box>
+              
+              {/* Body text */}
+              <Box pl="18px">
+                <Text
+                  fontSize="16px"
+                  fontWeight="400"
+                  color={tokens.textSecondary}
+                  lineHeight="1.55"
+                >
+                  {item.body}
+                </Text>
+              </Box>
+            </Box>
+          ))}
+        </VStack>
       </Container>
     </Box>
   );

@@ -16,6 +16,7 @@ import {
   HStack,
   Container,
 } from "@chakra-ui/react";
+import { motion } from "framer-motion";
 import { PrimaryCtaButton } from "../PrimaryCtaButton";
 import { FaFileAlt, FaUserShield } from "react-icons/fa";
 import { CheckCircleIcon, InfoIcon } from "lucide-react";
@@ -30,6 +31,72 @@ const ApprovedGif = "/gif/nda_approved.gif";
 const PendingGif = "/gif/nda_pending.gif";
 const RejectedGif = "/gif/nda_rejected.gif";
 const NotappliedGif = "/gif/nda_notApplied.gif";
+
+// Motion components
+const MotionBox = motion(Box);
+const MotionImage = motion(Image);
+const MotionButton = motion(Button);
+
+// Animation variants for Apple-like smooth animations
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.08,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      ease: [0.25, 0.46, 0.45, 0.94],
+    },
+  },
+};
+
+const logoVariants = {
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: {
+      duration: 0.6,
+      ease: [0.25, 0.46, 0.45, 0.94],
+    },
+  },
+};
+
+const buttonHoverVariants = {
+  rest: { scale: 1 },
+  hover: { 
+    scale: 1.02,
+    transition: { duration: 0.2, ease: "easeOut" }
+  },
+  tap: { 
+    scale: 0.98,
+    transition: { duration: 0.1 }
+  },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      delay: 0.3,
+      ease: [0.25, 0.46, 0.45, 0.94],
+    },
+  },
+};
 
 const ProfilePage: React.FC = () => {
   const isMobile = useBreakpointValue({ base: true, md: false });
@@ -63,13 +130,13 @@ const ProfilePage: React.FC = () => {
   });
 
   useEffect(() => {
-    config.supabaseClient.auth.getSession().then(({ data: { session } }) => {
+    config.supabaseClient?.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
     });
     const { data: { subscription } } =
-      config.supabaseClient.auth.onAuthStateChange((_event, session) => {
+      config.supabaseClient?.auth.onAuthStateChange((_event, session) => {
         setSession(session);
-      });
+      }) ?? { data: { subscription: null } };
     return () => {
       if (subscription && typeof subscription.unsubscribe === "function") {
         subscription.unsubscribe();
@@ -144,8 +211,6 @@ const ProfilePage: React.FC = () => {
       }
     } catch (error) {
       metadataFetchedRef.current = false;
-      // Silently fail NDA status check to avoid noisy user-facing toasts
-      // This can be logged for debugging if needed:
       console.warn("Failed to check NDA access status", error);
     }
   }, [session, toast]);
@@ -379,138 +444,162 @@ const ProfilePage: React.FC = () => {
 
   return (
     <Box
-      bg="#FFFFFF"
-      px={{ base: 6, sm: 8 }}
-      pt={{ base: "56px", md: "88px" }}
-      pb={{ base: "48px", md: "96px" }}
-      minH={{ base: "100vh", md: "auto" }}
-      display={{ base: "flex", md: "block" }}
-      alignItems={{ base: "center", md: "initial" }}
+      bg="#F5F5F7"
+      minH="100vh"
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      px={{ base: 4, sm: 6 }}
+      py={{ base: 8, md: 12 }}
+      style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", Inter, system-ui, sans-serif' }}
     >
-      <Container maxW="640px">
-        <Box>
-          <Box maxW="520px" mx="auto">
-            {/* Hushh Logo */}
-            <Box display="flex" justifyContent="center" mb={{ base: "32px", md: "40px" }}>
-              <Image
-                src={HushhLogo}
-                alt="Hushh Logo"
-                h={{ base: "180px", md: "360px" }}
-                objectFit="contain"
-              />
-            </Box>
+      <MotionBox
+        maxW="420px"
+        w="100%"
+        initial="hidden"
+        animate="visible"
+        variants={containerVariants}
+      >
+        {/* Logo */}
+        <MotionBox 
+          display="flex" 
+          justifyContent="center" 
+          mb={6}
+          variants={logoVariants}
+        >
+          <Image
+            src={HushhLogo}
+            alt="Hushh Logo"
+            h={{ base: "100px", md: "120px" }}
+            objectFit="contain"
+          />
+        </MotionBox>
 
-            {/* Main Heading */}
-            <Text
-              fontSize={{ base: "36px", md: "44px" }}
-              fontWeight="500"
-              color="#0B1120"
-              lineHeight="1.1"
-              textAlign="center"
-              fontFamily="Inter, -apple-system, system-ui, 'SF Pro Display', sans-serif"
-              mb="5"
-              letterSpacing="-0.01em"
-            >
-              Investing in the Future.
-            </Text>
+        {/* Header */}
+        <MotionBox textAlign="center" mb={6} variants={itemVariants}>
+          <Text
+            fontSize={{ base: "32px", md: "36px" }}
+            fontWeight="600"
+            color="#1D1D1F"
+            lineHeight="1.12"
+            letterSpacing="-0.015em"
+            mb={3}
+          >
+            Investing in the Future.
+          </Text>
+          <Text
+            fontSize={{ base: "16px", md: "17px" }}
+            color="#515154"
+            lineHeight="1.5"
+            maxW="340px"
+            mx="auto"
+          >
+            The AI-Powered Berkshire Hathaway. We combine AI and human expertise to invest in exceptional businesses for long-term value creation.
+          </Text>
+        </MotionBox>
 
-            {/* Subheading */}
-            <Text
-              fontSize={{ base: "18px", md: "19px" }}
-              color="#475569"
-              fontWeight="400"
-              lineHeight="1.65"
-              maxW="520px"
-              mx="auto"
-              textAlign="center"
-              fontFamily="Inter, -apple-system, system-ui, 'SF Pro Text', sans-serif"
-              mb="8"
-            >
-              The AI-Powered Berkshire Hathaway.
-
-We combine AI and human expertise to invest in exceptional businesses for long-term value creation.
-            </Text>
-
-            {/* Blue Divider Line */}
-            <Box position="relative" w="100%" h="1px" bg="#E5E7EB" mb="7">
-              <Box
-                position="absolute"
-                left="50%"
-                top="50%"
-                transform="translate(-50%, -50%)"
-                w="16px"
-                h="2px"
-                bg="#00A9E0"
-              />
-            </Box>
-
-            {/* CTA Buttons */}
-            <VStack spacing={3.5} w="100%">
-              <Button
-                onClick={() => {
-                  // Smart navigation logic
-                  if (onboardingStatus.hasProfile) {
-                    // Profile exists - go to profile page
-                    navigate("/hushh-user-profile");
-                  } else if (onboardingStatus.isCompleted) {
-                    // Onboarding completed but no profile - go to profile page
-                    navigate("/hushh-user-profile");
-                  } else {
-                    // Resume onboarding at current step
-                    const step = onboardingStatus.currentStep;
-                    navigate(`/onboarding/step-${step}`);
-                  }
-                }}
-                w="100%"
-                h="54px"
-                borderRadius="16px"
-                bgGradient="linear(to-r, #00A9E0, #6DD3EF)"
-                color="white"
-                fontSize="17px"
-                fontWeight="500"
-                letterSpacing="0.01em"
-                isLoading={onboardingStatus.loading}
-                loadingText="Loading..."
-                _hover={{ bgGradient: "linear(to-r, #00A9E0, #6DD3EF)" }}
-                _active={{
-                  transform: "scale(0.985)",
-                  bgGradient: "linear(to-r, #0097CB, #5FC3E5)",
-                }}
-                transition="transform 120ms ease-out, background 120ms ease-out"
-                fontFamily="Inter, -apple-system, system-ui, 'SF Pro Text', sans-serif"
-              >
-                {onboardingStatus.loading 
-                  ? "Loading..." 
-                  : onboardingStatus.hasProfile || onboardingStatus.isCompleted
-                    ? "View Your Profile"
-                    : onboardingStatus.currentStep > 1
-                      ? `Continue Onboarding (Step ${onboardingStatus.currentStep})`
-                      : "Complete your hushh profile"
+        {/* Main Card */}
+        <MotionBox
+          bg="white"
+          borderRadius="24px"
+          p={6}
+          boxShadow="0 2px 20px rgba(0,0,0,0.06)"
+          variants={cardVariants}
+        >
+          {/* CTA Buttons */}
+          <VStack spacing={3}>
+            <MotionButton
+              onClick={() => {
+                if (onboardingStatus.hasProfile) {
+                  navigate("/hushh-user-profile");
+                } else if (onboardingStatus.isCompleted) {
+                  navigate("/hushh-user-profile");
+                } else {
+                  const step = onboardingStatus.currentStep;
+                  navigate(`/onboarding/step-${step}`);
                 }
-              </Button>
+              }}
+              w="100%"
+              h="52px"
+              borderRadius="14px"
+              bg="linear-gradient(135deg, #00A9E0 0%, #6DD3EF 100%)"
+              bgGradient="linear(135deg, #00A9E0 0%, #6DD3EF 100%)"
+              color="white"
+              fontSize="16px"
+              fontWeight="500"
+              isLoading={onboardingStatus.loading}
+              loadingText="Loading..."
+              _hover={{ 
+                bgGradient: "linear(135deg, #00A9E0 0%, #6DD3EF 100%)",
+                transform: "scale(1.02)"
+              }}
+              _active={{
+                transform: "scale(0.98)",
+                bgGradient: "linear(135deg, #0097CB 0%, #5FC3E5 100%)",
+              }}
+              transition="all 0.2s ease"
+              boxShadow="0 4px 14px rgba(0, 169, 224, 0.35)"
+              variants={buttonHoverVariants}
+              initial="rest"
+              whileHover="hover"
+              whileTap="tap"
+            >
+              {onboardingStatus.loading 
+                ? "Loading..." 
+                : onboardingStatus.hasProfile || onboardingStatus.isCompleted
+                  ? "View Your Profile"
+                  : onboardingStatus.currentStep > 1
+                    ? `Continue Onboarding (Step ${onboardingStatus.currentStep})`
+                    : "Complete your hushh profile"
+              }
+            </MotionButton>
 
-              <Button
-                onClick={() => navigate("/discover-fund-a")}
-                w="100%"
-                h="54px"
-                borderRadius="16px"
-                bg="#FFFFFF"
-                borderColor="#0B1120"
-                borderWidth="1.5px"
-                color="#0B1120"
-                fontSize="17px"
-                fontWeight="500"
-                fontFamily="Inter, -apple-system, system-ui, 'SF Pro Text', sans-serif"
-                _hover={{ bg: "#FFFFFF" }}
-                _active={{ bg: "#F9FAFB", borderColor: "#0B1120" }}
-                transition="transform 120ms ease-out, background 120ms ease-out, border-color 120ms ease-out"
-              >
-                Discover Fund A
-              </Button>
-            </VStack>
-          </Box>
-        </Box>
-      </Container>
+            <MotionButton
+              onClick={() => navigate("/discover-fund-a")}
+              w="100%"
+              h="52px"
+              borderRadius="14px"
+              bg="white"
+              borderColor="#E5E7EB"
+              borderWidth="1px"
+              color="#1D1D1F"
+              fontSize="16px"
+              fontWeight="500"
+              _hover={{ 
+                bg: "#F9FAFB",
+                transform: "scale(1.02)"
+              }}
+              _active={{ 
+                bg: "#F3F4F6",
+                transform: "scale(0.98)"
+              }}
+              transition="all 0.2s ease"
+              variants={buttonHoverVariants}
+              initial="rest"
+              whileHover="hover"
+              whileTap="tap"
+            >
+              Discover Fund A
+            </MotionButton>
+          </VStack>
+        </MotionBox>
+
+        {/* Footer */}
+        <MotionBox
+          textAlign="center"
+          mt={6}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+        >
+          <Text
+            fontSize="12px"
+            color="#8E8E93"
+          >
+            Secure. Private. AI-Powered.
+          </Text>
+        </MotionBox>
+      </MotionBox>
 
       {false && showNdaModal && session && (
         <NDARequestModal
