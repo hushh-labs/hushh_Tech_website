@@ -7,6 +7,7 @@ import { Image, useToast, Avatar, useBreakpointValue, useDisclosure } from "@cha
 import hushhLogo from "../components/images/Hushhogo.png";
 import LanguageSwitcher from "./LanguageSwitcher";
 import DeleteAccountModal from "./DeleteAccountModal";
+import { handleSecretGesture } from "../utils/mobileDevConsole";
 
 export default function Navbar() {
   const { t } = useTranslation();
@@ -109,7 +110,17 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           <Link to="/" className="text-xl flex flex-row items-center font-bold">
-          <Image src={hushhLogo} alt="Hushh Logo" className="w-12 h-12"/>
+          <Image 
+            src={hushhLogo} 
+            alt="Hushh Logo" 
+            className="w-12 h-12"
+            onClick={(e) => {
+              e.preventDefault();
+              handleSecretGesture();
+            }}
+            cursor="pointer"
+            title="Tap 5 times quickly to enable Developer Mode"
+          />
             <p className="text-xl font-[500] blue-gradient-text">Hushh Technologies</p>
           </Link>
 
