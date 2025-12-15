@@ -7,7 +7,10 @@ import { Image, useToast, Avatar, useBreakpointValue, useDisclosure } from "@cha
 import hushhLogo from "../components/images/Hushhogo.png";
 import LanguageSwitcher from "./LanguageSwitcher";
 import DeleteAccountModal from "./DeleteAccountModal";
-import { handleSecretGesture } from "../utils/mobileDevConsole";
+
+// Secret gesture state for dev console activation
+let tapCount = 0;
+let lastTapTime = 0;
 
 export default function Navbar() {
   const { t } = useTranslation();
@@ -25,6 +28,31 @@ export default function Navbar() {
   const profileDropdownRef = useRef<HTMLDivElement>(null);
   const toast = useToast();
   const isMobile = useBreakpointValue({ base: true, lg: false });
+
+  // Handle secret gesture - 5 rapid taps on logo to open dev console
+  const handleSecretGesture = () => {
+    const now = Date.now();
+    if (now - lastTapTime < 500) {
+      tapCount++;
+      if (tapCount >= 5) {
+        tapCount = 0;
+        // Open the dev console using the global function exposed by App.tsx
+        if ((window as any).openDevConsole) {
+          (window as any).openDevConsole();
+          toast({
+            title: '🔧 Developer Mode Activated',
+            description: 'Dev console is now available',
+            status: 'info',
+            duration: 2000,
+            isClosable: true,
+          });
+        }
+      }
+    } else {
+      tapCount = 1;
+    }
+    lastTapTime = now;
+  };
 
   useEffect(() => {
     if (!config.supabaseClient) return;

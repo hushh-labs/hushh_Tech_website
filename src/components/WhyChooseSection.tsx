@@ -7,6 +7,8 @@ import {
   VStack,
   Button,
   Link,
+  Flex,
+  Icon,
 } from "@chakra-ui/react";
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
