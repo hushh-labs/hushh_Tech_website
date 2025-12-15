@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
+import DevConsole, { initDevConsole } from './components/DevConsole';
 import Leadership from './components/Leadership';
 import Philosophy from './components/Philosophy';
 import Footer from './components/Footer';
@@ -112,8 +113,27 @@ const initializeGoogleAnalytics = () => {
   }
 };
 
+// Check if dev console should be enabled
+const shouldEnableDevConsole = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  
+  // Check URL parameter
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('debug') === 'true') return true;
+  
+  // Check localStorage flag
+  if (localStorage.getItem('devMode') === 'true') return true;
+  
+  // Enable in development mode
+  if (import.meta.env.DEV) return true;
+  
+  return false;
+};
+
 function App() {
   const [session, setSession] = useState<Session | null>(null);
+  const [isDevConsoleOpen, setIsDevConsoleOpen] = useState(false);
+  const [devConsoleEnabled, setDevConsoleEnabled] = useState(shouldEnableDevConsole());
   const marqueeTickers = [
     {
       label: "Saudi Aramco",
@@ -255,6 +275,31 @@ function App() {
   useEffect(() => {
     initializeGoogleAnalytics();
   }, []);
+
+  // Initialize Dev Console if enabled
+  useEffect(() => {
+    if (devConsoleEnabled) {
+      initDevConsole();
+    }
+  }, [devConsoleEnabled]);
+
+  // Handle secret gesture for dev console (5 taps on logo)
+  const handleDevConsoleTrigger = () => {
+    if (!devConsoleEnabled) {
+      localStorage.setItem('devMode', 'true');
+      setDevConsoleEnabled(true);
+      initDevConsole();
+    }
+    setIsDevConsoleOpen(true);
+  };
+
+  // Make trigger available globally for Navbar
+  useEffect(() => {
+    (window as any).openDevConsole = handleDevConsoleTrigger;
+    return () => {
+      delete (window as any).openDevConsole;
+    };
+  }, [devConsoleEnabled]);
 
   // Fetch user session when app loads
   useEffect(() => {
@@ -493,6 +538,39 @@ function App() {
           </ContentWrapper>
           <Footer />
         </div>
+        
+        {/* Dev Console Toggle Button - only shows when enabled but console is closed */}
+        {devConsoleEnabled && !isDevConsoleOpen && (
+          <button
+            onClick={() => setIsDevConsoleOpen(true)}
+            style={{
+              position: 'fixed',
+              bottom: '20px',
+              right: '20px',
+              zIndex: 9999,
+              background: 'linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '12px',
+              padding: '12px 16px',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              boxShadow: '0 4px 15px rgba(14, 165, 233, 0.4)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+            }}
+          >
+            🔧 Console
+          </button>
+        )}
+        
+        {/* Dev Console Component */}
+        <DevConsole 
+          isOpen={isDevConsoleOpen} 
+          onClose={() => setIsDevConsoleOpen(false)} 
+        />
       </Router>
     </ChakraProvider>
   );
