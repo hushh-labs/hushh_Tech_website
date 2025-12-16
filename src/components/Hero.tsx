@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Button, Text, Box, Container, VStack, Image } from "@chakra-ui/react";
+import { Button, Text, Box, Container, VStack, Image, Flex, Icon } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import config from "../resources/config/config";
@@ -8,6 +8,8 @@ import ProfilePage from "./profile/profilePage";
 import WhyChooseSection from "./WhyChooseSection";
 import { Session } from "@supabase/supabase-js";
 import HushhLogo from "./images/Hushhogo.png";
+import { FaRobot, FaShieldAlt } from "react-icons/fa";
+import { HiSparkles } from "react-icons/hi";
 
 // Motion components
 const MotionBox = motion(Box);
@@ -425,15 +427,57 @@ export default function Hero() {
         </Container>
       </Box>
       
-      {/* Ready to Transform Section - Apple-like design */}
+      {/* Ready to Transform Section - Premium Apple-like design with visual polish */}
       <Box
         bg={tokens.surface}
-        pt={{ base: "48px", md: "64px" }}
-        pb={{ base: "48px", md: "64px" }}
+        pt={{ base: "56px", md: "80px" }}
+        pb={{ base: "56px", md: "80px" }}
         px={{ base: "24px", sm: "32px" }}
+        position="relative"
+        overflow="hidden"
         style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif' }}
       >
-        <Container maxW="480px" px={0}>
+        {/* Subtle Background Gradient */}
+        <Box
+          position="absolute"
+          top="0"
+          left="0"
+          right="0"
+          bottom="0"
+          bg="linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 50%, #FFFFFF 100%)"
+          pointerEvents="none"
+          zIndex={0}
+        />
+        
+        {/* Decorative Gradient Orb - Top Right */}
+        <Box
+          position="absolute"
+          top="-20%"
+          right="-15%"
+          w={{ base: "250px", md: "350px" }}
+          h={{ base: "250px", md: "350px" }}
+          bg="radial-gradient(circle, rgba(0, 169, 224, 0.06) 0%, transparent 70%)"
+          borderRadius="full"
+          filter="blur(50px)"
+          pointerEvents="none"
+          zIndex={0}
+        />
+        
+        {/* Decorative Gradient Orb - Bottom Left */}
+        <Box
+          position="absolute"
+          bottom="-15%"
+          left="-10%"
+          w={{ base: "200px", md: "280px" }}
+          h={{ base: "200px", md: "280px" }}
+          bg="radial-gradient(circle, rgba(109, 211, 239, 0.05) 0%, transparent 70%)"
+          borderRadius="full"
+          filter="blur(40px)"
+          pointerEvents="none"
+          zIndex={0}
+        />
+
+        <Container maxW="520px" px={0} position="relative" zIndex={1}>
           <MotionBox
             initial="hidden"
             whileInView="visible"
@@ -441,52 +485,130 @@ export default function Hero() {
             variants={containerVariants}
             textAlign="center"
           >
-            {/* Section Title */}
+            {/* Premium Trust Badges - Glass Pill Design */}
+            <MotionBox variants={itemVariants} mb={8}>
+              <Flex 
+                justify="center" 
+                gap={{ base: 2.5, md: 3 }}
+                flexWrap="wrap"
+                px={2}
+              >
+                {[
+                  { 
+                    label: "AI-First", 
+                    icon: FaRobot, 
+                    gradient: "linear-gradient(135deg, #00A9E0 0%, #6DD3EF 100%)",
+                    shadowColor: "rgba(0, 169, 224, 0.25)"
+                  },
+                  { 
+                    label: "Secure", 
+                    icon: FaShieldAlt, 
+                    gradient: "linear-gradient(135deg, #34C759 0%, #30D158 100%)",
+                    shadowColor: "rgba(52, 199, 89, 0.25)"
+                  },
+                  { 
+                    label: "Transparent", 
+                    icon: HiSparkles, 
+                    gradient: "linear-gradient(135deg, #AF52DE 0%, #BF5AF2 100%)",
+                    shadowColor: "rgba(175, 82, 222, 0.25)"
+                  },
+                ].map((badge) => (
+                  <Flex 
+                    key={badge.label} 
+                    align="center" 
+                    gap={2}
+                    px={{ base: 3.5, md: 4 }}
+                    py={2}
+                    bg="rgba(255, 255, 255, 0.95)"
+                    backdropFilter="blur(20px)"
+                    borderRadius="full"
+                    border="1px solid"
+                    borderColor="rgba(0, 0, 0, 0.04)"
+                    boxShadow={`0 2px 12px rgba(0, 0, 0, 0.04), 0 1px 4px rgba(0, 0, 0, 0.02)`}
+                    sx={{
+                      transition: "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+                    }}
+                    _hover={{
+                      transform: "translateY(-2px)",
+                      boxShadow: `0 8px 24px ${badge.shadowColor}, 0 2px 8px rgba(0, 0, 0, 0.04)`,
+                      borderColor: "rgba(0, 169, 224, 0.15)",
+                    }}
+                    cursor="default"
+                  >
+                    {/* Icon with gradient background */}
+                    <Flex
+                      w="26px"
+                      h="26px"
+                      borderRadius="full"
+                      align="center"
+                      justify="center"
+                      bg={badge.gradient}
+                      boxShadow={`0 2px 8px ${badge.shadowColor}`}
+                    >
+                      <Icon as={badge.icon} boxSize="13px" color="white" />
+                    </Flex>
+                    <Text
+                      fontSize={{ base: "13px", md: "14px" }}
+                      fontWeight="600"
+                      color={tokens.textPrimary}
+                      letterSpacing="-0.01em"
+                    >
+                      {badge.label}
+                    </Text>
+                  </Flex>
+                ))}
+              </Flex>
+            </MotionBox>
+
+            {/* Section Title - Enhanced Typography */}
             <MotionBox mb={4} variants={itemVariants}>
               <Text
-                fontSize={{ base: "32px", md: "40px" }}
-                fontWeight="600"
+                fontSize={{ base: "34px", md: "44px" }}
+                fontWeight="700"
                 color={tokens.textPrimary}
-                lineHeight="1.08"
-                letterSpacing="-0.015em"
+                lineHeight="1.05"
+                letterSpacing="-0.025em"
               >
                 {t('hero.readyToTransform')}
               </Text>
             </MotionBox>
 
-            {/* Section Description */}
-            <MotionBox mb={{ base: 8, md: 10 }} variants={itemVariants}>
+            {/* Section Description - Deemphasized */}
+            <MotionBox mb={{ base: 10, md: 12 }} variants={itemVariants}>
               <Text
-                fontSize={{ base: "17px", md: "18px" }}
-                color={tokens.textSecondary}
-                lineHeight="1.55"
+                fontSize={{ base: "17px", md: "19px" }}
+                color={tokens.textMuted}
+                lineHeight="1.6"
                 fontWeight="400"
-                maxW="380px"
+                maxW="400px"
                 mx="auto"
               >
                 {t('hero.joinInvestors')}
               </Text>
             </MotionBox>
 
-            {/* CTA Buttons */}
+            {/* CTA Buttons - Enhanced with better shadows */}
             <MotionBox variants={itemVariants}>
               <VStack spacing={3} maxW="320px" mx="auto">
                 <MotionButton
                   onClick={() => navigate("/about")}
                   w="100%"
-                  h="50px"
+                  h="54px"
                   borderRadius="full"
                   bgGradient={`linear(135deg, ${tokens.gradientStart} 0%, ${tokens.gradientEnd} 100%)`}
                   color="white"
                   fontSize="17px"
                   fontWeight="600"
+                  letterSpacing="-0.01em"
                   _hover={{ 
                     bgGradient: `linear(135deg, ${tokens.gradientStart} 0%, ${tokens.gradientEnd} 100%)`,
+                    transform: "translateY(-2px)",
+                    boxShadow: "0 20px 40px rgba(0, 169, 224, 0.35)",
                   }}
                   _active={{
                     transform: "scale(0.98)",
                   }}
-                  boxShadow={`0 14px 24px rgba(0, 169, 224, 0.25)`}
+                  boxShadow="0 14px 28px rgba(0, 169, 224, 0.3)"
                   variants={buttonHoverVariants}
                   initial="rest"
                   whileHover="hover"
@@ -498,19 +620,26 @@ export default function Hero() {
                 <MotionButton
                   onClick={() => navigate("/contact")}
                   w="100%"
-                  h="50px"
+                  h="54px"
                   borderRadius="full"
-                  bg="transparent"
+                  bg="rgba(255, 255, 255, 0.9)"
+                  backdropFilter="blur(10px)"
                   border="1px solid"
-                  borderColor={tokens.separator}
+                  borderColor="rgba(0, 0, 0, 0.08)"
                   color={tokens.textPrimary}
                   fontSize="17px"
                   fontWeight="600"
+                  letterSpacing="-0.01em"
+                  boxShadow="0 2px 8px rgba(0, 0, 0, 0.04)"
                   _hover={{ 
-                    bg: "rgba(0,0,0,0.02)",
+                    bg: "rgba(255, 255, 255, 1)",
+                    boxShadow: "0 8px 24px rgba(0, 0, 0, 0.08)",
+                    transform: "translateY(-2px)",
+                    borderColor: "rgba(0, 0, 0, 0.12)",
                   }}
                   _active={{ 
-                    bg: "rgba(0,0,0,0.04)",
+                    bg: "rgba(0,0,0,0.02)",
+                    transform: "scale(0.98)",
                   }}
                   variants={buttonHoverVariants}
                   initial="rest"
