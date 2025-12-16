@@ -266,7 +266,7 @@ export const generateFoodBillData = (
     tableNo: 'T-07',
     serverName: 'Rahul',
     customerAddress: 'Row house 7, matra montana, dhanori, pune, maharastra',
-    customerPhone: '+91 18004482372',
+    customerPhone: '+91 8004482372',
   };
 };
 
@@ -321,7 +321,7 @@ export const generateSeminarBillData = (
     totalAmount: Math.round(totalAmount * 100) / 100,
     customerAddress: 'Row house 7, matra montana, dhanori, pune, maharastra',
     corporateAddress: 'Hushh.ai, 1021 5th St W, Kirkland, WA 98033',
-    customerPhone: '+91 18004482372',
+    customerPhone: '+91 8004482372',
     paymentStatus: 'PAID',
     paymentMode: 'Bank Transfer',
   };

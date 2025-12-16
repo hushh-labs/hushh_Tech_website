@@ -375,7 +375,7 @@ const ReceiptGeneratorPage: React.FC = () => {
               Corporate: Hushh.ai, 1021 5th St W, Kirkland, WA 98033
             </Text>
             <Text fontSize="xs" color="blue.700">
-              Contact: +91 18004482372
+              Contact: +91 8004482372
             </Text>
           </Box>
 
