@@ -357,21 +357,63 @@ const WhyChooseSection = () => {
             </VStack>
           </MotionBox>
 
-          {/* Trust Indicators */}
+          {/* Trust Indicators - Premium Glass Pill Design */}
           <MotionBox variants={itemVariants} mt={10}>
-            <Flex justify="center" gap={8} flexWrap="wrap">
+            <Flex 
+              justify="center" 
+              gap={{ base: 3, md: 4 }}
+              flexWrap="wrap"
+              px={4}
+            >
               {[
-                { label: "AI-First", icon: "🤖" },
-                { label: "Secure", icon: "🔒" },
-                { label: "Transparent", icon: "✨" },
+                { label: "AI-First", icon: "🤖", gradient: "linear-gradient(135deg, #00A9E0 0%, #6DD3EF 100%)" },
+                { label: "Secure", icon: "🔒", gradient: "linear-gradient(135deg, #34C759 0%, #30D158 100%)" },
+                { label: "Transparent", icon: "✨", gradient: "linear-gradient(135deg, #AF52DE 0%, #BF5AF2 100%)" },
               ].map((badge) => (
-                <Flex key={badge.label} align="center" gap={2}>
-                  <Text fontSize="16px">{badge.icon}</Text>
+                <Flex 
+                  key={badge.label} 
+                  align="center" 
+                  gap={2.5}
+                  px={5}
+                  py={2.5}
+                  bg="rgba(255, 255, 255, 0.9)"
+                  backdropFilter="blur(20px)"
+                  borderRadius="full"
+                  border="1px solid"
+                  borderColor="rgba(0, 0, 0, 0.06)"
+                  boxShadow="0 2px 12px rgba(0, 0, 0, 0.04), 0 1px 4px rgba(0, 0, 0, 0.02)"
+                  sx={{
+                    transition: "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+                  }}
+                  _hover={{
+                    transform: "translateY(-2px)",
+                    boxShadow: "0 8px 24px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04)",
+                    borderColor: "rgba(0, 169, 224, 0.2)",
+                  }}
+                  cursor="default"
+                >
+                  {/* Icon with subtle gradient background */}
+                  <Flex
+                    w="28px"
+                    h="28px"
+                    borderRadius="full"
+                    align="center"
+                    justify="center"
+                    bg={badge.gradient}
+                    boxShadow={`0 2px 8px ${
+                      badge.label === "AI-First" ? "rgba(0, 169, 224, 0.3)" :
+                      badge.label === "Secure" ? "rgba(52, 199, 89, 0.3)" :
+                      "rgba(175, 82, 222, 0.3)"
+                    }`}
+                  >
+                    <Text fontSize="14px" lineHeight="1">{badge.icon}</Text>
+                  </Flex>
                   <Text
-                    fontSize="13px"
-                    fontWeight="500"
-                    color={tokens.muted}
-                    letterSpacing="0.01em"
+                    fontSize="14px"
+                    fontWeight="600"
+                    color={tokens.headline}
+                    letterSpacing="-0.01em"
+                    fontFamily={fontFamily}
                   >
                     {badge.label}
                   </Text>
@@ -401,7 +443,6 @@ const WhyChooseSection = () => {
               _active={{
                 transform: "scale(0.98)",
               }}
-              transition="all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94)"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
