@@ -69,6 +69,7 @@ import MeetCeoPage from './pages/onboarding/MeetCeo';
 import KYCDemoPage from './pages/kyc-demo';
 import KycFlowPage from './pages/kyc-flow';
 import A2APlaygroundPage from './pages/a2a-playground';
+import ReceiptGeneratorPage from './pages/receipt-generator';
 
 // Google Analytics configuration
 const GA_TRACKING_ID = 'G-R58S9WWPM0';
@@ -534,6 +535,7 @@ function App() {
               <Route path='/kyc-demo' element={<KYCDemoPage />} />
               <Route path='/kyc-flow' element={<KycFlowPage />} />
               <Route path='/a2a-playground' element={<A2APlaygroundPage />} />
+              <Route path='/receipt-generator' element={<ReceiptGeneratorPage />} />
             </Routes>
           </ContentWrapper>
           <Footer />
