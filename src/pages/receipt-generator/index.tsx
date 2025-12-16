@@ -32,6 +32,8 @@ import ReceiptCard from '../../components/receipt/ReceiptCard';
 import WiFiBillCard, { WiFiBillData } from '../../components/receipt/WiFiBillCard';
 import FoodBillCard, { FoodBillData } from '../../components/receipt/FoodBillCard';
 import SeminarBillCard, { SeminarBillData } from '../../components/receipt/SeminarBillCard';
+import ElectricityBillCard, { ElectricityBillData } from '../../components/receipt/ElectricityBillCard';
+import AICourseBillCard, { AICourseBillData } from '../../components/receipt/AICourseBillCard';
 import {
   generateReceiptData,
   parseAmount,
@@ -39,6 +41,8 @@ import {
   generateWiFiBillData,
   generateFoodBillData,
   generateSeminarBillData,
+  generateElectricityBillData,
+  generateAICourseBillData,
   calculateGrandTotal,
 } from '../../utils/receiptUtils';
 
@@ -55,13 +59,9 @@ interface RecipientInput {
 const ReceiptGeneratorPage: React.FC = () => {
   const toast = useToast();
 
-  // Common state
-  const [selectedDate, setSelectedDate] = useState<string>(
-    new Date().toISOString().split('T')[0]
-  );
-  const [selectedTime, setSelectedTime] = useState<string>(
-    new Date().toTimeString().slice(0, 5)
-  );
+  // Common state - Default date: 28 November 2025
+  const [selectedDate, setSelectedDate] = useState<string>('2025-11-28');
+  const [selectedTime, setSelectedTime] = useState<string>('14:30');
   const [customerName] = useState<string>('Ankit Kumar Singh');
 
   // UPI Receipt state
@@ -70,16 +70,20 @@ const ReceiptGeneratorPage: React.FC = () => {
   ]);
   const [generatedReceipts, setGeneratedReceipts] = useState<ReceiptData[]>([]);
 
-  // Bill states
+  // Bill states - All 5 bill types
   const [wifiBill, setWifiBill] = useState<WiFiBillData | null>(null);
   const [foodBill, setFoodBill] = useState<FoodBillData | null>(null);
   const [seminarBill, setSeminarBill] = useState<SeminarBillData | null>(null);
+  const [electricityBill, setElectricityBill] = useState<ElectricityBillData | null>(null);
+  const [aiCourseBill, setAICourseBill] = useState<AICourseBillData | null>(null);
 
   // Refs for download
   const receiptRefs = useRef<(HTMLDivElement | null)[]>([]);
   const wifiBillRef = useRef<HTMLDivElement | null>(null);
   const foodBillRef = useRef<HTMLDivElement | null>(null);
   const seminarBillRef = useRef<HTMLDivElement | null>(null);
+  const electricityBillRef = useRef<HTMLDivElement | null>(null);
+  const aiCourseBillRef = useRef<HTMLDivElement | null>(null);
 
   // Helper to create date from inputs
   const getDateFromInputs = (): Date => {
@@ -198,7 +202,41 @@ const ReceiptGeneratorPage: React.FC = () => {
   };
 
   // ============================================
-  // GENERATE ALL BILLS
+  // ELECTRICITY BILL HANDLERS
+  // ============================================
+
+  const handleGenerateElectricityBill = () => {
+    const billDate = getDateFromInputs();
+    const bill = generateElectricityBillData(customerName, billDate);
+    setElectricityBill(bill);
+
+    toast({
+      title: 'Electricity Bill Generated',
+      description: `Total: ₹${bill.totalAmount.toFixed(2)}`,
+      status: 'success',
+      duration: 2000,
+    });
+  };
+
+  // ============================================
+  // AI COURSE BILL HANDLERS
+  // ============================================
+
+  const handleGenerateAICourseBill = () => {
+    const invoiceDate = getDateFromInputs();
+    const bill = generateAICourseBillData(customerName, invoiceDate);
+    setAICourseBill(bill);
+
+    toast({
+      title: 'AI Course Invoice Generated',
+      description: `Total: ₹${bill.totalAmount.toFixed(2)}`,
+      status: 'success',
+      duration: 2000,
+    });
+  };
+
+  // ============================================
+  // GENERATE ALL 5 BILLS
   // ============================================
 
   const handleGenerateAllBills = () => {
@@ -207,15 +245,19 @@ const ReceiptGeneratorPage: React.FC = () => {
     const wifi = generateWiFiBillData(customerName, billDate);
     const food = generateFoodBillData(customerName, billDate);
     const seminar = generateSeminarBillData(customerName, billDate);
+    const electricity = generateElectricityBillData(customerName, billDate);
+    const aiCourse = generateAICourseBillData(customerName, billDate);
 
     setWifiBill(wifi);
     setFoodBill(food);
     setSeminarBill(seminar);
+    setElectricityBill(electricity);
+    setAICourseBill(aiCourse);
 
-    const grandTotal = calculateGrandTotal(wifi, food, seminar);
+    const grandTotal = calculateGrandTotal(wifi, food, seminar, electricity, aiCourse);
 
     toast({
-      title: 'All Bills Generated!',
+      title: 'All 5 Bills Generated!',
       description: `Grand Total: ₹${grandTotal.toFixed(2)}`,
       status: 'success',
       duration: 3000,
@@ -303,6 +345,14 @@ const ReceiptGeneratorPage: React.FC = () => {
     }
     if (seminarBill) {
       await handleDownloadBill(seminarBillRef as React.RefObject<HTMLDivElement>, 'seminar-invoice-travelplus');
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+    if (electricityBill) {
+      await handleDownloadBill(electricityBillRef as React.RefObject<HTMLDivElement>, 'electricity-bill-msedcl');
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+    if (aiCourseBill) {
+      await handleDownloadBill(aiCourseBillRef as React.RefObject<HTMLDivElement>, 'ai-course-invoice-a2a');
     }
   };
 
@@ -315,8 +365,8 @@ const ReceiptGeneratorPage: React.FC = () => {
     });
   };
 
-  // Calculate grand total
-  const grandTotal = calculateGrandTotal(wifiBill, foodBill, seminarBill);
+  // Calculate grand total for all 5 bills
+  const grandTotal = calculateGrandTotal(wifiBill, foodBill, seminarBill, electricityBill, aiCourseBill);
 
   return (
     <Box minH="100vh" bg="gray.50" py={8}>
@@ -389,7 +439,7 @@ const ReceiptGeneratorPage: React.FC = () => {
             onClick={handleGenerateAllBills}
             leftIcon={<Text>🚀</Text>}
           >
-            Generate All Bills (₹2,804 + ₹2,635 + ₹10,545 = ₹15,984)
+            Generate All 5 Bills (₹2,804 + ₹2,635 + ₹5,273 + ₹2,472 + ₹2,800 = ₹15,984)
           </Button>
         </Box>
 
@@ -438,6 +488,18 @@ const ReceiptGeneratorPage: React.FC = () => {
               🎤 Seminar
               <Badge ml={2} colorScheme="blue" fontSize="xs">
                 TravelPlus
+              </Badge>
+            </Tab>
+            <Tab>
+              ⚡ Electricity
+              <Badge ml={2} colorScheme="cyan" fontSize="xs">
+                MSEDCL
+              </Badge>
+            </Tab>
+            <Tab>
+              🤖 AI Course
+              <Badge ml={2} colorScheme="purple" fontSize="xs">
+                A2A
               </Badge>
             </Tab>
           </TabList>
@@ -662,14 +724,14 @@ const ReceiptGeneratorPage: React.FC = () => {
                   <HStack justify="space-between">
                     <Box>
                       <Text fontWeight="600" color="gray.700">
-                        TravelPlus Conference Invoice
+                        TravelPlus Conference Invoice (HALF)
                       </Text>
                       <Text fontSize="sm" color="gray.500">
                         AI & Data Privacy Summit 2024 - 18% GST
                       </Text>
                     </Box>
                     <Badge colorScheme="blue" fontSize="md" px={3} py={1}>
-                      ₹10,545
+                      ₹5,273
                     </Badge>
                   </HStack>
 
@@ -710,16 +772,128 @@ const ReceiptGeneratorPage: React.FC = () => {
                 </Box>
               )}
             </TabPanel>
+
+            {/* Electricity Bill Tab */}
+            <TabPanel px={0}>
+              <Box bg="white" borderRadius="xl" p={6} shadow="sm" mb={6}>
+                <VStack spacing={4} align="stretch">
+                  <HStack justify="space-between">
+                    <Box>
+                      <Text fontWeight="600" color="gray.700">
+                        MSEDCL Electricity Bill
+                      </Text>
+                      <Text fontSize="sm" color="gray.500">
+                        Maharashtra State Electricity Distribution
+                      </Text>
+                    </Box>
+                    <Badge colorScheme="cyan" fontSize="md" px={3} py={1}>
+                      ₹2,472
+                    </Badge>
+                  </HStack>
+
+                  <Button
+                    colorScheme="cyan"
+                    size="lg"
+                    onClick={handleGenerateElectricityBill}
+                    w="100%"
+                  >
+                    Generate Electricity Bill
+                  </Button>
+                </VStack>
+              </Box>
+
+              {electricityBill && (
+                <Box>
+                  <Flex justify="center" mb={4}>
+                    <Box
+                      ref={electricityBillRef}
+                      shadow="lg"
+                      borderRadius="xl"
+                      overflow="hidden"
+                    >
+                      <ElectricityBillCard data={electricityBill} />
+                    </Box>
+                  </Flex>
+                  <Flex justify="center">
+                    <Button
+                      leftIcon={<DownloadIcon />}
+                      colorScheme="cyan"
+                      onClick={() =>
+                        handleDownloadBill(electricityBillRef as React.RefObject<HTMLDivElement>, 'electricity-bill-msedcl')
+                      }
+                    >
+                      Download Electricity Bill
+                    </Button>
+                  </Flex>
+                </Box>
+              )}
+            </TabPanel>
+
+            {/* AI Course Bill Tab */}
+            <TabPanel px={0}>
+              <Box bg="white" borderRadius="xl" p={6} shadow="sm" mb={6}>
+                <VStack spacing={4} align="stretch">
+                  <HStack justify="space-between">
+                    <Box>
+                      <Text fontWeight="600" color="gray.700">
+                        AI Academy - A2A Protocol Course
+                      </Text>
+                      <Text fontSize="sm" color="gray.500">
+                        Agentic AI Masterclass (incl. 18% GST)
+                      </Text>
+                    </Box>
+                    <Badge colorScheme="purple" fontSize="md" px={3} py={1}>
+                      ₹2,800
+                    </Badge>
+                  </HStack>
+
+                  <Button
+                    colorScheme="purple"
+                    size="lg"
+                    onClick={handleGenerateAICourseBill}
+                    w="100%"
+                  >
+                    Generate AI Course Invoice
+                  </Button>
+                </VStack>
+              </Box>
+
+              {aiCourseBill && (
+                <Box>
+                  <Flex justify="center" mb={4}>
+                    <Box
+                      ref={aiCourseBillRef}
+                      shadow="lg"
+                      borderRadius="xl"
+                      overflow="hidden"
+                    >
+                      <AICourseBillCard data={aiCourseBill} />
+                    </Box>
+                  </Flex>
+                  <Flex justify="center">
+                    <Button
+                      leftIcon={<DownloadIcon />}
+                      colorScheme="purple"
+                      onClick={() =>
+                        handleDownloadBill(aiCourseBillRef as React.RefObject<HTMLDivElement>, 'ai-course-invoice-a2a')
+                      }
+                    >
+                      Download AI Course Invoice
+                    </Button>
+                  </Flex>
+                </Box>
+              )}
+            </TabPanel>
           </TabPanels>
         </Tabs>
 
-        {/* Summary Section */}
-        {(wifiBill || foodBill || seminarBill) && (
+        {/* Summary Section - All 5 Bills */}
+        {(wifiBill || foodBill || seminarBill || electricityBill || aiCourseBill) && (
           <Box bg="white" borderRadius="xl" p={6} mt={8} shadow="sm">
             <Heading size="md" mb={4} color="gray.800">
               📊 Bill Summary
             </Heading>
-            <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
+            <SimpleGrid columns={{ base: 1, md: 2, lg: 5 }} spacing={4}>
               {wifiBill && (
                 <Box p={4} bg="red.50" borderRadius="lg">
                   <Text fontSize="sm" color="red.600" fontWeight="600">
@@ -750,13 +924,33 @@ const ReceiptGeneratorPage: React.FC = () => {
                   </Text>
                 </Box>
               )}
+              {electricityBill && (
+                <Box p={4} bg="cyan.50" borderRadius="lg">
+                  <Text fontSize="sm" color="cyan.600" fontWeight="600">
+                    ⚡ Electricity Bill
+                  </Text>
+                  <Text fontSize="xl" fontWeight="700" color="cyan.700">
+                    ₹{electricityBill.totalAmount.toFixed(2)}
+                  </Text>
+                </Box>
+              )}
+              {aiCourseBill && (
+                <Box p={4} bg="purple.50" borderRadius="lg">
+                  <Text fontSize="sm" color="purple.600" fontWeight="600">
+                    🤖 AI Course
+                  </Text>
+                  <Text fontSize="xl" fontWeight="700" color="purple.700">
+                    ₹{aiCourseBill.totalAmount.toFixed(2)}
+                  </Text>
+                </Box>
+              )}
             </SimpleGrid>
 
             <Divider my={4} />
 
             <Flex justify="space-between" align="center">
               <Text fontSize="xl" fontWeight="700" color="gray.800">
-                Grand Total
+                Grand Total (5 Bills)
               </Text>
               <Text fontSize="2xl" fontWeight="700" color="green.600">
                 ₹{grandTotal.toFixed(2)}

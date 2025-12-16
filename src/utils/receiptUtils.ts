@@ -159,6 +159,8 @@ export const generateReceiptData = (
 import { WiFiBillData } from '../components/receipt/WiFiBillCard';
 import { FoodBillData, FoodItem } from '../components/receipt/FoodBillCard';
 import { SeminarBillData, SeminarItem } from '../components/receipt/SeminarBillCard';
+import { ElectricityBillData } from '../components/receipt/ElectricityBillCard';
+import { AICourseBillData, CourseItem } from '../components/receipt/AICourseBillCard';
 
 /**
  * Generate WiFi Bill Number
@@ -286,7 +288,7 @@ export const generateSeminarInvoiceNumber = (): string => {
 
 /**
  * Generate Seminar Bill Data
- * Total: ₹10,545 (Base: ₹8,936.44 + GST 18%)
+ * Total: ₹5,273 (HALF - Base: ₹4,468 + GST 18%)
  */
 export const generateSeminarBillData = (
   customerName: string,
@@ -295,17 +297,17 @@ export const generateSeminarBillData = (
   eventDate: string = '20-21 Nov 2024',
   eventVenue: string = 'Marriott Convention Center, Pune'
 ): SeminarBillData => {
-  // Items that sum up to ₹8,936 (before 18% GST = ₹10,545)
+  // Items that sum up to ₹4,468 (before 18% GST = ₹5,273) - HALF of original
   const items: SeminarItem[] = [
-    { description: 'Conference Pass - Premium (2 Days)', quantity: 1, unitPrice: 5500, amount: 5500 },
-    { description: 'Workshop: Advanced AI Implementation', quantity: 1, unitPrice: 2200, amount: 2200 },
-    { description: 'Networking Dinner', quantity: 1, unitPrice: 1236, amount: 1236 },
+    { description: 'Conference Pass - Standard (1 Day)', quantity: 1, unitPrice: 2750, amount: 2750 },
+    { description: 'Workshop: AI Implementation Basics', quantity: 1, unitPrice: 1100, amount: 1100 },
+    { description: 'Networking Lunch', quantity: 1, unitPrice: 618, amount: 618 },
   ];
 
-  const subtotal = 8936; // Fixed subtotal
-  const cgst = 804.24; // 9%
-  const sgst = 804.76; // 9%
-  const totalAmount = 10545; // Fixed total
+  const subtotal = 4468; // Fixed subtotal (half)
+  const cgst = 402.12; // 9%
+  const sgst = 402.88; // 9%
+  const totalAmount = 5273; // Fixed total (half)
 
   return {
     customerName,
@@ -327,17 +329,152 @@ export const generateSeminarBillData = (
   };
 };
 
+// ============================================
+// ELECTRICITY BILL UTILITIES
+// ============================================
+
 /**
- * Calculate grand total of all bills
+ * Generate Electricity Bill Number
+ * Example: "MH-PNE-2024-12345678"
+ */
+export const generateElectricityBillNumber = (): string => {
+  const year = new Date().getFullYear();
+  const randomNum = Math.floor(10000000 + Math.random() * 90000000);
+  return `MH-PNE-${year}-${randomNum}`;
+};
+
+/**
+ * Generate Consumer Number
+ * Example: "310012345678"
+ */
+export const generateConsumerNumber = (): string => {
+  const randomNum = Math.floor(100000000000 + Math.random() * 900000000000);
+  return `${randomNum}`;
+};
+
+/**
+ * Generate Meter Number
+ * Example: "PNE-7654321"
+ */
+export const generateMeterNumber = (): string => {
+  const randomNum = Math.floor(1000000 + Math.random() * 9000000);
+  return `PNE-${randomNum}`;
+};
+
+/**
+ * Generate Electricity Bill Data
+ * Total: ₹2,472
+ */
+export const generateElectricityBillData = (
+  customerName: string,
+  billDate: Date
+): ElectricityBillData => {
+  const unitsConsumed = 285;
+  const ratePerUnit = 7.50;
+  const energyCharge = unitsConsumed * ratePerUnit; // 2137.50
+  const fixedCharge = 150;
+  const fuelAdjustment = 85.50;
+  const electricityDuty = 99;
+  const totalAmount = 2472; // Fixed total
+
+  // Get billing period (current month)
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const month = months[billDate.getMonth()];
+  const year = billDate.getFullYear();
+
+  // Due date is 15 days from bill date
+  const dueDate = new Date(billDate);
+  dueDate.setDate(dueDate.getDate() + 15);
+
+  return {
+    customerName,
+    billDate,
+    billNumber: generateElectricityBillNumber(),
+    consumerNumber: generateConsumerNumber(),
+    meterNumber: generateMeterNumber(),
+    unitsConsumed,
+    ratePerUnit,
+    energyCharge: Math.round(energyCharge * 100) / 100,
+    fixedCharge,
+    fuelAdjustment,
+    electricityDuty,
+    totalAmount,
+    dueDate,
+    connectionAddress: 'Row house 7, matra montana, dhanori, pune, maharastra',
+    billingPeriod: `${month} ${year}`,
+  };
+};
+
+// ============================================
+// AI COURSE BILL UTILITIES
+// ============================================
+
+/**
+ * Generate AI Course Invoice Number
+ * Example: "AIA-2024-001234"
+ */
+export const generateAICourseInvoiceNumber = (): string => {
+  const year = new Date().getFullYear();
+  const randomNum = Math.floor(100000 + Math.random() * 900000);
+  return `AIA-${year}-${randomNum}`;
+};
+
+/**
+ * Generate AI Course Bill Data
+ * Total: ₹2,800 (Base: ₹2,373 + GST 18%)
+ */
+export const generateAICourseBillData = (
+  customerName: string,
+  invoiceDate: Date
+): AICourseBillData => {
+  // Items that sum up to ₹2,373 (before 18% GST = ₹2,800)
+  const items: CourseItem[] = [
+    { description: 'A2A Protocol Fundamentals Course', quantity: 1, unitPrice: 1500, amount: 1500 },
+    { description: 'Agent Communication Workshop', quantity: 1, unitPrice: 600, amount: 600 },
+    { description: 'Certification & Course Materials', quantity: 1, unitPrice: 273, amount: 273 },
+  ];
+
+  const subtotal = 2373; // Fixed subtotal
+  const cgst = 213.57; // 9%
+  const sgst = 213.43; // 9%
+  const totalAmount = 2800; // Fixed total
+
+  return {
+    customerName,
+    invoiceDate,
+    invoiceNumber: generateAICourseInvoiceNumber(),
+    courseName: 'A2A Protocol & Agentic AI Masterclass',
+    courseProvider: 'AI Academy by Hushh.ai',
+    courseDuration: '4 Weeks (16 Hours)',
+    items,
+    subtotal: Math.round(subtotal * 100) / 100,
+    cgst: Math.round(cgst * 100) / 100,
+    sgst: Math.round(sgst * 100) / 100,
+    totalAmount: Math.round(totalAmount * 100) / 100,
+    customerAddress: 'Row house 7, matra montana, dhanori, pune, maharastra',
+    corporateAddress: 'Hushh.ai, 1021 5th St W, Kirkland, WA 98033',
+    customerPhone: '+91 8004482372',
+    paymentStatus: 'PAID',
+    paymentMode: 'UPI',
+  };
+};
+
+/**
+ * Calculate grand total of all 5 bills
+ * WiFi: ₹2,804 + Food: ₹2,635 + Seminar: ₹5,273 + Electricity: ₹2,472 + AI Course: ₹2,800 = ₹15,984
  */
 export const calculateGrandTotal = (
   wifiBill: WiFiBillData | null,
   foodBill: FoodBillData | null,
-  seminarBill: SeminarBillData | null
+  seminarBill: SeminarBillData | null,
+  electricityBill: ElectricityBillData | null = null,
+  aiCourseBill: AICourseBillData | null = null
 ): number => {
   let total = 0;
   if (wifiBill) total += wifiBill.totalAmount;
   if (foodBill) total += foodBill.totalAmount;
   if (seminarBill) total += seminarBill.totalAmount;
+  if (electricityBill) total += electricityBill.totalAmount;
+  if (aiCourseBill) total += aiCourseBill.totalAmount;
   return Math.round(total * 100) / 100;
 };
