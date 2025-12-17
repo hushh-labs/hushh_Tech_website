@@ -256,9 +256,8 @@ function OnboardingStep14() {
       return;
     }
 
-    // Redirect to identity verification
-    // Redirect to Meet CEO page (payment layer)
-    navigate('/onboarding/meet-ceo');
+    // Navigate to Step 15 (Banking Information)
+    navigate('/onboarding/step-15');
   };
 
   const handleContinue = () => {
