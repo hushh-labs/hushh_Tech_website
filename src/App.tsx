@@ -115,20 +115,18 @@ const initializeGoogleAnalytics = () => {
 };
 
 // Check if dev console should be enabled
+// DISABLED: Dev console is disabled for production
 const shouldEnableDevConsole = (): boolean => {
-  if (typeof window === 'undefined') return false;
-  
-  // Check URL parameter
-  const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('debug') === 'true') return true;
-  
-  // Check localStorage flag
-  if (localStorage.getItem('devMode') === 'true') return true;
-  
-  // Enable in development mode
-  if (import.meta.env.DEV) return true;
-  
+  // Always return false to disable the dev console in production
   return false;
+  
+  // Original logic (commented out):
+  // if (typeof window === 'undefined') return false;
+  // const urlParams = new URLSearchParams(window.location.search);
+  // if (urlParams.get('debug') === 'true') return true;
+  // if (localStorage.getItem('devMode') === 'true') return true;
+  // if (import.meta.env.DEV) return true;
+  // return false;
 };
 
 function App() {
