@@ -153,14 +153,18 @@ export const generateReceiptData = (
 };
 
 // ============================================
-// WIFI BILL UTILITIES
+// IMPORT TYPES FROM BILL CARDS
 // ============================================
 
 import { WiFiBillData } from '../components/receipt/WiFiBillCard';
 import { FoodBillData, FoodItem } from '../components/receipt/FoodBillCard';
-import { SeminarBillData, SeminarItem } from '../components/receipt/SeminarBillCard';
+import { SeminarBillData } from '../components/receipt/SeminarBillCard';
 import { ElectricityBillData } from '../components/receipt/ElectricityBillCard';
-import { AICourseBillData, CourseItem } from '../components/receipt/AICourseBillCard';
+import { AICourseBillData } from '../components/receipt/AICourseBillCard';
+
+// ============================================
+// WIFI BILL UTILITIES
+// ============================================
 
 /**
  * Generate WiFi Bill Number
@@ -250,7 +254,7 @@ export const generateFoodBillData = (
     { name: 'Sweet Lassi', quantity: 4, rate: 85, amount: 340 },
   ];
 
-  const subtotal = 2510; // Fixed subtotal
+  const subTotal = 2510; // Fixed subtotal
   const cgst = 62.75; // 2.5%
   const sgst = 62.25; // 2.5%
   const totalAmount = 2635; // Fixed total
@@ -260,15 +264,14 @@ export const generateFoodBillData = (
     billDate,
     billNumber: generateFoodBillNumber(),
     items,
-    subtotal: Math.round(subtotal * 100) / 100,
+    subTotal: Math.round(subTotal * 100) / 100,
     cgst: Math.round(cgst * 100) / 100,
     sgst: Math.round(sgst * 100) / 100,
     totalAmount: Math.round(totalAmount * 100) / 100,
-    paymentMode: 'UPI',
-    tableNo: 'T-07',
-    serverName: 'Rahul',
-    customerAddress: 'Row house 7, matra montana, dhanori, pune, maharastra',
-    customerPhone: '+91 8004482372',
+    restaurantName: 'Apoorva Delicacies',
+    restaurantAddress: 'Shop No. 5, Dhanori Road, Near Chandan Nagar, Pune - 411015',
+    gstin: '27AAECA1234B1ZK',
+    tableNumber: 'T-07',
   };
 };
 
@@ -297,14 +300,7 @@ export const generateSeminarBillData = (
   eventDate: string = '20-21 Nov 2024',
   eventVenue: string = 'Marriott Convention Center, Pune'
 ): SeminarBillData => {
-  // Items that sum up to ₹4,468 (before 18% GST = ₹5,273) - HALF of original
-  const items: SeminarItem[] = [
-    { description: 'Conference Pass - Standard (1 Day)', quantity: 1, unitPrice: 2750, amount: 2750 },
-    { description: 'Workshop: AI Implementation Basics', quantity: 1, unitPrice: 1100, amount: 1100 },
-    { description: 'Networking Lunch', quantity: 1, unitPrice: 618, amount: 618 },
-  ];
-
-  const subtotal = 4468; // Fixed subtotal (half)
+  const registrationFee = 4468; // Fixed base amount (half)
   const cgst = 402.12; // 9%
   const sgst = 402.88; // 9%
   const totalAmount = 5273; // Fixed total (half)
@@ -316,16 +312,15 @@ export const generateSeminarBillData = (
     eventName,
     eventDate,
     eventVenue,
-    items,
-    subtotal: Math.round(subtotal * 100) / 100,
+    registrationFee: Math.round(registrationFee * 100) / 100,
     cgst: Math.round(cgst * 100) / 100,
     sgst: Math.round(sgst * 100) / 100,
     totalAmount: Math.round(totalAmount * 100) / 100,
+    companyName: 'TravelPlus Events Pvt. Ltd.',
+    companyAddress: '301, Business Park, Baner Road, Pune - 411045',
+    gstin: '27AABCT5678E1Z5',
     customerAddress: 'Row house 7, matra montana, dhanori, pune, maharastra',
-    corporateAddress: 'Hushh.ai, 1021 5th St W, Kirkland, WA 98033',
-    customerPhone: '+91 8004482372',
-    paymentStatus: 'PAID',
-    paymentMode: 'Bank Transfer',
+    customerContact: '+91 8004482372',
   };
 };
 
@@ -371,10 +366,9 @@ export const generateElectricityBillData = (
 ): ElectricityBillData => {
   const unitsConsumed = 285;
   const ratePerUnit = 7.50;
-  const energyCharge = unitsConsumed * ratePerUnit; // 2137.50
-  const fixedCharge = 150;
-  const fuelAdjustment = 85.50;
-  const electricityDuty = 99;
+  const energyCharges = unitsConsumed * ratePerUnit; // 2137.50
+  const fixedCharges = 150;
+  const electricityDuty = 184.50;
   const totalAmount = 2472; // Fixed total
 
   // Get billing period (current month)
@@ -392,16 +386,17 @@ export const generateElectricityBillData = (
     billNumber: generateElectricityBillNumber(),
     consumerNumber: generateConsumerNumber(),
     meterNumber: generateMeterNumber(),
+    connectionType: 'LT Residential',
+    billingPeriod: `${month} ${year}`,
     unitsConsumed,
     ratePerUnit,
-    energyCharge: Math.round(energyCharge * 100) / 100,
-    fixedCharge,
-    fuelAdjustment,
+    energyCharges: Math.round(energyCharges * 100) / 100,
+    fixedCharges,
     electricityDuty,
     totalAmount,
     dueDate,
-    connectionAddress: 'Row house 7, matra montana, dhanori, pune, maharastra',
-    billingPeriod: `${month} ${year}`,
+    customerAddress: 'Row house 7, matra montana, dhanori, pune, maharastra',
+    sanctionedLoad: '5 kW',
   };
 };
 
@@ -420,6 +415,16 @@ export const generateAICourseInvoiceNumber = (): string => {
 };
 
 /**
+ * Generate Enrollment ID
+ * Example: "ENR-2024-12345"
+ */
+export const generateEnrollmentId = (): string => {
+  const year = new Date().getFullYear();
+  const randomNum = Math.floor(10000 + Math.random() * 90000);
+  return `ENR-${year}-${randomNum}`;
+};
+
+/**
  * Generate AI Course Bill Data
  * Total: ₹2,800 (Base: ₹2,373 + GST 18%)
  */
@@ -427,14 +432,7 @@ export const generateAICourseBillData = (
   customerName: string,
   invoiceDate: Date
 ): AICourseBillData => {
-  // Items that sum up to ₹2,373 (before 18% GST = ₹2,800)
-  const items: CourseItem[] = [
-    { description: 'A2A Protocol Fundamentals Course', quantity: 1, unitPrice: 1500, amount: 1500 },
-    { description: 'Agent Communication Workshop', quantity: 1, unitPrice: 600, amount: 600 },
-    { description: 'Certification & Course Materials', quantity: 1, unitPrice: 273, amount: 273 },
-  ];
-
-  const subtotal = 2373; // Fixed subtotal
+  const courseFee = 2373; // Fixed base amount
   const cgst = 213.57; // 9%
   const sgst = 213.43; // 9%
   const totalAmount = 2800; // Fixed total
@@ -444,18 +442,19 @@ export const generateAICourseBillData = (
     invoiceDate,
     invoiceNumber: generateAICourseInvoiceNumber(),
     courseName: 'A2A Protocol & Agentic AI Masterclass',
-    courseProvider: 'AI Academy by Hushh.ai',
+    courseDescription: 'Complete course on Agent-to-Agent communication and Agentic AI development',
     courseDuration: '4 Weeks (16 Hours)',
-    items,
-    subtotal: Math.round(subtotal * 100) / 100,
+    courseFee: Math.round(courseFee * 100) / 100,
     cgst: Math.round(cgst * 100) / 100,
     sgst: Math.round(sgst * 100) / 100,
     totalAmount: Math.round(totalAmount * 100) / 100,
+    companyName: 'Hushh AI Academy',
+    companyAddress: '1021 5th St W, Kirkland, WA 98033',
+    gstin: '27AABCH9012F1ZQ',
     customerAddress: 'Row house 7, matra montana, dhanori, pune, maharastra',
-    corporateAddress: 'Hushh.ai, 1021 5th St W, Kirkland, WA 98033',
-    customerPhone: '+91 8004482372',
-    paymentStatus: 'PAID',
-    paymentMode: 'UPI',
+    customerEmail: 'ankitkumarsingh@gmail.com',
+    customerContact: '+91 8004482372',
+    enrollmentId: generateEnrollmentId(),
   };
 };
 
