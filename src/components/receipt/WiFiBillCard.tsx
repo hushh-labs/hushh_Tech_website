@@ -12,6 +12,8 @@ import {
   Tbody,
   Tr,
   Td,
+  Th,
+  Thead,
 } from '@chakra-ui/react';
 
 export interface WiFiBillData {
@@ -35,7 +37,8 @@ interface WiFiBillCardProps {
 }
 
 /**
- * WiFi Bill Card - Hathway Internet Bill Style
+ * WiFi Bill Card - Official Black & White A4 Format
+ * Hathway Internet Bill Style
  */
 const WiFiBillCard = forwardRef<HTMLDivElement, WiFiBillCardProps>(
   ({ data }, ref) => {
@@ -54,168 +57,191 @@ const WiFiBillCard = forwardRef<HTMLDivElement, WiFiBillCardProps>(
       <Box
         ref={ref}
         bg="white"
-        borderRadius="8px"
-        overflow="hidden"
-        maxW="450px"
-        w="100%"
-        fontFamily="'Inter', -apple-system, BlinkMacSystemFont, sans-serif"
-        border="1px solid"
-        borderColor="gray.200"
-        p={0}
+        w="210mm"
+        minH="297mm"
+        fontFamily="'Times New Roman', Times, serif"
+        border="1px solid black"
+        p="15mm"
+        color="black"
+        sx={{
+          '@media print': {
+            width: '210mm',
+            minHeight: '297mm',
+          },
+        }}
       >
-        {/* Header - Hathway Style */}
-        <Box bg="#E53935" px={5} py={4}>
-          <HStack justify="space-between" align="center">
-            <VStack align="flex-start" spacing={0}>
-              <Text fontSize="22px" fontWeight="700" color="white" letterSpacing="1px">
+        {/* Header */}
+        <Box borderBottom="2px solid black" pb={4} mb={4}>
+          <Flex justify="space-between" align="flex-start">
+            <VStack align="flex-start" spacing={1}>
+              <Text fontSize="28px" fontWeight="bold" letterSpacing="2px">
                 HATHWAY
               </Text>
-              <Text fontSize="10px" color="white" opacity={0.9}>
-                Digital Cable Network
-              </Text>
-            </VStack>
-            <VStack align="flex-end" spacing={0}>
-              <Text fontSize="11px" color="white" fontWeight="500">
-                TAX INVOICE
-              </Text>
-              <Text fontSize="10px" color="white" opacity={0.8}>
-                GSTIN: 27AAACH7756R1ZW
-              </Text>
-            </VStack>
-          </HStack>
-        </Box>
-
-        {/* Bill Info Section */}
-        <Box px={5} py={4} bg="gray.50">
-          <HStack justify="space-between" align="flex-start">
-            <VStack align="flex-start" spacing={1}>
-              <Text fontSize="11px" color="gray.500" fontWeight="500">
-                BILL NUMBER
-              </Text>
-              <Text fontSize="13px" color="gray.800" fontWeight="600">
-                {data.billNumber}
-              </Text>
+              <Text fontSize="12px">Digital Cable Network Pvt. Ltd.</Text>
+              <Text fontSize="11px">CIN: U64200MH2001PTC132576</Text>
             </VStack>
             <VStack align="flex-end" spacing={1}>
-              <Text fontSize="11px" color="gray.500" fontWeight="500">
-                BILL DATE
-              </Text>
-              <Text fontSize="13px" color="gray.800" fontWeight="600">
-                {formatDate(data.billDate)}
-              </Text>
+              <Box border="2px solid black" px={4} py={2}>
+                <Text fontSize="16px" fontWeight="bold">TAX INVOICE</Text>
+              </Box>
+              <Text fontSize="11px">GSTIN: 27AAACH7756R1ZW</Text>
+              <Text fontSize="11px">PAN: AAACH7756R</Text>
             </VStack>
-          </HStack>
-        </Box>
-
-        <Divider />
-
-        {/* Customer Details */}
-        <Box px={5} py={4}>
-          <Text fontSize="11px" color="gray.500" fontWeight="500" mb={2}>
-            CUSTOMER DETAILS
+          </Flex>
+          <Text fontSize="11px" mt={2}>
+            Regd. Office: Unit 1, Techniplex-1, Techniplex Complex, Off Veer Savarkar Flyover, Goregaon (West), Mumbai - 400062
           </Text>
-          <VStack align="flex-start" spacing={2}>
-            <Box>
-              <Text fontSize="14px" color="gray.800" fontWeight="600">
-                {data.customerName}
-              </Text>
-              <Text fontSize="12px" color="gray.600" mt={1}>
-                Customer ID: {data.customerId}
-              </Text>
-            </Box>
-            <Text fontSize="12px" color="gray.600" lineHeight="1.5">
-              {data.connectionAddress}
-            </Text>
-          </VStack>
         </Box>
 
-        <Divider />
+        {/* Bill Details */}
+        <HStack justify="space-between" mb={6} spacing={8}>
+          <Box flex={1} border="1px solid black" p={3}>
+            <Text fontSize="10px" fontWeight="bold" mb={2} textDecoration="underline">BILL DETAILS</Text>
+            <Table variant="unstyled" size="sm">
+              <Tbody>
+                <Tr>
+                  <Td p={1} fontSize="11px" fontWeight="bold" w="40%">Bill Number:</Td>
+                  <Td p={1} fontSize="11px">{data.billNumber}</Td>
+                </Tr>
+                <Tr>
+                  <Td p={1} fontSize="11px" fontWeight="bold">Bill Date:</Td>
+                  <Td p={1} fontSize="11px">{formatDate(data.billDate)}</Td>
+                </Tr>
+                <Tr>
+                  <Td p={1} fontSize="11px" fontWeight="bold">Due Date:</Td>
+                  <Td p={1} fontSize="11px">{formatDate(data.dueDate)}</Td>
+                </Tr>
+                <Tr>
+                  <Td p={1} fontSize="11px" fontWeight="bold">Billing Period:</Td>
+                  <Td p={1} fontSize="11px">{data.billingPeriod}</Td>
+                </Tr>
+              </Tbody>
+            </Table>
+          </Box>
+          <Box flex={1} border="1px solid black" p={3}>
+            <Text fontSize="10px" fontWeight="bold" mb={2} textDecoration="underline">CUSTOMER DETAILS</Text>
+            <Table variant="unstyled" size="sm">
+              <Tbody>
+                <Tr>
+                  <Td p={1} fontSize="11px" fontWeight="bold" w="40%">Customer ID:</Td>
+                  <Td p={1} fontSize="11px">{data.customerId}</Td>
+                </Tr>
+                <Tr>
+                  <Td p={1} fontSize="11px" fontWeight="bold">Name:</Td>
+                  <Td p={1} fontSize="11px">{data.customerName}</Td>
+                </Tr>
+                <Tr>
+                  <Td p={1} fontSize="11px" fontWeight="bold" verticalAlign="top">Address:</Td>
+                  <Td p={1} fontSize="11px">{data.connectionAddress}</Td>
+                </Tr>
+              </Tbody>
+            </Table>
+          </Box>
+        </HStack>
 
         {/* Plan Details */}
-        <Box px={5} py={4}>
-          <Text fontSize="11px" color="gray.500" fontWeight="500" mb={3}>
-            PLAN DETAILS
-          </Text>
-          <HStack justify="space-between" bg="red.50" p={3} borderRadius="6px">
-            <VStack align="flex-start" spacing={0}>
-              <Text fontSize="13px" color="gray.800" fontWeight="600">
-                {data.planName}
-              </Text>
-              <Text fontSize="11px" color="gray.600">
-                {data.planSpeed}
-              </Text>
-            </VStack>
-            <Text fontSize="12px" color="gray.600">
-              Billing Period: {data.billingPeriod}
-            </Text>
-          </HStack>
-        </Box>
-
-        <Divider />
-
-        {/* Charges Breakdown */}
-        <Box px={5} py={4}>
-          <Text fontSize="11px" color="gray.500" fontWeight="500" mb={3}>
-            CHARGES BREAKDOWN
-          </Text>
-          <Table variant="unstyled" size="sm">
+        <Box mb={6}>
+          <Text fontSize="12px" fontWeight="bold" mb={2} textDecoration="underline">SUBSCRIPTION DETAILS</Text>
+          <Table variant="simple" size="sm" border="1px solid black">
+            <Thead>
+              <Tr bg="gray.100">
+                <Th border="1px solid black" fontSize="10px" p={2}>S.No.</Th>
+                <Th border="1px solid black" fontSize="10px" p={2}>Description</Th>
+                <Th border="1px solid black" fontSize="10px" p={2}>HSN/SAC</Th>
+                <Th border="1px solid black" fontSize="10px" p={2} textAlign="right">Amount (₹)</Th>
+              </Tr>
+            </Thead>
             <Tbody>
               <Tr>
-                <Td px={0} py={2} fontSize="13px" color="gray.700">
-                  Monthly Subscription Charge
+                <Td border="1px solid black" fontSize="11px" p={2}>1</Td>
+                <Td border="1px solid black" fontSize="11px" p={2}>
+                  {data.planName} - {data.planSpeed}<br/>
+                  <Text fontSize="10px" color="gray.600">Monthly Internet Subscription Charges</Text>
                 </Td>
-                <Td px={0} py={2} fontSize="13px" color="gray.800" textAlign="right" fontWeight="500">
-                  {formatCurrency(data.monthlyCharge)}
-                </Td>
-              </Tr>
-              <Tr>
-                <Td px={0} py={2} fontSize="13px" color="gray.700">
-                  CGST @ 9%
-                </Td>
-                <Td px={0} py={2} fontSize="13px" color="gray.800" textAlign="right" fontWeight="500">
-                  {formatCurrency(data.cgst)}
-                </Td>
-              </Tr>
-              <Tr>
-                <Td px={0} py={2} fontSize="13px" color="gray.700">
-                  SGST @ 9%
-                </Td>
-                <Td px={0} py={2} fontSize="13px" color="gray.800" textAlign="right" fontWeight="500">
-                  {formatCurrency(data.sgst)}
-                </Td>
+                <Td border="1px solid black" fontSize="11px" p={2}>998422</Td>
+                <Td border="1px solid black" fontSize="11px" p={2} textAlign="right">{data.monthlyCharge.toFixed(2)}</Td>
               </Tr>
             </Tbody>
           </Table>
         </Box>
 
-        {/* Total Amount */}
-        <Box px={5} py={4} bg="#E53935">
-          <Flex justify="space-between" align="center">
-            <Text fontSize="14px" color="white" fontWeight="600">
-              Total Amount Due
-            </Text>
-            <Text fontSize="20px" color="white" fontWeight="700">
-              {formatCurrency(data.totalAmount)}
-            </Text>
-          </Flex>
-          <Text fontSize="11px" color="white" opacity={0.85} mt={1}>
-            Due Date: {formatDate(data.dueDate)}
+        {/* Tax Breakdown */}
+        <Box mb={6}>
+          <Text fontSize="12px" fontWeight="bold" mb={2} textDecoration="underline">TAX DETAILS</Text>
+          <Table variant="simple" size="sm" border="1px solid black" maxW="400px">
+            <Tbody>
+              <Tr>
+                <Td border="1px solid black" fontSize="11px" p={2}>Taxable Amount</Td>
+                <Td border="1px solid black" fontSize="11px" p={2} textAlign="right">{data.monthlyCharge.toFixed(2)}</Td>
+              </Tr>
+              <Tr>
+                <Td border="1px solid black" fontSize="11px" p={2}>CGST @ 9%</Td>
+                <Td border="1px solid black" fontSize="11px" p={2} textAlign="right">{data.cgst.toFixed(2)}</Td>
+              </Tr>
+              <Tr>
+                <Td border="1px solid black" fontSize="11px" p={2}>SGST @ 9%</Td>
+                <Td border="1px solid black" fontSize="11px" p={2} textAlign="right">{data.sgst.toFixed(2)}</Td>
+              </Tr>
+              <Tr bg="gray.100">
+                <Td border="1px solid black" fontSize="12px" p={2} fontWeight="bold">TOTAL AMOUNT</Td>
+                <Td border="1px solid black" fontSize="12px" p={2} textAlign="right" fontWeight="bold">{formatCurrency(data.totalAmount)}</Td>
+              </Tr>
+            </Tbody>
+          </Table>
+        </Box>
+
+        {/* Amount in Words */}
+        <Box mb={6} p={3} border="1px solid black">
+          <Text fontSize="11px">
+            <Text as="span" fontWeight="bold">Amount in Words: </Text>
+            Rupees {numberToWords(Math.floor(data.totalAmount))} Only
           </Text>
         </Box>
 
+        {/* Payment Info */}
+        <Box mb={6}>
+          <Text fontSize="12px" fontWeight="bold" mb={2} textDecoration="underline">PAYMENT INFORMATION</Text>
+          <Text fontSize="11px" mb={1}>• Payment can be made via UPI, Net Banking, Credit/Debit Card, or Cash</Text>
+          <Text fontSize="11px" mb={1}>• Late payment may attract penalty charges</Text>
+          <Text fontSize="11px">• For online payment: Visit www.hathway.com or use Hathway App</Text>
+        </Box>
+
         {/* Footer */}
-        <Box px={5} py={3} bg="gray.50">
-          <Text fontSize="10px" color="gray.500" textAlign="center">
-            For queries: 1800-419-6666 | support@hathway.com
-          </Text>
-          <Text fontSize="9px" color="gray.400" textAlign="center" mt={1}>
-            This is a computer generated invoice and does not require signature
+        <Box borderTop="1px solid black" pt={4} mt="auto">
+          <Flex justify="space-between" align="flex-end">
+            <VStack align="flex-start" spacing={1}>
+              <Text fontSize="10px">Customer Care: 1800-419-6666 (Toll Free)</Text>
+              <Text fontSize="10px">Email: support@hathway.com</Text>
+              <Text fontSize="10px">Website: www.hathway.com</Text>
+            </VStack>
+            <VStack align="flex-end" spacing={1}>
+              <Text fontSize="10px" mb={8}>For Hathway Digital Cable Network Pvt. Ltd.</Text>
+              <Text fontSize="10px" fontStyle="italic">Authorized Signatory</Text>
+            </VStack>
+          </Flex>
+          <Text fontSize="9px" textAlign="center" mt={4} color="gray.600">
+            This is a computer generated invoice and does not require physical signature.
           </Text>
         </Box>
       </Box>
     );
   }
 );
+
+// Helper function to convert number to words
+function numberToWords(num: number): string {
+  const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten',
+    'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+  const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+
+  if (num === 0) return 'Zero';
+  if (num < 20) return ones[num];
+  if (num < 100) return tens[Math.floor(num / 10)] + (num % 10 ? ' ' + ones[num % 10] : '');
+  if (num < 1000) return ones[Math.floor(num / 100)] + ' Hundred' + (num % 100 ? ' ' + numberToWords(num % 100) : '');
+  if (num < 100000) return numberToWords(Math.floor(num / 1000)) + ' Thousand' + (num % 1000 ? ' ' + numberToWords(num % 1000) : '');
+  if (num < 10000000) return numberToWords(Math.floor(num / 100000)) + ' Lakh' + (num % 100000 ? ' ' + numberToWords(num % 100000) : '');
+  return numberToWords(Math.floor(num / 10000000)) + ' Crore' + (num % 10000000 ? ' ' + numberToWords(num % 10000000) : '');
+}
 
 WiFiBillCard.displayName = 'WiFiBillCard';
 

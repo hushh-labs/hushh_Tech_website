@@ -7,13 +7,12 @@ import {
   Text,
   VStack,
   HStack,
-  Divider,
   Table,
-  Thead,
   Tbody,
   Tr,
-  Th,
   Td,
+  Th,
+  Thead,
 } from '@chakra-ui/react';
 
 export interface FoodItem {
@@ -28,15 +27,14 @@ export interface FoodBillData {
   billDate: Date;
   billNumber: string;
   items: FoodItem[];
-  subtotal: number;
+  subTotal: number;
   cgst: number;
   sgst: number;
   totalAmount: number;
-  paymentMode: string;
-  tableNo?: string;
-  serverName?: string;
-  customerAddress: string;
-  customerPhone: string;
+  restaurantName: string;
+  restaurantAddress: string;
+  gstin: string;
+  tableNumber?: string;
 }
 
 interface FoodBillCardProps {
@@ -44,7 +42,8 @@ interface FoodBillCardProps {
 }
 
 /**
- * Food Bill Card - Apoorva Delicacies Restaurant Style
+ * Food Bill Card - Official Black & White A4 Format
+ * Restaurant Bill Style
  */
 const FoodBillCard = forwardRef<HTMLDivElement, FoodBillCardProps>(
   ({ data }, ref) => {
@@ -52,11 +51,13 @@ const FoodBillCard = forwardRef<HTMLDivElement, FoodBillCardProps>(
       const day = date.getDate().toString().padStart(2, '0');
       const month = (date.getMonth() + 1).toString().padStart(2, '0');
       const year = date.getFullYear();
-      const hours = date.getHours();
+      return `${day}/${month}/${year}`;
+    };
+
+    const formatTime = (date: Date): string => {
+      const hours = date.getHours().toString().padStart(2, '0');
       const minutes = date.getMinutes().toString().padStart(2, '0');
-      const ampm = hours >= 12 ? 'PM' : 'AM';
-      const hour12 = hours % 12 || 12;
-      return `${day}/${month}/${year} ${hour12}:${minutes} ${ampm}`;
+      return `${hours}:${minutes}`;
     };
 
     const formatCurrency = (amount: number): string => {
@@ -67,133 +68,199 @@ const FoodBillCard = forwardRef<HTMLDivElement, FoodBillCardProps>(
       <Box
         ref={ref}
         bg="white"
-        borderRadius="8px"
-        overflow="hidden"
-        maxW="400px"
-        w="100%"
-        fontFamily="'Courier New', Courier, monospace"
-        border="1px solid"
-        borderColor="gray.300"
-        p={0}
+        w="210mm"
+        minH="297mm"
+        fontFamily="'Times New Roman', Times, serif"
+        border="1px solid black"
+        p="15mm"
+        color="black"
+        sx={{
+          '@media print': {
+            width: '210mm',
+            minHeight: '297mm',
+          },
+        }}
       >
-        {/* Header - Restaurant Style */}
-        <Box px={5} py={4} textAlign="center" borderBottom="2px dashed" borderColor="gray.300">
-          <Text fontSize="24px" fontWeight="700" color="orange.600" letterSpacing="2px">
-            APOORVA
+        {/* Header */}
+        <Box borderBottom="2px solid black" pb={4} mb={4} textAlign="center">
+          <Text fontSize="28px" fontWeight="bold" letterSpacing="2px">
+            {data.restaurantName}
           </Text>
-          <Text fontSize="12px" color="orange.500" fontWeight="600" mt={-1}>
-            DELICACIES
+          <Text fontSize="12px" mt={1}>
+            {data.restaurantAddress}
           </Text>
-          <Text fontSize="10px" color="gray.600" mt={2}>
-            Pure Vegetarian Restaurant
+          <Text fontSize="11px" mt={1}>
+            GSTIN: {data.gstin}
           </Text>
-          <Text fontSize="9px" color="gray.500" mt={1}>
-            Shop No. 12, Phoenix Mall, Dhanori, Pune - 411015
-          </Text>
-          <Text fontSize="9px" color="gray.500">
-            Tel: 020-27654321 | FSSAI: 11521034000789
-          </Text>
+          <Box border="2px solid black" display="inline-block" px={4} py={2} mt={3}>
+            <Text fontSize="16px" fontWeight="bold">TAX INVOICE</Text>
+          </Box>
         </Box>
 
         {/* Bill Info */}
-        <Box px={4} py={3} bg="orange.50" borderBottom="1px dashed" borderColor="gray.300">
-          <HStack justify="space-between">
-            <VStack align="flex-start" spacing={0}>
-              <Text fontSize="10px" color="gray.500">BILL NO</Text>
-              <Text fontSize="11px" color="gray.800" fontWeight="600">{data.billNumber}</Text>
-            </VStack>
-            <VStack align="flex-end" spacing={0}>
-              <Text fontSize="10px" color="gray.500">DATE & TIME</Text>
-              <Text fontSize="11px" color="gray.800" fontWeight="600">{formatDate(data.billDate)}</Text>
-            </VStack>
-          </HStack>
-          {data.tableNo && (
-            <HStack justify="space-between" mt={2}>
-              <Text fontSize="10px" color="gray.600">Table: {data.tableNo}</Text>
-              {data.serverName && <Text fontSize="10px" color="gray.600">Server: {data.serverName}</Text>}
-            </HStack>
-          )}
-        </Box>
-
-        {/* Customer Info */}
-        <Box px={4} py={3} borderBottom="1px dashed" borderColor="gray.300">
-          <Text fontSize="10px" color="gray.500" mb={1}>CUSTOMER</Text>
-          <Text fontSize="12px" color="gray.800" fontWeight="600">{data.customerName}</Text>
-          <Text fontSize="9px" color="gray.600" mt={1}>{data.customerAddress}</Text>
-          <Text fontSize="9px" color="gray.600">Ph: {data.customerPhone}</Text>
-        </Box>
+        <HStack justify="space-between" mb={6} spacing={8}>
+          <Box flex={1} border="1px solid black" p={3}>
+            <Text fontSize="10px" fontWeight="bold" mb={2} textDecoration="underline">BILL DETAILS</Text>
+            <Table variant="unstyled" size="sm">
+              <Tbody>
+                <Tr>
+                  <Td p={1} fontSize="11px" fontWeight="bold" w="40%">Bill No:</Td>
+                  <Td p={1} fontSize="11px">{data.billNumber}</Td>
+                </Tr>
+                <Tr>
+                  <Td p={1} fontSize="11px" fontWeight="bold">Date:</Td>
+                  <Td p={1} fontSize="11px">{formatDate(data.billDate)}</Td>
+                </Tr>
+                <Tr>
+                  <Td p={1} fontSize="11px" fontWeight="bold">Time:</Td>
+                  <Td p={1} fontSize="11px">{formatTime(data.billDate)}</Td>
+                </Tr>
+                {data.tableNumber && (
+                  <Tr>
+                    <Td p={1} fontSize="11px" fontWeight="bold">Table No:</Td>
+                    <Td p={1} fontSize="11px">{data.tableNumber}</Td>
+                  </Tr>
+                )}
+              </Tbody>
+            </Table>
+          </Box>
+          <Box flex={1} border="1px solid black" p={3}>
+            <Text fontSize="10px" fontWeight="bold" mb={2} textDecoration="underline">CUSTOMER DETAILS</Text>
+            <Table variant="unstyled" size="sm">
+              <Tbody>
+                <Tr>
+                  <Td p={1} fontSize="11px" fontWeight="bold" w="30%">Name:</Td>
+                  <Td p={1} fontSize="11px">{data.customerName}</Td>
+                </Tr>
+                <Tr>
+                  <Td p={1} fontSize="11px" fontWeight="bold">Mode:</Td>
+                  <Td p={1} fontSize="11px">Dine-In</Td>
+                </Tr>
+              </Tbody>
+            </Table>
+          </Box>
+        </HStack>
 
         {/* Items Table */}
-        <Box px={3} py={3}>
-          <Table variant="unstyled" size="sm">
+        <Box mb={6}>
+          <Text fontSize="12px" fontWeight="bold" mb={2} textDecoration="underline">ORDER DETAILS</Text>
+          <Table variant="simple" size="sm" border="1px solid black">
             <Thead>
-              <Tr borderBottom="1px solid" borderColor="gray.200">
-                <Th px={1} py={2} fontSize="9px" color="gray.600" fontWeight="600" textTransform="uppercase">Item</Th>
-                <Th px={1} py={2} fontSize="9px" color="gray.600" fontWeight="600" textAlign="center">Qty</Th>
-                <Th px={1} py={2} fontSize="9px" color="gray.600" fontWeight="600" textAlign="right">Rate</Th>
-                <Th px={1} py={2} fontSize="9px" color="gray.600" fontWeight="600" textAlign="right">Amt</Th>
+              <Tr bg="gray.100">
+                <Th border="1px solid black" fontSize="10px" p={2}>S.No.</Th>
+                <Th border="1px solid black" fontSize="10px" p={2}>Item Description</Th>
+                <Th border="1px solid black" fontSize="10px" p={2}>HSN/SAC</Th>
+                <Th border="1px solid black" fontSize="10px" p={2} textAlign="center">Qty</Th>
+                <Th border="1px solid black" fontSize="10px" p={2} textAlign="right">Rate (₹)</Th>
+                <Th border="1px solid black" fontSize="10px" p={2} textAlign="right">Amount (₹)</Th>
               </Tr>
             </Thead>
             <Tbody>
               {data.items.map((item, index) => (
                 <Tr key={index}>
-                  <Td px={1} py={1.5} fontSize="11px" color="gray.800">{item.name}</Td>
-                  <Td px={1} py={1.5} fontSize="11px" color="gray.800" textAlign="center">{item.quantity}</Td>
-                  <Td px={1} py={1.5} fontSize="11px" color="gray.800" textAlign="right">{item.rate.toFixed(2)}</Td>
-                  <Td px={1} py={1.5} fontSize="11px" color="gray.800" textAlign="right" fontWeight="500">{item.amount.toFixed(2)}</Td>
+                  <Td border="1px solid black" fontSize="11px" p={2}>{index + 1}</Td>
+                  <Td border="1px solid black" fontSize="11px" p={2}>{item.name}</Td>
+                  <Td border="1px solid black" fontSize="11px" p={2}>996331</Td>
+                  <Td border="1px solid black" fontSize="11px" p={2} textAlign="center">{item.quantity}</Td>
+                  <Td border="1px solid black" fontSize="11px" p={2} textAlign="right">{item.rate.toFixed(2)}</Td>
+                  <Td border="1px solid black" fontSize="11px" p={2} textAlign="right">{item.amount.toFixed(2)}</Td>
                 </Tr>
               ))}
             </Tbody>
           </Table>
         </Box>
 
-        {/* Divider */}
-        <Divider borderStyle="dashed" borderColor="gray.300" />
+        {/* Tax & Total */}
+        <Flex justify="flex-end" mb={6}>
+          <Table variant="simple" size="sm" border="1px solid black" maxW="350px">
+            <Tbody>
+              <Tr>
+                <Td border="1px solid black" fontSize="11px" p={2}>Sub Total</Td>
+                <Td border="1px solid black" fontSize="11px" p={2} textAlign="right">{data.subTotal.toFixed(2)}</Td>
+              </Tr>
+              <Tr>
+                <Td border="1px solid black" fontSize="11px" p={2}>CGST @ 2.5%</Td>
+                <Td border="1px solid black" fontSize="11px" p={2} textAlign="right">{data.cgst.toFixed(2)}</Td>
+              </Tr>
+              <Tr>
+                <Td border="1px solid black" fontSize="11px" p={2}>SGST @ 2.5%</Td>
+                <Td border="1px solid black" fontSize="11px" p={2} textAlign="right">{data.sgst.toFixed(2)}</Td>
+              </Tr>
+              <Tr bg="gray.100">
+                <Td border="1px solid black" fontSize="12px" p={2} fontWeight="bold">GRAND TOTAL</Td>
+                <Td border="1px solid black" fontSize="12px" p={2} textAlign="right" fontWeight="bold">{formatCurrency(data.totalAmount)}</Td>
+              </Tr>
+            </Tbody>
+          </Table>
+        </Flex>
 
-        {/* Totals */}
-        <Box px={4} py={3}>
-          <HStack justify="space-between" mb={1}>
-            <Text fontSize="11px" color="gray.600">Sub Total</Text>
-            <Text fontSize="11px" color="gray.800" fontWeight="500">{formatCurrency(data.subtotal)}</Text>
-          </HStack>
-          <HStack justify="space-between" mb={1}>
-            <Text fontSize="10px" color="gray.500">CGST @ 2.5%</Text>
-            <Text fontSize="10px" color="gray.600">{formatCurrency(data.cgst)}</Text>
-          </HStack>
-          <HStack justify="space-between" mb={2}>
-            <Text fontSize="10px" color="gray.500">SGST @ 2.5%</Text>
-            <Text fontSize="10px" color="gray.600">{formatCurrency(data.sgst)}</Text>
-          </HStack>
-          
-          <Divider my={2} />
-          
-          <HStack justify="space-between">
-            <Text fontSize="14px" color="gray.800" fontWeight="700">GRAND TOTAL</Text>
-            <Text fontSize="16px" color="orange.600" fontWeight="700">{formatCurrency(data.totalAmount)}</Text>
-          </HStack>
-          
-          <HStack justify="space-between" mt={2}>
-            <Text fontSize="10px" color="gray.500">Payment Mode</Text>
-            <Text fontSize="10px" color="gray.700" fontWeight="500">{data.paymentMode}</Text>
-          </HStack>
+        {/* Amount in Words */}
+        <Box mb={6} p={3} border="1px solid black">
+          <Text fontSize="11px">
+            <Text as="span" fontWeight="bold">Amount in Words: </Text>
+            Rupees {numberToWords(Math.floor(data.totalAmount))} Only
+          </Text>
+        </Box>
+
+        {/* Payment Info */}
+        <Box mb={6}>
+          <Text fontSize="12px" fontWeight="bold" mb={2} textDecoration="underline">PAYMENT DETAILS</Text>
+          <Table variant="unstyled" size="sm" maxW="300px">
+            <Tbody>
+              <Tr>
+                <Td p={1} fontSize="11px" fontWeight="bold">Payment Mode:</Td>
+                <Td p={1} fontSize="11px">Cash / UPI / Card</Td>
+              </Tr>
+              <Tr>
+                <Td p={1} fontSize="11px" fontWeight="bold">Payment Status:</Td>
+                <Td p={1} fontSize="11px">PAID</Td>
+              </Tr>
+            </Tbody>
+          </Table>
+        </Box>
+
+        {/* Terms */}
+        <Box mb={6}>
+          <Text fontSize="10px" fontWeight="bold" mb={1}>Terms & Conditions:</Text>
+          <Text fontSize="9px">• Goods once sold will not be taken back or exchanged</Text>
+          <Text fontSize="9px">• Subject to Pune Jurisdiction</Text>
         </Box>
 
         {/* Footer */}
-        <Box px={4} py={3} bg="orange.50" borderTop="2px dashed" borderColor="gray.300" textAlign="center">
-          <Text fontSize="11px" color="orange.600" fontWeight="600">
-            Thank You! Visit Again!
-          </Text>
-          <Text fontSize="8px" color="gray.500" mt={1}>
-            GSTIN: 27AADCA1234F1Z5
-          </Text>
-          <Text fontSize="8px" color="gray.400" mt={1}>
-            This is a computer generated bill
+        <Box borderTop="1px solid black" pt={4} mt="auto">
+          <Flex justify="space-between" align="flex-end">
+            <VStack align="flex-start" spacing={1}>
+              <Text fontSize="10px">Thank you for dining with us!</Text>
+              <Text fontSize="10px">Visit Again!</Text>
+            </VStack>
+            <VStack align="flex-end" spacing={1}>
+              <Text fontSize="10px" mb={8}>For {data.restaurantName}</Text>
+              <Text fontSize="10px" fontStyle="italic">Authorized Signatory</Text>
+            </VStack>
+          </Flex>
+          <Text fontSize="9px" textAlign="center" mt={4} color="gray.600">
+            This is a computer generated invoice and does not require physical signature.
           </Text>
         </Box>
       </Box>
     );
   }
 );
+
+// Helper function to convert number to words
+function numberToWords(num: number): string {
+  const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten',
+    'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+  const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+
+  if (num === 0) return 'Zero';
+  if (num < 20) return ones[num];
+  if (num < 100) return tens[Math.floor(num / 10)] + (num % 10 ? ' ' + ones[num % 10] : '');
+  if (num < 1000) return ones[Math.floor(num / 100)] + ' Hundred' + (num % 100 ? ' ' + numberToWords(num % 100) : '');
+  if (num < 100000) return numberToWords(Math.floor(num / 1000)) + ' Thousand' + (num % 1000 ? ' ' + numberToWords(num % 1000) : '');
+  if (num < 10000000) return numberToWords(Math.floor(num / 100000)) + ' Lakh' + (num % 100000 ? ' ' + numberToWords(num % 100000) : '');
+  return numberToWords(Math.floor(num / 10000000)) + ' Crore' + (num % 10000000 ? ' ' + numberToWords(num % 10000000) : '');
+}
 
 FoodBillCard.displayName = 'FoodBillCard';
 
