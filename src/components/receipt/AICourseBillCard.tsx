@@ -40,8 +40,8 @@ interface AICourseBillCardProps {
 }
 
 /**
- * AI Course Bill Card - Official Black & White A4 Format
- * Training/Course Invoice Style
+ * Udemy Course Bill Card - Official Black & White A4 Format
+ * Online Learning Platform Invoice Style
  */
 const AICourseBillCard = forwardRef<HTMLDivElement, AICourseBillCardProps>(
   ({ data }, ref) => {
@@ -80,7 +80,7 @@ const AICourseBillCard = forwardRef<HTMLDivElement, AICourseBillCardProps>(
               <Text fontSize="26px" fontWeight="bold" letterSpacing="1px">
                 {data.companyName}
               </Text>
-              <Text fontSize="12px">AI & Technology Training Institute</Text>
+              <Text fontSize="12px">Online Learning Platform</Text>
               <Text fontSize="11px">{data.companyAddress}</Text>
               <Text fontSize="11px">GSTIN: {data.gstin}</Text>
             </VStack>
@@ -241,8 +241,8 @@ const AICourseBillCard = forwardRef<HTMLDivElement, AICourseBillCardProps>(
         <Box mb={6} p={3} border="1px solid black" bg="gray.50">
           <Text fontSize="11px" fontWeight="bold" mb={2}>COURSE ACCESS INFORMATION</Text>
           <Text fontSize="10px">• Login credentials will be sent to registered email within 24 hours</Text>
-          <Text fontSize="10px">• Access to course portal: https://academy.hushh.ai</Text>
-          <Text fontSize="10px">• Course materials are accessible for 12 months from enrollment date</Text>
+          <Text fontSize="10px">• Access to course portal: https://www.udemy.com/my-courses/</Text>
+          <Text fontSize="10px">• Course materials are accessible for lifetime from enrollment date</Text>
           <Text fontSize="10px">• Certificate will be issued upon successful completion</Text>
         </Box>
 
@@ -258,9 +258,9 @@ const AICourseBillCard = forwardRef<HTMLDivElement, AICourseBillCardProps>(
         <Box borderTop="1px solid black" pt={4} mt="auto">
           <Flex justify="space-between" align="flex-end">
             <VStack align="flex-start" spacing={1}>
-              <Text fontSize="10px">Support: support@hushhacademy.ai</Text>
-              <Text fontSize="10px">Contact: +91 8004482372</Text>
-              <Text fontSize="10px">Website: www.hushhacademy.ai</Text>
+              <Text fontSize="10px">Support: support@udemy.com</Text>
+              <Text fontSize="10px">Contact: 1-800-555-0100</Text>
+              <Text fontSize="10px">Website: www.udemy.com</Text>
             </VStack>
             <VStack align="flex-end" spacing={1}>
               <Text fontSize="10px" mb={8}>For {data.companyName}</Text>

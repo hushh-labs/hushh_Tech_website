@@ -425,7 +425,7 @@ export const generateEnrollmentId = (): string => {
 };
 
 /**
- * Generate AI Course Bill Data
+ * Generate AI Course Bill Data (Udemy)
  * Total: ₹2,800 (Base: ₹2,373 + GST 18%)
  */
 export const generateAICourseBillData = (
@@ -448,9 +448,9 @@ export const generateAICourseBillData = (
     cgst: Math.round(cgst * 100) / 100,
     sgst: Math.round(sgst * 100) / 100,
     totalAmount: Math.round(totalAmount * 100) / 100,
-    companyName: 'Hushh AI Academy',
-    companyAddress: '1021 5th St W, Kirkland, WA 98033',
-    gstin: '27AABCH9012F1ZQ',
+    companyName: 'Udemy India LLP',
+    companyAddress: 'WeWork Galaxy, 43, Residency Road, Shanthala Nagar, Ashok Nagar, Bengaluru - 560025',
+    gstin: '29AADCU7654M1ZP',
     customerAddress: 'Row house 7, matra montana, dhanori, pune, maharastra',
     customerEmail: 'ankitkumarsingh@gmail.com',
     customerContact: '+91 8004482372',

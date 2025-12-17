@@ -499,7 +499,7 @@ const ReceiptGeneratorPage: React.FC = () => {
             <Tab>
               🤖 AI Course
               <Badge ml={2} colorScheme="purple" fontSize="xs">
-                A2A
+                Udemy
               </Badge>
             </Tab>
           </TabList>
@@ -836,7 +836,7 @@ const ReceiptGeneratorPage: React.FC = () => {
                   <HStack justify="space-between">
                     <Box>
                       <Text fontWeight="600" color="gray.700">
-                        AI Academy - A2A Protocol Course
+                        Udemy - A2A Protocol Course
                       </Text>
                       <Text fontSize="sm" color="gray.500">
                         Agentic AI Masterclass (incl. 18% GST)
@@ -875,7 +875,7 @@ const ReceiptGeneratorPage: React.FC = () => {
                       leftIcon={<DownloadIcon />}
                       colorScheme="purple"
                       onClick={() =>
-                        handleDownloadBill(aiCourseBillRef as React.RefObject<HTMLDivElement>, 'ai-course-invoice-a2a')
+                        handleDownloadBill(aiCourseBillRef as React.RefObject<HTMLDivElement>, 'udemy-course-invoice')
                       }
                     >
                       Download AI Course Invoice
