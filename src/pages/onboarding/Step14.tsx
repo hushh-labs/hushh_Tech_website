@@ -4,6 +4,85 @@ import config from '../../resources/config/config';
 
 type RecurringFrequency = 'once_a_month' | 'twice_a_month' | 'weekly' | 'every_other_week';
 
+// Share class configurations (consistent with Step 3 and Step 13)
+interface ShareClassInfo {
+  id: string;
+  name: string;
+  unitPrice: number;
+  tier: 'gold' | 'silver' | 'standard';
+  colors: {
+    primary: string;
+    secondary: string;
+    background: string;
+  };
+}
+
+const SHARE_CLASSES: ShareClassInfo[] = [
+  {
+    id: 'class_a',
+    name: 'Class A',
+    unitPrice: 25000000,
+    tier: 'gold',
+    colors: {
+      primary: '#B8860B',
+      secondary: '#DAA520',
+      background: '#FFFEF7',
+    },
+  },
+  {
+    id: 'class_b',
+    name: 'Class B',
+    unitPrice: 5000000,
+    tier: 'silver',
+    colors: {
+      primary: '#71717A',
+      secondary: '#A1A1AA',
+      background: '#FAFAFA',
+    },
+  },
+  {
+    id: 'class_c',
+    name: 'Class C',
+    unitPrice: 1000000,
+    tier: 'standard',
+    colors: {
+      primary: '#00A9E0',
+      secondary: '#6DD3EF',
+      background: '#F0F9FF',
+    },
+  },
+];
+
+// Format currency for display
+const formatCurrency = (amount: number): string => {
+  if (amount >= 1000000000) {
+    return `$${(amount / 1000000000).toFixed(1)}B`;
+  }
+  if (amount >= 1000000) {
+    return `$${(amount / 1000000).toFixed(0)}M`;
+  }
+  if (amount >= 1000) {
+    return `$${(amount / 1000).toFixed(0)}K`;
+  }
+  return `$${amount.toLocaleString()}`;
+};
+
+// Crown icon for Gold tier
+const CrownIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" 
+          fill="#DAA520" stroke="#B8860B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
+// Diamond icon for Silver tier
+const DiamondIcon = () => (
+  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M6 3H18L22 9L12 21L2 9L6 3Z" 
+          fill="#A1A1AA" stroke="#71717A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
 function OnboardingStep14() {
   const navigate = useNavigate();
   const [frequency, setFrequency] = useState<RecurringFrequency>('once_a_month');
@@ -12,6 +91,29 @@ function OnboardingStep14() {
   const [customAmount, setCustomAmount] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // Share class units state
+  const [shareUnits, setShareUnits] = useState<{
+    class_a_units: number;
+    class_b_units: number;
+    class_c_units: number;
+  }>({
+    class_a_units: 0,
+    class_b_units: 0,
+    class_c_units: 0,
+  });
+
+  // Calculate total investment from share units
+  const calculateTotalInvestment = () => {
+    return (
+      (shareUnits.class_a_units * 25000000) +
+      (shareUnits.class_b_units * 5000000) +
+      (shareUnits.class_c_units * 1000000)
+    );
+  };
+
+  const totalInvestment = calculateTotalInvestment();
+  const hasAnyUnits = shareUnits.class_a_units > 0 || shareUnits.class_b_units > 0 || shareUnits.class_c_units > 0;
 
   // Load existing data
   useEffect(() => {
@@ -29,11 +131,19 @@ function OnboardingStep14() {
 
       const { data } = await config.supabaseClient
         .from('onboarding_data')
-        .select('recurring_frequency, recurring_day_of_month, recurring_amount')
+        .select('recurring_frequency, recurring_day_of_month, recurring_amount, class_a_units, class_b_units, class_c_units')
         .eq('user_id', user.id)
         .single();
 
       if (data) {
+        // Load share class units
+        setShareUnits({
+          class_a_units: data.class_a_units || 0,
+          class_b_units: data.class_b_units || 0,
+          class_c_units: data.class_c_units || 0,
+        });
+        
+        // Load recurring investment preferences
         if (data.recurring_frequency) setFrequency(data.recurring_frequency);
         if (data.recurring_day_of_month) setInvestmentDay(data.recurring_day_of_month);
         if (data.recurring_amount) {
@@ -63,6 +173,21 @@ function OnboardingStep14() {
 
   const getFinalAmount = () => {
     return selectedAmount || parseInt(customAmount) || 0;
+  };
+
+  // Get tier icon
+  const getTierIcon = (tier: string) => {
+    if (tier === 'gold') return <CrownIcon />;
+    if (tier === 'silver') return <DiamondIcon />;
+    return null;
+  };
+
+  // Get units for a class
+  const getUnits = (classId: string): number => {
+    if (classId === 'class_a') return shareUnits.class_a_units;
+    if (classId === 'class_b') return shareUnits.class_b_units;
+    if (classId === 'class_c') return shareUnits.class_c_units;
+    return 0;
   };
 
   const completeOnboarding = async (skipRecurring: boolean = false) => {
@@ -158,13 +283,72 @@ function OnboardingStep14() {
       <div className="w-full max-w-2xl">
         <div className="mb-8">
           <div className="text-center">
-            <h1 className="text-[28px] md:text-[36px] mb-4" style={{ color: '#0B1120', fontWeight: 500 }}>
+            <h1 className="text-[28px] md:text-[36px] mb-2" style={{ color: '#0B1120', fontWeight: 500 }}>
               Make a recurring investment
             </h1>
-            <p className="text-lg text-gray-700 mb-8">
+            <p className="text-lg text-gray-600 mb-6">
               Grow your wealth with periodic contributions.
             </p>
           </div>
+
+          {/* Share Class Allocation Summary */}
+          {hasAnyUnits && (
+            <div className="bg-[#F8FAFC] rounded-[16px] p-4 mb-6 border border-[#E2E8F0]">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-[13px] uppercase tracking-wider text-[#64748B]">
+                  Your Investment Allocation
+                </h2>
+                <span className="text-[16px] font-[600] text-[#0B1120]">
+                  {formatCurrency(totalInvestment)}
+                </span>
+              </div>
+              
+              {/* Compact share class display */}
+              <div className="flex flex-wrap gap-2">
+                {SHARE_CLASSES.map((shareClass) => {
+                  const units = getUnits(shareClass.id);
+                  if (units === 0) return null;
+                  
+                  return (
+                    <div
+                      key={shareClass.id}
+                      className="flex items-center gap-2 px-3 py-2 rounded-[10px]"
+                      style={{
+                        backgroundColor: shareClass.colors.background,
+                        border: `1.5px solid ${shareClass.colors.primary}`,
+                      }}
+                    >
+                      {getTierIcon(shareClass.tier)}
+                      <span 
+                        className="text-[13px] font-[600]"
+                        style={{ color: shareClass.colors.primary }}
+                      >
+                        {shareClass.name}
+                      </span>
+                      <span 
+                        className="text-[13px] font-[500] ml-1"
+                        style={{ color: shareClass.colors.primary }}
+                      >
+                        ×{units}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Edit link */}
+              <button
+                onClick={() => navigate('/onboarding/step-3')}
+                className="text-[13px] text-[#00A9E0] hover:text-[#0087B8] mt-3 flex items-center gap-1"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                Edit allocation
+              </button>
+            </div>
+          )}
 
           {error && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
@@ -232,7 +416,7 @@ function OnboardingStep14() {
           {/* Amount */}
           <div className="mb-8">
             <label className="block text-base mb-3" style={{ color: '#0B1120', fontWeight: 500 }}>
-              Amount
+              Recurring Amount
             </label>
             <div className="flex flex-wrap gap-3 mb-3">
               {[500000, 750000, 1000000, 1500000].map((amount) => (
