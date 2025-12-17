@@ -261,50 +261,73 @@ function MeetCeoPage() {
         {/* Not Paid State */}
         {paymentState === 'not_paid' && (
           <>
-            {/* Why Pay $1 */}
+            {/* Human Verification Section */}
             <div 
-              className="rounded-2xl p-6 mb-8"
+              className="rounded-2xl p-6 mb-6"
               style={{ backgroundColor: '#F5F5F5', border: '1px solid #E5E5E5' }}
             >
-              <h2 className="text-xl mb-4" style={{ color: '#1A1A1A', fontWeight: 500 }}>
-                Why pay $1?
-              </h2>
-              <div className="space-y-4">
-                <div className="flex items-start gap-4">
-                  <div 
-                    className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
-                    style={{ backgroundColor: '#E5E5E5' }}
-                  >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" strokeWidth="2">
-                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="font-medium" style={{ color: '#1A1A1A' }}>Bot Protection</p>
-                    <p className="text-sm" style={{ color: '#666666' }}>Ensures only real users can book meetings with our CEO</p>
-                  </div>
+              <div className="flex items-center gap-3 mb-4">
+                <div 
+                  className="w-12 h-12 rounded-full flex items-center justify-center"
+                  style={{ backgroundColor: '#1A1A1A' }}
+                >
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    <polyline points="9 12 11 14 15 10" stroke="#FFFFFF" strokeWidth="2" />
+                  </svg>
                 </div>
-                <div className="flex items-start gap-4">
+                <div>
+                  <h2 className="text-xl" style={{ color: '#1A1A1A', fontWeight: 500 }}>
+                    Human Verification
+                  </h2>
+                  <p className="text-sm" style={{ color: '#666666' }}>
+                    A small step to confirm you're a real person
+                  </p>
+                </div>
+              </div>
+              <p className="text-[15px] leading-relaxed" style={{ color: '#666666' }}>
+                To ensure Manish's time is spent with genuine investors, we ask for a simple $1 verification. 
+                This helps us filter out bots and automated requests.
+              </p>
+            </div>
+
+            {/* Bonuses Section */}
+            <div 
+              className="rounded-2xl p-6 mb-8"
+              style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E5E5' }}
+            >
+              <div className="flex items-center gap-2 mb-4">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00A9E0" strokeWidth="2">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                </svg>
+                <h3 className="text-lg" style={{ color: '#1A1A1A', fontWeight: 500 }}>
+                  Bonus Rewards
+                </h3>
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
                   <div 
-                    className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
-                    style={{ backgroundColor: '#E5E5E5' }}
+                    className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                    style={{ backgroundColor: '#E5F7FC' }}
                   >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" strokeWidth="2">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00A9E0" strokeWidth="2">
                       <circle cx="12" cy="12" r="10" />
                       <path d="M12 6v6l4 2" />
                     </svg>
                   </div>
                   <div>
-                    <p className="font-medium" style={{ color: '#1A1A1A' }}>Earn 100 Hushh Coins</p>
-                    <p className="text-sm" style={{ color: '#666666' }}>Get 100 Hushh Coins credited to your account upon payment</p>
+                    <p className="font-medium text-[15px]" style={{ color: '#1A1A1A' }}>
+                      Earn 100 Hushh Coins
+                    </p>
+                    <p className="text-sm" style={{ color: '#888888' }}>Credited instantly to your account</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-4">
+                <div className="flex items-center gap-3">
                   <div 
-                    className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
-                    style={{ backgroundColor: '#E5E5E5' }}
+                    className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                    style={{ backgroundColor: '#E5F7FC' }}
                   >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" strokeWidth="2">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00A9E0" strokeWidth="2">
                       <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
                       <line x1="16" y1="2" x2="16" y2="6" />
                       <line x1="8" y1="2" x2="8" y2="6" />
@@ -312,8 +335,10 @@ function MeetCeoPage() {
                     </svg>
                   </div>
                   <div>
-                    <p className="font-medium" style={{ color: '#1A1A1A' }}>Direct Access</p>
-                    <p className="text-sm" style={{ color: '#666666' }}>Book a personal meeting with CEO Manish Sainani</p>
+                    <p className="font-medium text-[15px]" style={{ color: '#1A1A1A' }}>
+                      Direct CEO Access
+                    </p>
+                    <p className="text-sm" style={{ color: '#888888' }}>Book a 1-hour deep dive with Manish</p>
                   </div>
                 </div>
               </div>
@@ -338,7 +363,7 @@ function MeetCeoPage() {
                   Redirecting to payment...
                 </span>
               ) : (
-                'Pay $1 to Schedule Meeting'
+                'Verify You\'re Human — $1'
               )}
             </button>
 
@@ -384,24 +409,24 @@ function MeetCeoPage() {
               style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E5E5' }}
             >
               <h2 className="text-xl mb-3" style={{ color: '#1A1A1A', fontWeight: 500 }}>
-                Book Your Meeting
+                Book Your 1-Hour Deep Dive
               </h2>
               <p style={{ color: '#666666' }}>
-                Choose a convenient time to meet with Manish Sainani
+                Schedule office hours with Manish Sainani for focused discussion
               </p>
             </div>
 
-            {/* Calendly Embed */}
+            {/* Calendly Embed - Office Hours 1-Hour Focus Deep Dive */}
             <div 
               className="rounded-2xl overflow-hidden mb-6" 
               style={{ height: '700px', border: '1px solid #E5E5E5' }}
             >
               <iframe
-                src="https://calendly.com/hushh"
+                src="https://calendly.com/hushh/ceo-office-hours"
                 width="100%"
                 height="100%"
                 frameBorder="0"
-                title="Schedule a meeting with Manish Sainani"
+                title="Schedule office hours with Manish Sainani"
               ></iframe>
             </div>
 
