@@ -99,7 +99,7 @@ export default function Hero() {
     <>
       {!session ? (
         <>
-          {/* Hero Section - Apple-like design */}
+          {/* Hero Section - Premium Finance-Grade Design */}
           <Box
             bg={tokens.bg}
             minH="100vh"
@@ -111,86 +111,84 @@ export default function Hero() {
             style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif' }}
           >
             <MotionBox
-              maxW="420px"
+              maxW="500px"
               w="100%"
               initial="hidden"
               animate="visible"
               variants={containerVariants}
+              textAlign="center"
             >
-              {/* Logo */}
+              {/* Logo - Clean, no glow */}
               <MotionBox 
                 display="flex" 
                 justifyContent="center" 
-                mb={{ base: 6, md: 8 }}
+                mb="22px"
                 variants={logoVariants}
               >
                 <Image
                   src={HushhLogo}
                   alt="Hushh Logo"
-                  h={{ base: "72px", md: "88px" }}
+                  h={{ base: "48px", md: "56px" }}
                   objectFit="contain"
                 />
               </MotionBox>
 
-              {/* Eyebrow - Apple style */}
-              <MotionBox textAlign="center" mb={3} variants={itemVariants}>
+              {/* Main Heading - Premium Typography */}
+              <MotionBox mb="14px" variants={itemVariants}>
                 <Text
-                  fontSize="12px"
-                  color={tokens.textMuted}
-                  fontWeight="600"
-                  letterSpacing="0.12em"
-                  textTransform="uppercase"
-                >
-                  {t('hero.eyebrow')}
-                </Text>
-              </MotionBox>
-
-              {/* Main Heading - Apple typography */}
-              <MotionBox textAlign="center" mb={4} variants={itemVariants}>
-                <Text
-                  fontSize={{ base: "36px", md: "44px" }}
-                  fontWeight="600"
+                  fontSize={{ base: "34px", md: "36px" }}
+                  fontWeight="700"
                   color={tokens.textPrimary}
-                  lineHeight="1.08"
-                  letterSpacing="-0.015em"
+                  lineHeight="1.15"
+                  letterSpacing="-0.02em"
                 >
                   {t('hero.mainTitle')}
                 </Text>
               </MotionBox>
 
-              {/* Subheading - Generous line height */}
-              <MotionBox textAlign="center" mb={{ base: 8, md: 10 }} variants={itemVariants}>
+              {/* Subheading - Controlled width for readability */}
+              <MotionBox mb="30px" variants={itemVariants}>
                 <Text
-                  fontSize={{ base: "17px", md: "19px" }}
+                  fontSize={{ base: "16px", md: "16.5px" }}
                   color={tokens.textSecondary}
-                  lineHeight="1.55"
+                  lineHeight="1.6"
                   fontWeight="400"
-                  maxW="380px"
+                  maxW="360px"
                   mx="auto"
+                  opacity={0.78}
                 >
                   {t('hero.mainSubtitle')}
                 </Text>
               </MotionBox>
 
-              {/* CTA Buttons - No card, direct buttons Apple style */}
-              <MotionBox variants={itemVariants}>
-                <VStack spacing={3}>
+              {/* CTA Card - Soft shadow, premium feel */}
+              <MotionBox 
+                variants={itemVariants}
+                bg="white"
+                borderRadius="26px"
+                p={{ base: "16px", md: "18px" }}
+                boxShadow="0 18px 50px rgba(0, 0, 0, 0.08)"
+                mb="24px"
+              >
+                <VStack spacing="12px">
                   <MotionButton
                     onClick={() => navigate("/discover-fund-a")}
                     w="100%"
-                    h="50px"
-                    borderRadius="full"
+                    h="54px"
+                    borderRadius="16px"
                     bgGradient={`linear(135deg, ${tokens.gradientStart} 0%, ${tokens.gradientEnd} 100%)`}
                     color="white"
-                    fontSize="17px"
+                    fontSize="18px"
                     fontWeight="600"
+                    letterSpacing="-0.01em"
                     _hover={{ 
                       bgGradient: `linear(135deg, ${tokens.gradientStart} 0%, ${tokens.gradientEnd} 100%)`,
+                      transform: "translateY(-1px)",
                     }}
                     _active={{
                       transform: "scale(0.98)",
                     }}
-                    boxShadow={`0 14px 24px rgba(0, 169, 224, 0.25)`}
+                    boxShadow="0 8px 20px rgba(0, 169, 224, 0.2)"
                     variants={buttonHoverVariants}
                     initial="rest"
                     whileHover="hover"
@@ -202,19 +200,21 @@ export default function Hero() {
                   <MotionButton
                     onClick={() => navigate("/investor-profile")}
                     w="100%"
-                    h="50px"
-                    borderRadius="full"
+                    h="54px"
+                    borderRadius="16px"
                     bg="transparent"
                     border="1px solid"
-                    borderColor={tokens.separator}
+                    borderColor="rgba(0, 169, 224, 0.15)"
                     color={tokens.textPrimary}
-                    fontSize="17px"
+                    fontSize="18px"
                     fontWeight="600"
+                    letterSpacing="-0.01em"
                     _hover={{ 
-                      bg: "rgba(0,0,0,0.02)",
+                      bg: "rgba(0, 169, 224, 0.04)",
+                      borderColor: "rgba(0, 169, 224, 0.25)",
                     }}
                     _active={{ 
-                      bg: "rgba(0,0,0,0.04)",
+                      bg: "rgba(0, 169, 224, 0.08)",
                     }}
                     variants={buttonHoverVariants}
                     initial="rest"
@@ -226,19 +226,37 @@ export default function Hero() {
                 </VStack>
               </MotionBox>
 
-              {/* Footer Text */}
+              {/* Trust Text */}
               <MotionBox
-                textAlign="center"
-                mt={{ base: 8, md: 10 }}
+                mb="14px"
                 variants={itemVariants}
               >
                 <Text
-                  fontSize="13px"
-                  color={tokens.textMuted}
-                  fontWeight="400"
+                  fontSize="14.5px"
+                  color={tokens.textSecondary}
+                  fontWeight="500"
+                  opacity={0.72}
                 >
                   Secure · Private · AI-Powered
                 </Text>
+              </MotionBox>
+
+              {/* Trust Badges - Mini pills */}
+              <MotionBox variants={itemVariants}>
+                <Flex justify="center" align="center" gap="18px">
+                  <Flex align="center" gap="6px" px="12px" py="6px" bg="rgba(52, 199, 89, 0.08)" borderRadius="full">
+                    <Box w="6px" h="6px" borderRadius="full" bg="#34C759" />
+                    <Text fontSize="13px" fontWeight="500" color={tokens.textSecondary}>
+                      Encrypted
+                    </Text>
+                  </Flex>
+                  <Flex align="center" gap="6px" px="12px" py="6px" bg="rgba(52, 199, 89, 0.08)" borderRadius="full">
+                    <Box w="6px" h="6px" borderRadius="full" bg="#34C759" />
+                    <Text fontSize="13px" fontWeight="500" color={tokens.textSecondary}>
+                      SOC 2
+                    </Text>
+                  </Flex>
+                </Flex>
               </MotionBox>
             </MotionBox>
           </Box>
