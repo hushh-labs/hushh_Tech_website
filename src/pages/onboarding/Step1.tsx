@@ -3,21 +3,33 @@ import { useNavigate } from 'react-router-dom';
 import config from '../../resources/config/config';
 import { AccountType, ACCOUNT_TIERS, migrateAccountType } from '../../types/onboarding';
 
-// Crown icon for Ultra High Net Worth tier
-const CrownIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" 
-          fill="#DAA520" stroke="#B8860B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+// Diamond icon for Premium tier
+const DiamondIcon = () => (
+  <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+    <path d="M6 3H18L22 9L12 21L2 9L6 3Z" />
   </svg>
 );
 
-// Diamond icon for Silver tier
-const DiamondIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M6 3H18L22 9L12 21L2 9L6 3Z" 
-          fill="#A1A1AA" stroke="#71717A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M2 9H22" stroke="#71717A" strokeWidth="1.5"/>
-    <path d="M12 21L9 9L12 3L15 9L12 21Z" stroke="#71717A" strokeWidth="1.5"/>
+// Verified/Star icon for Ultra tier
+const VerifiedIcon = () => (
+  <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+  </svg>
+);
+
+// Back arrow icon
+const BackIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M19 12H5M12 19l-7-7 7-7" />
+  </svg>
+);
+
+// Help icon
+const HelpIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+    <line x1="12" y1="17" x2="12.01" y2="17" />
   </svg>
 );
 
@@ -93,183 +105,169 @@ export default function OnboardingStep1() {
     }
   };
 
-  // Render account tier card
-  const renderAccountCard = (accountType: AccountType) => {
-    const tier = ACCOUNT_TIERS[accountType];
-    const isSelected = selectedAccount === accountType;
-    const isGold = tier.tierLevel === 'gold';
-    const isSilver = tier.tierLevel === 'silver';
-
-    return (
-      <button
-        key={accountType}
-        onClick={() => setSelectedAccount(accountType)}
-        className="w-full text-left p-6 rounded-[16px] border-2 transition-all duration-200 relative overflow-hidden"
-        style={{
-          borderColor: isSelected ? tier.colors.selectedBorder : tier.colors.border,
-          backgroundColor: isSelected ? tier.colors.selectedBackground : tier.colors.background,
-        }}
-      >
-        {/* Premium tier badge */}
-        {isGold && (
-          <div 
-            className="absolute top-0 right-0 px-3 py-1 text-xs font-semibold rounded-bl-lg flex items-center gap-1"
-            style={{ 
-              background: 'linear-gradient(135deg, #B8860B 0%, #DAA520 50%, #FFD700 100%)',
-              color: '#FFFFFF'
-            }}
-          >
-            <CrownIcon />
-            <span>ULTRA</span>
-          </div>
-        )}
-        {isSilver && (
-          <div 
-            className="absolute top-0 right-0 px-3 py-1 text-xs font-semibold rounded-bl-lg flex items-center gap-1"
-            style={{ 
-              background: 'linear-gradient(135deg, #71717A 0%, #A1A1AA 50%, #D4D4D8 100%)',
-              color: '#FFFFFF'
-            }}
-          >
-            <DiamondIcon />
-            <span>PREMIUM</span>
-          </div>
-        )}
-
-        <div className="flex items-start justify-between">
-          <div className="flex-1 pr-4">
-            {/* Minimum amount */}
-            <div 
-              className="text-[14px] mb-2 font-medium"
-              style={{ color: isGold ? tier.colors.primary : isSilver ? tier.colors.primary : '#64748B' }}
-            >
-              {tier.minimum}
-            </div>
-            
-            {/* Account name */}
-            <h3 
-              className="text-[20px] font-[500] mb-2"
-              style={{ 
-                color: isGold ? tier.colors.accent : isSilver ? tier.colors.accent : '#0B1120',
-                background: isGold ? 'linear-gradient(135deg, #B8860B 0%, #DAA520 100%)' : 'none',
-                WebkitBackgroundClip: isGold ? 'text' : 'border-box',
-                WebkitTextFillColor: isGold ? 'transparent' : 'inherit',
-              }}
-            >
-              {tier.name}
-            </h3>
-            
-            {/* Description */}
-            <p 
-              className="text-[16px] leading-[1.5]"
-              style={{ color: isGold ? '#8B6914' : isSilver ? '#52525B' : '#64748B' }}
-            >
-              {tier.description}
-            </p>
-          </div>
-          
-          {/* Selection indicator */}
-          <div className="flex-shrink-0 mt-2">
-            <div 
-              className="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all"
-              style={{
-                borderColor: isSelected ? tier.colors.primary : (isGold ? tier.colors.border : isSilver ? tier.colors.border : '#CBD5E1'),
-                backgroundColor: isSelected ? tier.colors.primary : tier.colors.background,
-              }}
-            >
-              {isSelected && (
-                <div 
-                  className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: isGold ? '#FFFEF7' : isSilver ? '#FAFAFA' : '#FFFFFF' }}
-                />
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Decorative bottom gradient for premium tiers */}
-        {isGold && (
-          <div 
-            className="absolute bottom-0 left-0 right-0 h-1"
-            style={{ 
-              background: 'linear-gradient(90deg, #B8860B 0%, #DAA520 50%, #FFD700 100%)'
-            }}
-          />
-        )}
-        {isSilver && (
-          <div 
-            className="absolute bottom-0 left-0 right-0 h-1"
-            style={{ 
-              background: 'linear-gradient(90deg, #71717A 0%, #A1A1AA 50%, #D4D4D8 100%)'
-            }}
-          />
-        )}
-      </button>
-    );
-  };
-
-  // Get button gradient based on selected tier
-  const getButtonGradient = () => {
-    if (!selectedAccount) return '#E2E8F0';
-    const tier = ACCOUNT_TIERS[selectedAccount];
-    if (tier.tierLevel === 'gold') {
-      return 'linear-gradient(to right, #B8860B, #DAA520)';
-    }
-    if (tier.tierLevel === 'silver') {
-      return 'linear-gradient(to right, #71717A, #A1A1AA)';
-    }
-    return 'linear-gradient(to right, #00A9E0, #6DD3EF)';
-  };
-
-  const getButtonTextColor = () => {
-    if (!selectedAccount) return '#94A3B8';
-    const tier = ACCOUNT_TIERS[selectedAccount];
-    return tier.tierLevel === 'gold' || tier.tierLevel === 'silver' ? '#FFFFFF' : '#0B1120';
-  };
+  // Account tier data matching the HTML template
+  const tierData = [
+    {
+      id: 'wealth_1m' as AccountType,
+      minimum: '$1 million',
+      name: 'Hushh Wealth Investment Account',
+      description: 'A flexible wealth investment account designed to help you build and preserve long-term wealth through AI-powered strategies.',
+      badge: null,
+    },
+    {
+      id: 'wealth_5m' as AccountType,
+      minimum: '$5 million',
+      name: 'Hushh Wealth Investment Account',
+      description: 'Enhanced wealth management with premium portfolio strategies and dedicated relationship support.',
+      badge: 'PREMIUM',
+    },
+    {
+      id: 'ultra_25m' as AccountType,
+      minimum: '$25 million',
+      name: 'Hushh Ultra High Net Worth Investment Account',
+      description: 'Exclusive investment access tailored for ultra high net worth individuals and families worldwide, with bespoke portfolio solutions.',
+      badge: 'ULTRA',
+    },
+  ];
 
   return (
     <div 
-      className="min-h-screen bg-white flex items-center justify-center px-6 pt-28 pb-12"
-      style={{ fontFamily: 'Inter, -apple-system, system-ui, "SF Pro Text", sans-serif' }}
+      className="min-h-screen bg-white flex flex-col overflow-x-hidden"
+      style={{ fontFamily: "'Manrope', sans-serif" }}
     >
-      <div className="max-w-[640px] w-full">
-        {/* Header */}
-        <div className="mb-8 text-center">
-          <h1 className="text-[28px] md:text-[36px] font-[500] leading-[1.2] text-[#0B1120] mb-4">
-            What account would you like to open?
+      {/* Sticky Header */}
+      <header className="flex items-center p-4 sticky top-0 z-10 bg-white/95 backdrop-blur-sm">
+        <button 
+          onClick={() => navigate(-1)}
+          className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-slate-100 transition-colors text-slate-900"
+        >
+          <BackIcon />
+        </button>
+        <div className="flex-1" />
+        <button className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-slate-100 transition-colors text-slate-900">
+          <HelpIcon />
+        </button>
+      </header>
+
+      {/* Main Content */}
+      <main className="flex-1 flex flex-col px-6 pb-8 max-w-md mx-auto w-full">
+        {/* Header Section */}
+        <div className="flex flex-col items-center text-center mt-2 mb-8 space-y-3">
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
+            Select Your Account
           </h1>
-          <p className="text-[18px] leading-[1.6] text-[#64748B]">
-            Select a wealth investment tier that matches your goals. You can upgrade anytime.
+          <p className="text-slate-500 text-base font-medium leading-relaxed max-w-[280px]">
+            Choose the investment level that best fits your financial goals.
           </p>
         </div>
 
-        {/* Account Options - Ordered from lowest to highest tier */}
-        <div className="space-y-4 mb-8">
-          {renderAccountCard('wealth_1m')}
-          {renderAccountCard('wealth_5m')}
-          {renderAccountCard('ultra_25m')}
-        </div>
+        {/* Account Options */}
+        <div className="flex flex-col gap-4 w-full">
+          {tierData.map((tier) => {
+            const isSelected = selectedAccount === tier.id;
+            const isPremium = tier.badge === 'PREMIUM';
+            const isUltra = tier.badge === 'ULTRA';
 
-        {/* Continue Button */}
+            return (
+              <label
+                key={tier.id}
+                className="group relative flex flex-col w-full cursor-pointer select-none"
+              >
+                <input
+                  type="radio"
+                  name="tier_selection"
+                  value={tier.id}
+                  checked={isSelected}
+                  onChange={() => setSelectedAccount(tier.id)}
+                  className="peer sr-only"
+                />
+                <div
+                  className={`
+                    flex flex-col p-5 rounded-2xl border-2 bg-white transition-all duration-300 ease-out
+                    ${isSelected 
+                      ? 'border-[#2b8cee] shadow-[0_0_20px_-5px_rgba(43,140,238,0.3)] bg-[rgba(43,140,238,0.03)]' 
+                      : 'border-slate-200 group-hover:border-slate-300'
+                    }
+                  `}
+                >
+                  {/* Minimum Amount & Radio Button Row */}
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex flex-col">
+                      <span className="text-xl font-extrabold text-slate-900 tracking-tight">
+                        {tier.minimum}{' '}
+                        <span className="text-sm font-semibold text-slate-400 uppercase tracking-wide ml-0.5">
+                          minimum
+                        </span>
+                      </span>
+                    </div>
+                    {/* Custom Radio UI */}
+                    <div 
+                      className={`
+                        w-6 h-6 rounded-full border-2 relative transition-all duration-200 shrink-0
+                        ${isSelected 
+                          ? 'bg-[#2b8cee] border-[#2b8cee]' 
+                          : 'border-slate-300'
+                        }
+                      `}
+                    >
+                      {isSelected && (
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full" />
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Account Name & Badge Row */}
+                  <div className="flex flex-wrap items-center gap-2 mb-2">
+                    <h3 className="text-lg font-bold text-slate-900 leading-tight">
+                      {tier.name}
+                    </h3>
+                    {isPremium && (
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-gradient-to-r from-gray-100 to-[#E5E4E2] text-slate-600 border border-slate-200 shadow-sm flex items-center gap-1 shrink-0">
+                        <DiamondIcon /> PREMIUM
+                      </span>
+                    )}
+                    {isUltra && (
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-gradient-to-r from-[#FFF8E1] to-[#FFE082] text-yellow-800 border border-yellow-200 shadow-sm flex items-center gap-1 shrink-0">
+                        <VerifiedIcon /> ULTRA
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Description */}
+                  <p className="text-sm text-slate-500 font-medium leading-relaxed">
+                    {tier.description}
+                  </p>
+                </div>
+              </label>
+            );
+          })}
+        </div>
+      </main>
+
+      {/* Footer CTA Section */}
+      <div className="p-6 pt-2 w-full max-w-md mx-auto">
         <button
           onClick={handleContinue}
           disabled={!selectedAccount || isLoading}
-          className={`w-full h-[56px] rounded-[16px] text-[17px] font-[500] tracking-[0.01em] transition-all duration-200 ${
-            selectedAccount && !isLoading
-              ? 'cursor-pointer hover:scale-[1.01] active:scale-[0.99]'
-              : 'cursor-not-allowed'
-          }`}
-          style={{
-            background: getButtonGradient(),
-            color: getButtonTextColor(),
-          }}
+          className={`
+            w-full flex items-center justify-center h-14 rounded-full font-bold text-lg tracking-wide transition-all mb-4
+            ${selectedAccount && !isLoading
+              ? 'bg-[#2b8cee] hover:bg-blue-600 active:bg-blue-700 text-white shadow-lg shadow-blue-500/20 cursor-pointer'
+              : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+            }
+          `}
         >
           {isLoading ? 'Saving...' : 'Continue'}
         </button>
-
-        {/* Footer note */}
-        <p className="text-center text-[14px] text-[#94A3B8] mt-6">
-          All accounts benefit from Hushh's AI-powered investment strategies
+        <p className="text-center text-xs text-slate-400 px-4">
+          By continuing, you agree to the{' '}
+          <a href="/terms" className="underline decoration-slate-300 hover:text-[#2b8cee] transition-colors">
+            Terms of Service
+          </a>{' '}
+          and{' '}
+          <a href="/privacy" className="underline decoration-slate-300 hover:text-[#2b8cee] transition-colors">
+            Privacy Policy
+          </a>.
         </p>
       </div>
     </div>
