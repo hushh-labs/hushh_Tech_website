@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { FiMenu, FiX, FiChevronDown, FiUser, FiTrash2 } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
@@ -7,6 +7,56 @@ import { Image, useToast, Avatar, useBreakpointValue, useDisclosure } from "@cha
 import hushhLogo from "../components/images/Hushhogo.png";
 import LanguageSwitcher from "./LanguageSwitcher";
 import DeleteAccountModal from "./DeleteAccountModal";
+
+// Marquee tickers data
+const marqueeTickers = [
+  { label: "Saudi Aramco", logo: "https://www.nicepng.com/png/full/274-2744280_saudi-aramco-logo-saudi-aramco-logo-vector.png" },
+  { label: "GOOG", logo: "https://thumbs.dreamstime.com/b/google-logo-vector-format-white-background-illustration-407571048.jpg" },
+  { label: "AAPL", logo: "https://fabrikbrands.com/wp-content/uploads/Apple-Logo-History-1-1155x770.png" },
+  { label: "MSFT", logo: "https://static.vecteezy.com/system/resources/previews/027/127/473/non_2x/microsoft-logo-microsoft-icon-transparent-free-png.png" },
+  { label: "NVDA", logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVEu8tfOJpA-vMjPqyI2gEyaDjTaI7tSJFzQ&s" },
+  { label: "AMZN", logo: "https://static.vecteezy.com/system/resources/previews/014/018/561/non_2x/amazon-logo-on-transparent-background-free-vector.jpg" },
+  { label: "BRK.B", logo: "https://www.shutterstock.com/shutterstock/photos/2378735305/display_1500/stock-vector-brk-letter-logo-design-on-a-white-background-or-monogram-logo-design-for-entrepreneur-and-business-2378735305.jpg" },
+  { label: "META", logo: "https://img.freepik.com/premium-vector/meta-company-logo_265339-667.jpg?semt=ais_hybrid&w=740&q=80" },
+  { label: "JPM", logo: "https://e7.pngegg.com/pngimages/225/668/png-clipart-jpmorgan-chase-logo-bank-business-morgan-stanley-bank-text-logo.png" },
+  { label: "ICBC", logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkYKU2DFnDgpOtiG7XP3N9Am69IFfZj5hLTg&s" },
+  { label: "China Construction Bank", logo: "https://www.nfcw.com/wp-content/uploads/2021/06/china-construction-bank-logo-400W.jpg" },
+  { label: "XOM", logo: "https://static.vecteezy.com/system/resources/previews/009/116/598/non_2x/com-logo-com-letter-com-letter-logo-design-initials-com-logo-linked-with-circle-and-uppercase-monogram-logo-com-typography-for-technology-business-and-real-estate-brand-vector.jpg" },
+  { label: "Agricultural Bank of China", logo: "https://static.wikia.nocookie.net/logopedia/images/d/d6/ABC_china_symbol.svg/revision/latest/scale-to-width-down/1200?cb=20240204071833" },
+  { label: "TSM", logo: "https://upload.wikimedia.org/wikipedia/en/thumb/6/63/Tsmc.svg/1200px-Tsmc.svg.png" },
+  { label: "Bank of China", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Bank_of_China_symbol.svg/2048px-Bank_of_China_symbol.svg.png" },
+  { label: "TM", logo: "https://global.toyota/pages/global_toyota/mobility/toyota-brand/emblem_001.jpg" },
+  { label: "PetroChina", logo: "https://upload.wikimedia.org/wikipedia/en/thumb/2/2b/Petrochina_logo.svg/250px-Petrochina_logo.svg.png" },
+  { label: "WMT", logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRxwPUD4NGc7WTQVqDstT5ZPRQXm6ka0KTsmTsKfiY&usqp=CAE&s" },
+  { label: "TCEHY", logo: "https://upload.wikimedia.org/wikipedia/commons/2/22/Tencent_Logo.svg" },
+  { label: "BAC", logo: "https://www.bankofamerica.com/content/images/ContextualSiteGraphics/Logos/en_US/logos/bac-logo-v2.png" },
+];
+
+const marqueePrefix = "Introducing the hushh 27 alpha bets —";
+
+// Render marquee chunk helper
+const renderMarqueeChunk = (key: string) => (
+  <span className="marquee-chunk" key={key}>
+    <span className="marquee-prefix">{marqueePrefix}</span>
+    <span className="marquee-body">
+      {marqueeTickers.map((ticker, idx) => (
+        <React.Fragment key={`${key}-${ticker.label}-${idx}`}>
+          <span className="ticker inline-flex items-center gap-1">
+            <img
+              src={ticker.logo}
+              alt={`${ticker.label} logo`}
+              className="ticker-logo w-4 h-4 object-contain"
+            />
+            <span>{ticker.label}</span>
+          </span>
+          {idx !== marqueeTickers.length - 1 && (
+            <span className="ticker-sep">,</span>
+          )}
+        </React.Fragment>
+      ))}
+    </span>
+  </span>
+);
 
 // Secret gesture state for dev console activation
 let tapCount = 0;
@@ -134,9 +184,19 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-white border-b border-gray-100 fixed w-full z-[999] top-0">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="flex justify-between items-center h-14 lg:h-16">
+    <header className="fixed w-full z-[999] top-0">
+      {/* Marquee Strip - Stock Ticker Banner */}
+      <div className="marquee-container h-10 flex items-center overflow-hidden bg-white border-b border-gray-100">
+        <div className="marquee-track">
+          {renderMarqueeChunk("first")}
+          {renderMarqueeChunk("second")}
+        </div>
+      </div>
+      
+      {/* Main Navigation */}
+      <nav className="bg-white border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="flex justify-between items-center h-14 lg:h-16">
           {/* Logo + Brand Name */}
           <Link to="/" className="flex items-center gap-2 flex-shrink-0">
             <Image 
@@ -462,6 +522,7 @@ export default function Navbar() {
         onClose={onDeleteModalClose}
         onAccountDeleted={handleAccountDeleted}
       />
-    </nav>
+      </nav>
+    </header>
   );
 }
