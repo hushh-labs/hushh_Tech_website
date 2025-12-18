@@ -6,224 +6,184 @@ import {
   Text,
   VStack,
   Button,
-  Link,
   Flex,
   Icon,
+  SimpleGrid,
 } from "@chakra-ui/react";
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import { FaRocket, FaChartLine, FaBrain, FaShieldAlt } from "react-icons/fa";
 import { HiSparkles } from "react-icons/hi";
+import { MdVisibility, MdVerifiedUser, MdSmartToy } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 
 // Motion components for smooth animations
 const MotionBox = motion(Box);
-const MotionFlex = motion(Flex);
 const MotionButton = motion(Button);
 
-// Apple-like easing curve - typed as tuple for framer-motion compatibility
+// Apple-like easing curve
 const appleEase: [number, number, number, number] = [0.25, 0.46, 0.45, 0.94];
 
-// Design tokens following Mobile UI Design Guidelines
+// Design tokens matching HTML template exactly
 const tokens = {
   // Typography colors
-  headline: "#1D1D1F",
-  body: "#1D1D1F",
-  secondary: "#515154",
-  muted: "#6E6E73",
-  caption: "#8E8E93",
+  textMain: "#111418",
+  textMuted: "#617589",
   
   // Brand colors
-  primary: "#00A9E0",
-  primaryLight: "#6DD3EF",
+  primary: "#2b8cee",
   
   // Background colors
-  background: "#FFFFFF",
-  cardBg: "rgba(255, 255, 255, 0.95)",
-  
-  // Separators
-  separator: "rgba(0, 0, 0, 0.06)",
-  
-  // Gradients
-  gradientStart: "#00A9E0",
-  gradientEnd: "#6DD3EF",
-  
-  // Accents
-  success: "#34C759",
+  backgroundLight: "#ffffff",
+  bgGray50: "#f9fafb",
+  borderSubtle: "#f0f2f4",
+  slate100: "#e2e8f0",
+  slate50: "#f1f5f9",
 };
 
 // SF Pro font family
-const fontFamily = '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", Inter, system-ui, sans-serif';
+const fontFamily = 'Manrope, -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif';
 
-// Advantages data with enhanced icons
-const advantages = [
+// Feature Cards with colored backgrounds matching screenshots
+const featureCards = [
   {
     title: "AI-Driven Alpha",
     body: "Proprietary AI algorithms systematically extract alpha and adapt to market changes.",
     icon: FaRocket,
-    gradient: "linear-gradient(135deg, #00A9E0 0%, #6DD3EF 100%)",
+    bgColor: "#dbeafe", // Light blue
+    iconColor: "#3b82f6", // Blue
   },
   {
     title: "Systematic Risk Management",
     body: "Rigorous quantitative analysis and AI meticulously control risk every day.",
     icon: FaChartLine,
-    gradient: "linear-gradient(135deg, #34C759 0%, #30D158 100%)",
+    bgColor: "#dcfce7", // Light green
+    iconColor: "#22c55e", // Green
   },
   {
     title: "Hushh Enterprise × AI Synergy",
     body: "AI provides speed and scale; human insight delivers deep understanding and strategic oversight.",
     icon: FaBrain,
-    gradient: "linear-gradient(135deg, #AF52DE 0%, #BF5AF2 100%)",
+    bgColor: "#f3e8ff", // Light purple
+    iconColor: "#a855f7", // Purple
   },
   {
     title: "Transparency You Trust",
     body: "Clear reporting and ethical practices you can depend on.",
     icon: FaShieldAlt,
-    gradient: "linear-gradient(135deg, #FF9500 0%, #FF9F0A 100%)",
+    bgColor: "#ffedd5", // Light orange
+    iconColor: "#f97316", // Orange
   },
 ];
 
-// Animation variants for staggered entrance
+// Trust chips with colored icons
+const trustChips = [
+  {
+    label: "AI-First",
+    icon: MdSmartToy,
+    bgColor: "#dbeafe",
+    iconColor: "#3b82f6",
+  },
+  {
+    label: "Secure",
+    icon: MdVerifiedUser,
+    bgColor: "#dcfce7",
+    iconColor: "#22c55e",
+  },
+  {
+    label: "Transparent",
+    icon: HiSparkles,
+    bgColor: "#f3e8ff",
+    iconColor: "#a855f7",
+  },
+];
+
+// Animation variants
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.12,
-      delayChildren: 0.15,
+      staggerChildren: 0.1,
+      delayChildren: 0.1,
     },
   },
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 24 },
+  hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.6,
+      duration: 0.5,
       ease: appleEase,
     },
   },
 };
 
-const cardVariants = {
-  hidden: { opacity: 0, y: 32, scale: 0.98 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      duration: 0.7,
-      ease: appleEase,
-    },
-  },
-};
-
-// Individual Advantage Card Component
-const AdvantageCard = ({ item, index }: { item: typeof advantages[0]; index: number }) => {
+// Feature Card Component - Exact HTML template match with horizontal layout
+const FeatureCard = ({ item }: { item: typeof featureCards[0] }) => {
   return (
-    <MotionFlex
+    <MotionBox
       variants={itemVariants}
-      align="flex-start"
+      display="flex"
+      flexDirection="row"
+      alignItems="flex-start"
       gap={4}
       p={5}
-      borderRadius="20px"
-      bg={tokens.cardBg}
-      backdropFilter="blur(20px)"
+      borderRadius="16px"
+      bg="white"
       border="1px solid"
-      borderColor={tokens.separator}
-      position="relative"
-      overflow="hidden"
+      borderColor={tokens.slate100}
+      boxShadow="0 2px 8px -2px rgba(0, 0, 0, 0.04)"
       cursor="pointer"
       role="group"
-      whileHover={{ 
-        scale: 1.02,
-        boxShadow: "0 12px 40px rgba(0, 169, 224, 0.12)",
-        transition: { duration: 0.3, ease: appleEase },
-      }}
-      whileTap={{ scale: 0.98 }}
-      _before={{
-        content: '""',
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
-        height: "2px",
-        background: item.gradient,
-        opacity: 0,
-        transition: "opacity 0.3s ease",
-      }}
+      sx={{ transition: "all 0.3s ease" }}
       _hover={{
-        "&::before": {
-          opacity: 1,
-        },
+        boxShadow: "0 4px 20px -2px rgba(0, 0, 0, 0.08)",
       }}
     >
-      {/* Icon Container with Gradient */}
+      {/* Icon Container - Rounded square with colored bg */}
       <Flex
-        w="52px"
-        h="52px"
-        minW="52px"
-        borderRadius="16px"
+        w="56px"
+        h="56px"
+        minW="56px"
+        borderRadius="12px"
         align="center"
         justify="center"
-        bg={item.gradient}
-        boxShadow={`0 4px 16px ${item.gradient.includes("00A9E0") ? "rgba(0, 169, 224, 0.3)" : 
-                    item.gradient.includes("34C759") ? "rgba(52, 199, 89, 0.3)" :
-                    item.gradient.includes("AF52DE") ? "rgba(175, 82, 222, 0.3)" :
-                    "rgba(255, 149, 0, 0.3)"}`}
+        bg={item.bgColor}
         transition="all 0.3s ease"
-        _groupHover={{
-          transform: "scale(1.08) rotate(3deg)",
-          boxShadow: `0 8px 24px ${item.gradient.includes("00A9E0") ? "rgba(0, 169, 224, 0.4)" : 
-                      item.gradient.includes("34C759") ? "rgba(52, 199, 89, 0.4)" :
-                      item.gradient.includes("AF52DE") ? "rgba(175, 82, 222, 0.4)" :
-                      "rgba(255, 149, 0, 0.4)"}`,
-        }}
       >
-        <Icon as={item.icon} boxSize={6} color="white" />
+        <Icon 
+          as={item.icon} 
+          boxSize="28px" 
+          color={item.iconColor}
+        />
       </Flex>
 
       {/* Content */}
-      <VStack align="start" spacing={2} flex={1}>
+      <VStack align="start" spacing={1.5} flex={1}>
         <Text
-          fontSize="19px"
-          fontWeight="600"
-          color={tokens.headline}
-          lineHeight="1.25"
+          fontSize="18px"
+          fontWeight="700"
+          color={tokens.textMain}
+          lineHeight="tight"
           fontFamily={fontFamily}
-          letterSpacing="-0.01em"
         >
           {item.title}
         </Text>
         <Text
-          fontSize="15px"
-          fontWeight="400"
-          color={tokens.secondary}
-          lineHeight="1.55"
+          fontSize="14px"
+          fontWeight="500"
+          color={tokens.textMuted}
+          lineHeight="relaxed"
           fontFamily={fontFamily}
         >
           {item.body}
         </Text>
       </VStack>
-
-      {/* Subtle Arrow Indicator */}
-      <Box
-        opacity={0}
-        transform="translateX(-8px)"
-        transition="all 0.3s ease"
-        _groupHover={{
-          opacity: 0.5,
-          transform: "translateX(0)",
-        }}
-        color={tokens.muted}
-        fontSize="18px"
-        mt={1}
-      >
-        →
-      </Box>
-    </MotionFlex>
+    </MotionBox>
   );
 };
 
@@ -235,222 +195,230 @@ const WhyChooseSection = () => {
   return (
     <Box
       ref={sectionRef}
-      bg={tokens.background}
-      pt={{ base: 20, md: 24 }}
-      pb={{ base: 20, md: 24 }}
-      px={{ base: 5, sm: 6, md: 8 }}
-      position="relative"
-      overflow="hidden"
+      bg={tokens.bgGray50}
+      display="flex"
+      alignItems="start"
+      justifyContent="center"
+      minH="100vh"
       fontFamily={fontFamily}
+      p={{ base: 0, sm: 4 }}
     >
-      {/* Subtle Background Gradient */}
+      {/* Mobile Container Simulation */}
       <Box
-        position="absolute"
-        top="0"
-        left="0"
-        right="0"
-        bottom="0"
-        bg="linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 50%, #FFFFFF 100%)"
-        pointerEvents="none"
-        zIndex={0}
-      />
-
-      {/* Decorative Gradient Orbs */}
-      <Box
-        position="absolute"
-        top="10%"
-        right="-10%"
-        w="400px"
-        h="400px"
-        bg="radial-gradient(circle, rgba(0, 169, 224, 0.06) 0%, transparent 70%)"
-        borderRadius="full"
-        filter="blur(40px)"
-        pointerEvents="none"
-        zIndex={0}
-      />
-      <Box
-        position="absolute"
-        bottom="20%"
-        left="-15%"
-        w="300px"
-        h="300px"
-        bg="radial-gradient(circle, rgba(109, 211, 239, 0.05) 0%, transparent 70%)"
-        borderRadius="full"
-        filter="blur(40px)"
-        pointerEvents="none"
-        zIndex={0}
-      />
-
-      <Container maxW="680px" position="relative" zIndex={1}>
-        <MotionBox
-          initial="hidden"
-          animate={isInView ? "visible" : "hidden"}
-          variants={containerVariants}
+        position="relative"
+        display="flex"
+        minH="100vh"
+        w="100%"
+        maxW="500px"
+        flexDirection="column"
+        bg={tokens.backgroundLight}
+        boxShadow="xl"
+        borderRadius={{ base: 0, sm: "32px" }}
+        overflow="hidden"
+      >
+        {/* Main Content Wrapper */}
+        <Box
+          as="main"
+          flex="1"
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          px={6}
+          py={12}
+          gap={8}
         >
-          {/* Section Badge */}
-          <MotionBox variants={itemVariants} textAlign="center" mb={4}>
-            <Flex
-              display="inline-flex"
-              align="center"
-              gap={2}
-              px={4}
-              py={2}
-              bg="rgba(0, 169, 224, 0.08)"
-              borderRadius="full"
-              border="1px solid rgba(0, 169, 224, 0.15)"
-            >
-              <Icon as={HiSparkles} boxSize={4} color={tokens.primary} />
-              <Text
-                fontSize="13px"
-                fontWeight="600"
-                color={tokens.primary}
-                letterSpacing="0.04em"
-                textTransform="uppercase"
-              >
-                Why Hushh
-              </Text>
-            </Flex>
-          </MotionBox>
-
-          {/* Main Heading */}
-          <MotionBox variants={itemVariants} textAlign="center" mb={4}>
-            <Heading
-              as="h2"
-              fontSize={{ base: "32px", md: "40px" }}
-              fontWeight="700"
-              color={tokens.headline}
-              lineHeight="1.1"
-              letterSpacing="-0.025em"
-              fontFamily={fontFamily}
-            >
-              The Hushh{" "}
-              <Text
-                as="span"
-                bgGradient={`linear(to-r, ${tokens.gradientStart}, ${tokens.gradientEnd})`}
-                bgClip="text"
-              >
-                Advantage
-              </Text>
-            </Heading>
-          </MotionBox>
-
-          {/* Subtitle */}
-          <MotionBox variants={itemVariants} textAlign="center" mb={10}>
-            <Text
-              fontSize={{ base: "17px", md: "19px" }}
-              fontWeight="400"
-              color={tokens.secondary}
-              lineHeight="1.55"
-              maxW="480px"
-              mx="auto"
-            >
-              What you reliably get with every Hushh investor profile.
-            </Text>
-          </MotionBox>
-
-          {/* Advantages Grid */}
-          <MotionBox variants={cardVariants}>
-            <VStack spacing={4} align="stretch">
-              {advantages.map((item, idx) => (
-                <AdvantageCard key={item.title} item={item} index={idx} />
-              ))}
-            </VStack>
-          </MotionBox>
-
-          {/* Trust Indicators - Premium Glass Pill Design */}
-          <MotionBox variants={itemVariants} mt={10}>
-            <Flex 
-              justify="center" 
-              gap={{ base: 3, md: 4 }}
-              flexWrap="wrap"
-              px={4}
-            >
-              {[
-                { label: "AI-First", icon: "🤖", gradient: "linear-gradient(135deg, #00A9E0 0%, #6DD3EF 100%)" },
-                { label: "Secure", icon: "🔒", gradient: "linear-gradient(135deg, #34C759 0%, #30D158 100%)" },
-                { label: "Transparent", icon: "✨", gradient: "linear-gradient(135deg, #AF52DE 0%, #BF5AF2 100%)" },
-              ].map((badge) => (
-                <Flex 
-                  key={badge.label} 
-                  align="center" 
-                  gap={2.5}
-                  px={5}
-                  py={2.5}
-                  bg="rgba(255, 255, 255, 0.9)"
-                  backdropFilter="blur(20px)"
+          <MotionBox
+            initial="hidden"
+            animate={isInView ? "visible" : "hidden"}
+            variants={containerVariants}
+            w="100%"
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            gap={8}
+          >
+            {/* Header Section */}
+            <VStack spacing={4} w="100%">
+              {/* Pill Label */}
+              <MotionBox variants={itemVariants}>
+                <Flex
+                  h="32px"
+                  align="center"
+                  justify="center"
+                  gap={2}
+                  px={3}
+                  pr={4}
                   borderRadius="full"
                   border="1px solid"
-                  borderColor="rgba(0, 0, 0, 0.06)"
-                  boxShadow="0 2px 12px rgba(0, 0, 0, 0.04), 0 1px 4px rgba(0, 0, 0, 0.02)"
-                  sx={{
-                    transition: "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-                  }}
-                  _hover={{
-                    transform: "translateY(-2px)",
-                    boxShadow: "0 8px 24px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04)",
-                    borderColor: "rgba(0, 169, 224, 0.2)",
-                  }}
-                  cursor="default"
+                  borderColor={tokens.borderSubtle}
+                  bg={tokens.slate50}
                 >
-                  {/* Icon with subtle gradient background */}
-                  <Flex
-                    w="28px"
-                    h="28px"
-                    borderRadius="full"
-                    align="center"
-                    justify="center"
-                    bg={badge.gradient}
-                    boxShadow={`0 2px 8px ${
-                      badge.label === "AI-First" ? "rgba(0, 169, 224, 0.3)" :
-                      badge.label === "Secure" ? "rgba(52, 199, 89, 0.3)" :
-                      "rgba(175, 82, 222, 0.3)"
-                    }`}
-                  >
-                    <Text fontSize="14px" lineHeight="1">{badge.icon}</Text>
-                  </Flex>
+                  <Icon as={HiSparkles} boxSize="18px" color={tokens.primary} />
                   <Text
-                    fontSize="14px"
-                    fontWeight="600"
-                    color={tokens.headline}
-                    letterSpacing="-0.01em"
-                    fontFamily={fontFamily}
+                    fontSize="12px"
+                    fontWeight="700"
+                    color={tokens.primary}
+                    letterSpacing="0.1em"
+                    textTransform="uppercase"
                   >
-                    {badge.label}
+                    Why Hushh
                   </Text>
                 </Flex>
-              ))}
-            </Flex>
-          </MotionBox>
+              </MotionBox>
 
-          {/* CTA Button */}
-          <MotionBox variants={itemVariants} mt={10} textAlign="center">
-            <MotionButton
-              onClick={() => navigate("/discover-fund-a")}
-              h="56px"
-              px={10}
-              borderRadius="16px"
-              bg={`linear-gradient(135deg, ${tokens.gradientStart} 0%, ${tokens.gradientEnd} 100%)`}
-              color="white"
-              fontSize="17px"
-              fontWeight="500"
-              letterSpacing="-0.01em"
-              fontFamily={fontFamily}
-              boxShadow="0 8px 24px rgba(0, 169, 224, 0.35)"
-              _hover={{
-                transform: "translateY(-2px)",
-                boxShadow: "0 12px 32px rgba(0, 169, 224, 0.45)",
-              }}
-              _active={{
-                transform: "scale(0.98)",
-              }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              Explore Our Approach
-            </MotionButton>
+              {/* Headline */}
+              <MotionBox variants={itemVariants} textAlign="center">
+                <VStack spacing={2}>
+                  <Heading
+                    as="h1"
+                    fontSize="32px"
+                    fontWeight="800"
+                    color={tokens.textMain}
+                    lineHeight="1.15"
+                    letterSpacing="tight"
+                    fontFamily={fontFamily}
+                  >
+                    The Hushh{" "}
+                    <Text as="span" color={tokens.primary}>
+                      Advantage
+                    </Text>
+                  </Heading>
+                  <Text
+                    fontSize="16px"
+                    fontWeight="500"
+                    color={tokens.textMuted}
+                    maxW="320px"
+                    mx="auto"
+                    lineHeight="relaxed"
+                  >
+                    What you reliably get with every Hushh investor profile.
+                  </Text>
+                </VStack>
+              </MotionBox>
+            </VStack>
+
+            {/* Feature Cards - Stacked Layout */}
+            <VStack spacing={4} w="100%">
+              {featureCards.map((item) => (
+                <FeatureCard key={item.title} item={item} />
+              ))}
+            </VStack>
+
+            {/* Trust Chips - Pyramid Layout */}
+            <MotionBox variants={itemVariants} w="100%">
+              <VStack spacing={3} align="center">
+                {/* Top Row: 2 chips */}
+                <Flex justify="center" gap={3} w="100%" flexWrap="wrap">
+                  {trustChips.slice(0, 2).map((chip) => (
+                    <Flex 
+                      key={chip.label}
+                      align="center" 
+                      justify="center"
+                      gap={2}
+                      h="40px"
+                      px={4}
+                      bg="white"
+                      borderRadius="full"
+                      border="1px solid"
+                      borderColor={tokens.slate100}
+                      boxShadow="0 2px 8px -2px rgba(0, 0, 0, 0.04)"
+                    >
+                      <Flex
+                        w="28px"
+                        h="28px"
+                        borderRadius="8px"
+                        align="center"
+                        justify="center"
+                        bg={chip.bgColor}
+                      >
+                        <Icon as={chip.icon} boxSize="16px" color={chip.iconColor} />
+                      </Flex>
+                      <Text
+                        fontSize="14px"
+                        fontWeight="600"
+                        color={tokens.textMain}
+                        fontFamily={fontFamily}
+                      >
+                        {chip.label}
+                      </Text>
+                    </Flex>
+                  ))}
+                </Flex>
+                {/* Bottom Row: 1 chip centered */}
+                <Flex justify="center" w="100%">
+                  <Flex 
+                    align="center" 
+                    justify="center"
+                    gap={2}
+                    h="40px"
+                    px={4}
+                    bg="white"
+                    borderRadius="full"
+                    border="1px solid"
+                    borderColor={tokens.slate100}
+                    boxShadow="0 2px 8px -2px rgba(0, 0, 0, 0.04)"
+                  >
+                    <Flex
+                      w="28px"
+                      h="28px"
+                      borderRadius="8px"
+                      align="center"
+                      justify="center"
+                      bg={trustChips[2].bgColor}
+                    >
+                      <Icon as={trustChips[2].icon} boxSize="16px" color={trustChips[2].iconColor} />
+                    </Flex>
+                    <Text
+                      fontSize="14px"
+                      fontWeight="600"
+                      color={tokens.textMain}
+                      fontFamily={fontFamily}
+                    >
+                      {trustChips[2].label}
+                    </Text>
+                  </Flex>
+                </Flex>
+              </VStack>
+            </MotionBox>
+
+            {/* CTA Button - Gradient background matching screenshot */}
+            <MotionBox variants={itemVariants} w="100%" pt={4}>
+              <MotionButton
+                onClick={() => navigate("/discover-fund-a")}
+                position="relative"
+                display="flex"
+                w="100%"
+                h="56px"
+                alignItems="center"
+                justifyContent="center"
+                borderRadius="full"
+                bgGradient="linear(to-r, #93c5fd, #c4b5fd)"
+                color={tokens.primary}
+                fontSize="16px"
+                fontWeight="700"
+                letterSpacing="0.015em"
+                fontFamily={fontFamily}
+                overflow="hidden"
+                border="none"
+                _hover={{
+                  opacity: 0.9,
+                  transform: "scale(1.02)",
+                }}
+                _active={{
+                  transform: "scale(0.98)",
+                }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                Explore Our Approach
+              </MotionButton>
+            </MotionBox>
           </MotionBox>
-        </MotionBox>
-      </Container>
+        </Box>
+
+        {/* Bottom Safe Area Spacer (iOS home indicator) */}
+        <Box h={6} w="100%" bg="white" />
+      </Box>
     </Box>
   );
 };
