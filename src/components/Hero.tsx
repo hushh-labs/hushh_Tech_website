@@ -8,7 +8,7 @@ import ProfilePage from "./profile/profilePage";
 import WhyChooseSection from "./WhyChooseSection";
 import { Session } from "@supabase/supabase-js";
 import HushhLogo from "./images/Hushhogo.png";
-import { FaRobot, FaShieldAlt, FaChartLine, FaRocket } from "react-icons/fa";
+import { FaRobot, FaShieldAlt, FaChartLine, FaRocket, FaLock } from "react-icons/fa";
 import { HiSparkles } from "react-icons/hi";
 import { BsGrid3X3Gap } from "react-icons/bs";
 import { MdVerifiedUser, MdTrendingUp } from "react-icons/md";
@@ -101,11 +101,10 @@ export default function Hero() {
     <>
       {!session ? (
         <>
-          {/* Hero Section - With Fixed Bottom Bar */}
+          {/* Hero Section */}
           <Box
             bg="#f6f6f8"
             position="relative"
-            minH="100vh"
             display="flex"
             flexDirection="column"
             alignItems="center"
@@ -115,7 +114,6 @@ export default function Hero() {
             <Box
               position="relative"
               display="flex"
-              minH="100vh"
               w="100%"
               maxW="500px"
               flexDirection="column"
@@ -132,8 +130,7 @@ export default function Hero() {
                 alignItems="center"
                 px={6}
                 pt={{ base: "100px", md: "120px" }} /* Space below header/navbar */
-                flex="1"
-                pb={6}
+                pb={4}
               >
                 <MotionBox
                   initial="hidden"
@@ -201,7 +198,7 @@ export default function Hero() {
                   </MotionBox>
 
                   {/* Subheading - Controlled width */}
-                  <MotionBox mb={10} variants={itemVariants}>
+                  <MotionBox mb={4} variants={itemVariants}>
                     <Text
                       fontSize="16px"
                       color="#64748b"
@@ -263,7 +260,7 @@ export default function Hero() {
                       whileHover="hover"
                       whileTap="tap"
                     >
-                      Complete Your Hushh Profile
+                      Get Started
                     </MotionButton>
 
                     {/* Secondary Button - Outlined with primary border */}
@@ -274,7 +271,7 @@ export default function Hero() {
                       borderRadius="full"
                       bg="transparent"
                       border="1px solid"
-                      borderColor="#e2e8f0"
+                      borderColor="#135bec"
                       color="#111318"
                       fontSize="16px"
                       fontWeight="700"
@@ -290,7 +287,7 @@ export default function Hero() {
                       whileHover="hover"
                       whileTap="tap"
                     >
-                      Discover Fund A
+                      Learn More
                     </MotionButton>
                   </VStack>
                 </Box>
@@ -307,21 +304,34 @@ export default function Hero() {
                   Secure. Private. AI-Powered.
                 </Text>
 
-                {/* Trust Badges - Encrypted & SOC 2 */}
+                {/* Trust Badges - SEC REGISTERED & BANK LEVEL SECURITY */}
                 <Flex justify="center" align="center" gap={5}>
-                  {/* Encrypted Badge */}
+                  {/* SEC REGISTERED Badge - with animated pulsing green dot */}
                   <Flex align="center" gap={2}>
-                    <Box w="8px" h="8px" borderRadius="full" bg="#22c55e" />
+                    <Box 
+                      w="8px" 
+                      h="8px" 
+                      borderRadius="full" 
+                      bg="#22c55e"
+                      className="pulse-dot"
+                      sx={{
+                        animation: "pulse 2s ease-in-out infinite",
+                        "@keyframes pulse": {
+                          "0%, 100%": { opacity: 1, transform: "scale(1)" },
+                          "50%": { opacity: 0.6, transform: "scale(1.15)" },
+                        },
+                      }}
+                    />
                     <Text fontSize="13px" fontWeight="600" color="#64748b">
-                      Encrypted
+                      SEC REGISTERED
                     </Text>
                   </Flex>
 
-                  {/* SOC 2 Badge */}
+                  {/* BANK LEVEL SECURITY Badge - with lock icon */}
                   <Flex align="center" gap={2}>
-                    <Box w="8px" h="8px" borderRadius="full" bg="#22c55e" />
+                    <Icon as={FaLock} boxSize="12px" color="#64748b" />
                     <Text fontSize="13px" fontWeight="600" color="#64748b">
-                      SOC 2
+                      BANK LEVEL SECURITY
                     </Text>
                   </Flex>
                 </Flex>
