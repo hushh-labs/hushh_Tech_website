@@ -243,18 +243,18 @@ export default function Hero() {
                       w="100%"
                       h="48px"
                       borderRadius="full"
-                      bg="#135bec"
+                      bg="#2b8cee"
                       color="white"
                       fontSize="16px"
                       fontWeight="700"
                       letterSpacing="0.015em"
                       _hover={{ 
-                        bg: "#1d4ed8",
+                        bg: "#2563eb",
                       }}
                       _active={{
                         transform: "scale(0.98)",
                       }}
-                      boxShadow="0 10px 25px rgba(59, 130, 246, 0.2)"
+                      boxShadow="0 10px 25px rgba(43, 140, 238, 0.25)"
                       variants={buttonHoverVariants}
                       initial="rest"
                       whileHover="hover"
@@ -271,7 +271,7 @@ export default function Hero() {
                       borderRadius="full"
                       bg="transparent"
                       border="1px solid"
-                      borderColor="#135bec"
+                      borderColor="#2b8cee"
                       color="#111318"
                       fontSize="16px"
                       fontWeight="700"
