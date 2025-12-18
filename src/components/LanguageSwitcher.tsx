@@ -68,19 +68,17 @@ export default function LanguageSwitcher() {
 
   return (
     <div dir="ltr" className="relative" ref={dropdownRef} style={{ isolation: 'isolate' }}>
-      {/* Toggle Button */}
+      {/* Toggle Button - Rounded oval pill design */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors duration-200 text-sm font-medium text-gray-700"
+        className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-[#f1f4f0] hover:bg-[#e5e8e4] transition-colors duration-200 text-[#131811]"
         aria-label="Select Language"
         aria-expanded={isOpen}
         aria-haspopup="listbox"
       >
-        <FiGlobe className="w-4 h-4" />
-        <span className="hidden sm:inline">{currentLanguage.flag}</span>
-        <span className="hidden md:inline">{currentLanguage.code.toUpperCase()}</span>
+        <FiGlobe className="w-5 h-5" />
         <FiChevronDown 
-          className={`w-3.5 h-3.5 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} 
+          className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} 
         />
       </button>
 

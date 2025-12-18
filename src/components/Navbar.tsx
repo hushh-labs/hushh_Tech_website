@@ -134,30 +134,34 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-white shadow-lg fixed w-full z-[999]" style={{ top: "38px" }}>
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex justify-between items-center h-16">
-          <Link to="/" className="text-xl flex flex-row items-center font-bold">
-          <Image 
-            src={hushhLogo} 
-            alt="Hushh Logo" 
-            className="w-12 h-12"
-            onClick={(e) => {
-              e.preventDefault();
-              handleSecretGesture();
-            }}
-            cursor="pointer"
-            title="Tap 5 times quickly to enable Developer Mode"
-          />
-            <p className="text-xl font-[500] blue-gradient-text">Hushh Technologies</p>
+    <nav className="bg-white border-b border-gray-100 fixed w-full z-[999] top-0">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="flex justify-between items-center h-14 lg:h-16">
+          {/* Logo + Brand Name */}
+          <Link to="/" className="flex items-center gap-2 flex-shrink-0">
+            <Image 
+              src={hushhLogo} 
+              alt="Hushh Logo" 
+              className="w-10 h-10 lg:w-12 lg:h-12"
+              onClick={(e) => {
+                e.preventDefault();
+                handleSecretGesture();
+              }}
+              cursor="pointer"
+              title="Tap 5 times quickly to enable Developer Mode"
+            />
+            <span className="text-lg lg:text-xl font-medium blue-gradient-text whitespace-nowrap">
+              Hushh Technologies
+            </span>
           </Link>
 
           {/* Mobile: Language Switcher + Hamburger Menu */}
-          <div className="lg:hidden flex items-center gap-3">
+          <div className="lg:hidden flex items-center gap-2">
             <LanguageSwitcher />
             <button
               onClick={toggleDrawer}
-              className="text-gray-700 hover:text-gray-900 focus:outline-none"
+              className="p-1.5 text-[#131811] hover:text-gray-600 focus:outline-none transition-colors"
+              aria-label="Toggle menu"
             >
               <FiMenu size={24} />
             </button>
