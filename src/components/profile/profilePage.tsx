@@ -7,7 +7,9 @@ import {
   Button,
   useToast,
   Flex,
+  Icon,
 } from "@chakra-ui/react";
+import { FaLock } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { keyframes } from "@emotion/react";
 import HushhLogo from "../images/Hushhogo.png";
@@ -393,21 +395,23 @@ const ProfilePage: React.FC = () => {
               onClick={primaryCTA.action}
               w="100%"
               h="56px"
-              borderRadius="16px"
-              bg="linear-gradient(135deg, #00A9E0 0%, #6DD3EF 100%)"
+              borderRadius="full"
+              bg="#2b8cee"
               color="white"
               fontSize="17px"
-              fontWeight="500"
+              fontWeight="600"
               letterSpacing="-0.01em"
               isLoading={onboardingStatus.loading}
               loadingText="Loading..."
               position="relative"
               overflow="hidden"
               _hover={{ 
+                bg: "#2480d9",
                 transform: "translateY(-1px)",
-                boxShadow: "0 12px 32px rgba(0, 169, 224, 0.4)",
+                boxShadow: "0 12px 32px rgba(43, 140, 238, 0.4)",
               }}
               _active={{
+                bg: "#1e74c9",
                 transform: "scale(0.98)",
               }}
               _disabled={{
@@ -415,7 +419,7 @@ const ProfilePage: React.FC = () => {
                 cursor: "not-allowed",
               }}
               transition="all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94)"
-              boxShadow="0 8px 24px rgba(0, 169, 224, 0.35)"
+              boxShadow="0 8px 24px rgba(43, 140, 238, 0.35)"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
@@ -437,21 +441,21 @@ const ProfilePage: React.FC = () => {
               onClick={() => navigate("/discover-fund-a")}
               w="100%"
               h="56px"
-              borderRadius="16px"
+              borderRadius="full"
               bg="white"
-              border="1.5px solid #E5E7EB"
+              border="2px solid #2b8cee"
               color="#1D1D1F"
               fontSize="17px"
-              fontWeight="500"
+              fontWeight="600"
               letterSpacing="-0.01em"
               _hover={{ 
-                bg: "#FAFAFA",
-                borderColor: "#D1D5DB",
+                bg: "rgba(43, 140, 238, 0.05)",
+                borderColor: "#2480d9",
                 transform: "translateY(-1px)",
-                boxShadow: "0 4px 16px rgba(0, 0, 0, 0.08)",
+                boxShadow: "0 4px 16px rgba(43, 140, 238, 0.15)",
               }}
               _active={{ 
-                bg: "#F3F4F6",
+                bg: "rgba(43, 140, 238, 0.1)",
                 transform: "scale(0.98)",
               }}
               transition="all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94)"
@@ -469,7 +473,7 @@ const ProfilePage: React.FC = () => {
           mt={8}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7, duration: 0.5, ease: appleEase }}
+          transition={{ delay: 0.7, duration: 0.5, ease: appleEase } as any}
         >
           <Text
             fontSize="13px"
@@ -489,30 +493,31 @@ const ProfilePage: React.FC = () => {
           mt={6}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.9, duration: 0.5 }}
+          transition={{ delay: 0.9, duration: 0.5 } as any}
         >
           <Box display="flex" alignItems="center" gap={2}>
             <Box 
-              w="6px" 
-              h="6px" 
+              w="8px" 
+              h="8px" 
               borderRadius="full" 
               bg="#34C759"
               boxShadow="0 0 8px rgba(52, 199, 89, 0.4)"
+              animation="pulse 2s ease-in-out infinite"
+              sx={{
+                "@keyframes pulse": {
+                  "0%, 100%": { opacity: 1, transform: "scale(1)" },
+                  "50%": { opacity: 0.7, transform: "scale(1.1)" }
+                }
+              }}
             />
-            <Text fontSize="12px" color="#6E6E73" fontWeight="500">
-              Encrypted
+            <Text fontSize="13px" color="#6E6E73" fontWeight="500">
+              SEC REGISTERED
             </Text>
           </Box>
           <Box display="flex" alignItems="center" gap={2}>
-            <Box 
-              w="6px" 
-              h="6px" 
-              borderRadius="full" 
-              bg="#34C759"
-              boxShadow="0 0 8px rgba(52, 199, 89, 0.4)"
-            />
-            <Text fontSize="12px" color="#6E6E73" fontWeight="500">
-              SOC 2
+            <Icon as={FaLock} w="12px" h="12px" color="#6E6E73" />
+            <Text fontSize="13px" color="#6E6E73" fontWeight="500">
+              BANK LEVEL SECURITY
             </Text>
           </Box>
         </MotionBox>
