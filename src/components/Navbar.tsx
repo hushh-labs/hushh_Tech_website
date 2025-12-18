@@ -1,11 +1,62 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { FiMenu, FiX, FiChevronDown, FiUser, FiTrash2, FiGlobe } from "react-icons/fi";
+import { FiMenu, FiX, FiChevronDown, FiUser, FiTrash2 } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import config from "../resources/config/config";
-import { useToast, Avatar, useBreakpointValue, useDisclosure } from "@chakra-ui/react";
+import { Image, useToast, Avatar, useBreakpointValue, useDisclosure } from "@chakra-ui/react";
+import hushhLogo from "../components/images/Hushhogo.png";
 import LanguageSwitcher from "./LanguageSwitcher";
 import DeleteAccountModal from "./DeleteAccountModal";
+
+// Marquee tickers data
+const marqueeTickers = [
+  { label: "Saudi Aramco", logo: "https://www.nicepng.com/png/full/274-2744280_saudi-aramco-logo-saudi-aramco-logo-vector.png" },
+  { label: "GOOG", logo: "https://thumbs.dreamstime.com/b/google-logo-vector-format-white-background-illustration-407571048.jpg" },
+  { label: "AAPL", logo: "https://fabrikbrands.com/wp-content/uploads/Apple-Logo-History-1-1155x770.png" },
+  { label: "MSFT", logo: "https://static.vecteezy.com/system/resources/previews/027/127/473/non_2x/microsoft-logo-microsoft-icon-transparent-free-png.png" },
+  { label: "NVDA", logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVEu8tfOJpA-vMjPqyI2gEyaDjTaI7tSJFzQ&s" },
+  { label: "AMZN", logo: "https://static.vecteezy.com/system/resources/previews/014/018/561/non_2x/amazon-logo-on-transparent-background-free-vector.jpg" },
+  { label: "BRK.B", logo: "https://www.shutterstock.com/shutterstock/photos/2378735305/display_1500/stock-vector-brk-letter-logo-design-on-a-white-background-or-monogram-logo-design-for-entrepreneur-and-business-2378735305.jpg" },
+  { label: "META", logo: "https://img.freepik.com/premium-vector/meta-company-logo_265339-667.jpg?semt=ais_hybrid&w=740&q=80" },
+  { label: "JPM", logo: "https://e7.pngegg.com/pngimages/225/668/png-clipart-jpmorgan-chase-logo-bank-business-morgan-stanley-bank-text-logo.png" },
+  { label: "ICBC", logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkYKU2DFnDgpOtiG7XP3N9Am69IFfZj5hLTg&s" },
+  { label: "China Construction Bank", logo: "https://www.nfcw.com/wp-content/uploads/2021/06/china-construction-bank-logo-400W.jpg" },
+  { label: "XOM", logo: "https://static.vecteezy.com/system/resources/previews/009/116/598/non_2x/com-logo-com-letter-com-letter-logo-design-initials-com-logo-linked-with-circle-and-uppercase-monogram-logo-com-typography-for-technology-business-and-real-estate-brand-vector.jpg" },
+  { label: "Agricultural Bank of China", logo: "https://static.wikia.nocookie.net/logopedia/images/d/d6/ABC_china_symbol.svg/revision/latest/scale-to-width-down/1200?cb=20240204071833" },
+  { label: "TSM", logo: "https://upload.wikimedia.org/wikipedia/en/thumb/6/63/Tsmc.svg/1200px-Tsmc.svg.png" },
+  { label: "Bank of China", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Bank_of_China_symbol.svg/2048px-Bank_of_China_symbol.svg.png" },
+  { label: "TM", logo: "https://global.toyota/pages/global_toyota/mobility/toyota-brand/emblem_001.jpg" },
+  { label: "PetroChina", logo: "https://upload.wikimedia.org/wikipedia/en/thumb/2/2b/Petrochina_logo.svg/250px-Petrochina_logo.svg.png" },
+  { label: "WMT", logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRxwPUD4NGc7WTQVqDstT5ZPRQXm6ka0KTsmTsKfiY&usqp=CAE&s" },
+  { label: "TCEHY", logo: "https://upload.wikimedia.org/wikipedia/commons/2/22/Tencent_Logo.svg" },
+  { label: "BAC", logo: "https://www.bankofamerica.com/content/images/ContextualSiteGraphics/Logos/en_US/logos/bac-logo-v2.png" },
+];
+
+const marqueePrefix = "Introducing the hushh 27 alpha bets —";
+
+// Render marquee chunk helper
+const renderMarqueeChunk = (key: string) => (
+  <span className="marquee-chunk" key={key}>
+    <span className="marquee-prefix">{marqueePrefix}</span>
+    <span className="marquee-body">
+      {marqueeTickers.map((ticker, idx) => (
+        <React.Fragment key={`${key}-${ticker.label}-${idx}`}>
+          <span className="ticker inline-flex items-center gap-1">
+            <img
+              src={ticker.logo}
+              alt={`${ticker.label} logo`}
+              className="ticker-logo w-4 h-4 object-contain"
+            />
+            <span>{ticker.label}</span>
+          </span>
+          {idx !== marqueeTickers.length - 1 && (
+            <span className="ticker-sep">,</span>
+          )}
+        </React.Fragment>
+      ))}
+    </span>
+  </span>
+);
 
 // Secret gesture state for dev console activation
 let tapCount = 0;
@@ -27,9 +78,6 @@ export default function Navbar() {
   const profileDropdownRef = useRef<HTMLDivElement>(null);
   const toast = useToast();
   const isMobile = useBreakpointValue({ base: true, lg: false });
-
-  // Get current language code
-  const currentLang = i18n.language?.toUpperCase().slice(0, 2) || 'EN';
 
   // Handle secret gesture - 5 rapid taps on logo to open dev console
   const handleSecretGesture = () => {
@@ -136,56 +184,62 @@ export default function Navbar() {
 
   return (
     <>
-      {/* Header - Mobile First Design matching the HTML template */}
-      <header className="sticky top-0 z-50 flex w-full items-center justify-between bg-white px-4 py-3 border-b border-gray-100">
-        {/* Left: Brand Lockup */}
-        <Link to="/" className="flex items-center gap-2">
-          {/* Logo Mark - Fingerprint icon in blue circle */}
-          <div 
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-[#135bec]/10 text-[#135bec]"
-            onClick={(e) => {
-              e.preventDefault();
-              handleSecretGesture();
-            }}
-            style={{ cursor: 'pointer' }}
-            title="Tap 5 times quickly to enable Developer Mode"
-          >
-            {/* Fingerprint SVG Icon */}
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              viewBox="0 0 24 24" 
-              fill="currentColor" 
-              className="w-5 h-5"
-            >
-              <path fillRule="evenodd" d="M12 3.75a6.715 6.715 0 00-3.722 1.118.75.75 0 11-.828-1.25 8.25 8.25 0 0112.8 6.883c0 3.014-.574 5.897-1.62 8.543a.75.75 0 01-1.395-.551A21.69 21.69 0 0018.75 10.5 6.75 6.75 0 0012 3.75zM6.157 5.739a.75.75 0 01.21 1.04A6.715 6.715 0 005.25 10.5c0 1.613-.463 3.12-1.265 4.393a.75.75 0 01-1.27-.8A6.715 6.715 0 003.75 10.5c0-1.68.503-3.246 1.367-4.55a.75.75 0 011.04-.211zM12 7.5a3 3 0 00-3 3c0 3.1-.508 6.087-1.445 8.87a.75.75 0 11-1.423-.47A21.69 21.69 0 007.5 10.5a4.5 4.5 0 119 0c0 3.14-.574 6.148-1.622 8.916a.75.75 0 01-1.413-.502A20.19 20.19 0 0015 10.5a3 3 0 00-3-3zM12 10.5a.75.75 0 01.75.75c0 3.212-.545 6.297-1.55 9.17a.75.75 0 01-1.4-.54A20.19 20.19 0 0011.25 11.25a.75.75 0 01.75-.75z" clipRule="evenodd" />
-            </svg>
+      {/* Fixed Header with Marquee + Navigation */}
+      <header className="fixed w-full z-[999] top-0">
+        {/* Marquee Strip - Stock Ticker Banner */}
+        <div className="marquee-container">
+          <div className="marquee-track">
+            {renderMarqueeChunk("first")}
+            {renderMarqueeChunk("second")}
           </div>
-          {/* Logotype: Brand-forward Primary Color */}
-          <h1 className="font-display text-[18px] font-extrabold leading-tight tracking-tight text-[#135bec]">
-            Hushh Technologies
-          </h1>
-        </Link>
-
-        {/* Right: Actions Group */}
-        <div className="flex items-center gap-1">
-          {/* Language Selector Pill */}
-          <LanguageSwitcher />
-          
-          {/* Hamburger Menu */}
-          <button
-            onClick={toggleDrawer}
-            className="flex h-11 w-11 items-center justify-center rounded-full text-gray-900 transition-colors hover:bg-gray-50 focus:bg-gray-100 active:text-[#135bec]"
-            aria-label="Toggle menu"
-          >
-            <FiMenu className="w-7 h-7" />
-          </button>
         </div>
+
+        {/* Main Navigation Bar */}
+        <nav className="flex w-full items-center justify-between bg-white px-4 py-3 border-b border-gray-100">
+          {/* Left: Brand Lockup */}
+          <Link to="/" className="flex items-center gap-2">
+            {/* Hushh Logo Image */}
+            <Image 
+              src={hushhLogo} 
+              alt="Hushh Logo" 
+              className="w-8 h-8"
+              onClick={(e) => {
+                e.preventDefault();
+                handleSecretGesture();
+              }}
+              cursor="pointer"
+              title="Tap 5 times quickly to enable Developer Mode"
+            />
+            {/* Logotype: Brand-forward Primary Color */}
+            <h1 className="font-display text-[18px] font-extrabold leading-tight tracking-tight text-[#135bec]">
+              Hushh Technologies
+            </h1>
+          </Link>
+
+          {/* Right: Actions Group */}
+          <div className="flex items-center gap-1">
+            {/* Language Selector Pill */}
+            <LanguageSwitcher />
+            
+            {/* Hamburger Menu */}
+            <button
+              onClick={toggleDrawer}
+              className="flex h-11 w-11 items-center justify-center rounded-full text-gray-900 transition-colors hover:bg-gray-50 focus:bg-gray-100 active:text-[#135bec]"
+              aria-label="Toggle menu"
+            >
+              <FiMenu className="w-7 h-7" />
+            </button>
+          </div>
+        </nav>
       </header>
+
+      {/* Spacer for fixed header (marquee 40px + nav ~56px = 96px) */}
+      <div className="h-24" />
 
       {/* Mobile Drawer Menu */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-[100]"
+          className="fixed inset-0 z-[1000]"
           style={{ background: "rgba(11, 17, 32, 0.30)" }}
           onClick={toggleDrawer}
         >
