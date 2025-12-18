@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { FiMenu, FiX, FiChevronDown, FiUser, FiTrash2 } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
@@ -8,12 +8,62 @@ import hushhLogo from "../components/images/Hushhogo.png";
 import LanguageSwitcher from "./LanguageSwitcher";
 import DeleteAccountModal from "./DeleteAccountModal";
 
+// Marquee tickers data
+const marqueeTickers = [
+  { label: "Saudi Aramco", logo: "https://www.nicepng.com/png/full/274-2744280_saudi-aramco-logo-saudi-aramco-logo-vector.png" },
+  { label: "GOOG", logo: "https://thumbs.dreamstime.com/b/google-logo-vector-format-white-background-illustration-407571048.jpg" },
+  { label: "AAPL", logo: "https://fabrikbrands.com/wp-content/uploads/Apple-Logo-History-1-1155x770.png" },
+  { label: "MSFT", logo: "https://static.vecteezy.com/system/resources/previews/027/127/473/non_2x/microsoft-logo-microsoft-icon-transparent-free-png.png" },
+  { label: "NVDA", logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVEu8tfOJpA-vMjPqyI2gEyaDjTaI7tSJFzQ&s" },
+  { label: "AMZN", logo: "https://static.vecteezy.com/system/resources/previews/014/018/561/non_2x/amazon-logo-on-transparent-background-free-vector.jpg" },
+  { label: "BRK.B", logo: "https://www.shutterstock.com/shutterstock/photos/2378735305/display_1500/stock-vector-brk-letter-logo-design-on-a-white-background-or-monogram-logo-design-for-entrepreneur-and-business-2378735305.jpg" },
+  { label: "META", logo: "https://img.freepik.com/premium-vector/meta-company-logo_265339-667.jpg?semt=ais_hybrid&w=740&q=80" },
+  { label: "JPM", logo: "https://e7.pngegg.com/pngimages/225/668/png-clipart-jpmorgan-chase-logo-bank-business-morgan-stanley-bank-text-logo.png" },
+  { label: "ICBC", logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkYKU2DFnDgpOtiG7XP3N9Am69IFfZj5hLTg&s" },
+  { label: "China Construction Bank", logo: "https://www.nfcw.com/wp-content/uploads/2021/06/china-construction-bank-logo-400W.jpg" },
+  { label: "XOM", logo: "https://static.vecteezy.com/system/resources/previews/009/116/598/non_2x/com-logo-com-letter-com-letter-logo-design-initials-com-logo-linked-with-circle-and-uppercase-monogram-logo-com-typography-for-technology-business-and-real-estate-brand-vector.jpg" },
+  { label: "Agricultural Bank of China", logo: "https://static.wikia.nocookie.net/logopedia/images/d/d6/ABC_china_symbol.svg/revision/latest/scale-to-width-down/1200?cb=20240204071833" },
+  { label: "TSM", logo: "https://upload.wikimedia.org/wikipedia/en/thumb/6/63/Tsmc.svg/1200px-Tsmc.svg.png" },
+  { label: "Bank of China", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Bank_of_China_symbol.svg/2048px-Bank_of_China_symbol.svg.png" },
+  { label: "TM", logo: "https://global.toyota/pages/global_toyota/mobility/toyota-brand/emblem_001.jpg" },
+  { label: "PetroChina", logo: "https://upload.wikimedia.org/wikipedia/en/thumb/2/2b/Petrochina_logo.svg/250px-Petrochina_logo.svg.png" },
+  { label: "WMT", logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRxwPUD4NGc7WTQVqDstT5ZPRQXm6ka0KTsmTsKfiY&usqp=CAE&s" },
+  { label: "TCEHY", logo: "https://upload.wikimedia.org/wikipedia/commons/2/22/Tencent_Logo.svg" },
+  { label: "BAC", logo: "https://www.bankofamerica.com/content/images/ContextualSiteGraphics/Logos/en_US/logos/bac-logo-v2.png" },
+];
+
+const marqueePrefix = "Introducing the hushh 27 alpha bets —";
+
+// Render marquee chunk helper
+const renderMarqueeChunk = (key: string) => (
+  <span className="marquee-chunk" key={key}>
+    <span className="marquee-prefix">{marqueePrefix}</span>
+    <span className="marquee-body">
+      {marqueeTickers.map((ticker, idx) => (
+        <React.Fragment key={`${key}-${ticker.label}-${idx}`}>
+          <span className="ticker inline-flex items-center gap-1">
+            <img
+              src={ticker.logo}
+              alt={`${ticker.label} logo`}
+              className="ticker-logo w-4 h-4 object-contain"
+            />
+            <span>{ticker.label}</span>
+          </span>
+          {idx !== marqueeTickers.length - 1 && (
+            <span className="ticker-sep">,</span>
+          )}
+        </React.Fragment>
+      ))}
+    </span>
+  </span>
+);
+
 // Secret gesture state for dev console activation
 let tapCount = 0;
 let lastTapTime = 0;
 
 export default function Navbar() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [session, setSession] = useState<any>(null);
   const [toastShown, setToastShown] = useState(false);
@@ -67,24 +117,23 @@ export default function Navbar() {
       setSession(session);
     });
     
-
     const cleanup = () => subscription?.unsubscribe();
     return cleanup;
   }, []);
-
 
   const handleLogout = async () => {
     if (!config.supabaseClient) return;
     
     try {
       await config.supabaseClient.auth.signOut();
-      setSession(null); // Ensure session is set to null after logout
+      setSession(null);
     } catch (error) {
       console.error("Error logging out of Supabase:", error);
     }
 
     localStorage.removeItem("isLoggedIn");
   };
+
   // Show welcome toast when a user is signed in (only once)
   useEffect(() => {
     if (session && !toastShown) {
@@ -134,172 +183,63 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-white shadow-lg fixed w-full z-[999]" style={{ top: "38px" }}>
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex justify-between items-center h-16">
-          <Link to="/" className="text-xl flex flex-row items-center font-bold">
-          <Image 
-            src={hushhLogo} 
-            alt="Hushh Logo" 
-            className="w-12 h-12"
-            onClick={(e) => {
-              e.preventDefault();
-              handleSecretGesture();
-            }}
-            cursor="pointer"
-            title="Tap 5 times quickly to enable Developer Mode"
-          />
-            <p className="text-xl font-[500] blue-gradient-text">Hushh Technologies</p>
-          </Link>
-
-          {/* Mobile: Language Switcher + Hamburger Menu */}
-          <div className="lg:hidden flex items-center gap-3">
-            <LanguageSwitcher />
-            <button
-              onClick={toggleDrawer}
-              className="text-gray-700 hover:text-gray-900 focus:outline-none"
-            >
-              <FiMenu size={24} />
-            </button>
-          </div>
-{/* For Desktop View */}
-          <div className="hidden lg:flex items-center space-x-6">
-            {[
-              { path: "/about/leadership", label: t('nav.ourPhilosophy') },
-              { path: "/discover-fund-a", label: t('nav.fundA') },
-              { path: "/community", label: t('nav.community') },
-              { path: "/faq", label: t('nav.faq') },
-              { path: "/contact", label: t('nav.contact') },
-            ].map(({ path, label }) => (
-              <Link
-                key={path}
-                to={path}
-                className={`px-3 py-2 rounded ${
-                  isActive(path)
-                    ? " font-[500] text-[#0AADBC]"
-                    : "text-black-700 hover:text-gray-900"
-                }`}
-              >
-                {label}
-              </Link>
-            ))}
-            
-            {/* Career Dropdown with hover functionality */}
-            <div 
-              className="relative group" 
-              onMouseEnter={() => setCareerDropdownOpen(true)}
-              onMouseLeave={() => setCareerDropdownOpen(false)}
-            >
-              <button 
-                className={`px-3 py-2 rounded flex items-center ${
-                  isActive("/career") || isActive("/benefits")
-                    ? "font-[500] text-[#0AADBC]"
-                    : "text-black-700 hover:text-gray-900"
-                }`}
-              >
-                {t('nav.joinUs')} <FiChevronDown className="ml-1" />
-              </button>
-              
-              <div 
-                className={`absolute right-0 mt-0 w-48 bg-white rounded-md shadow-lg py-1 z-10 transition-opacity duration-300 ${
-                  careerDropdownOpen ? "opacity-100" : "opacity-0 invisible"
-                }`}
-                style={{ top: "100%", paddingTop: "10px" }}
-              >
-                <div className="pt-2"> {/* Added padding to create space between trigger and content */}
-                  <Link
-                    to="/career"
-                    className={`block px-4 py-2 text-sm ${
-                      isActive("/career") ? "font-[500] text-[#0AADBC]" : "text-gray-700 hover:bg-gray-100"
-                    }`}
-                  >
-                    {t('nav.careers')}
-                  </Link>
-                  <Link
-                    to="/benefits"
-                    className={`block px-4 py-2 text-sm ${
-                      isActive("/benefits") ? "font-[500] text-[#0AADBC]" : "text-gray-700 hover:bg-gray-100"
-                    }`}
-                  >
-                    {t('nav.benefits')}
-                  </Link>
-                </div>
-              </div>
-            </div>
-
-            {/* Language Switcher */}
-            <LanguageSwitcher />
-
-            {!isAuthenticated ? (
-              <button
-                onClick={() => navigate("/Login")}
-                className="bg-black text-white px-4 py-2 rounded"
-              >
-                {t('nav.login')}
-              </button>
-            ) : (
-              <>
-                <button
-                  onClick={handleLogout}
-                  className="bg-black text-white px-4 py-2 rounded"
-                >
-                  {t('nav.logout')}
-                </button>
-                {/* User Profile Dropdown */}
-                <div 
-                  className="relative"
-                  ref={profileDropdownRef}
-                >
-                  <button 
-                    onClick={toggleProfileDropdown}
-                    className="flex items-center focus:outline-none"
-                  >
-                    <Avatar
-                      src={session?.user?.user_metadata?.avatar_url || undefined}
-                      name={session?.user?.email || session?.user?.user_metadata?.full_name || ""}
-                      className="w-8 h-8 rounded-full cursor-pointer"
-                    />
-                  </button>
-                  
-                  <div 
-                    className={`absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 transition-opacity duration-300 ${
-                      profileDropdownOpen ? "opacity-100" : "opacity-0 invisible"
-                    }`}
-                  >
-                    <Link
-                      to="/hushh-user-profile"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      onClick={() => setProfileDropdownOpen(false)}
-                    >
-                      <div className="flex items-center">
-                        <FiUser className="mr-2" />
-                        {t('nav.viewProfile')}
-                      </div>
-                    </Link>
-                    <div className="border-t border-gray-100 my-1"></div>
-                    <button
-                      onClick={() => {
-                        setProfileDropdownOpen(false);
-                        onDeleteModalOpen();
-                      }}
-                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-                    >
-                      <div className="flex items-center">
-                        <FiTrash2 className="mr-2" />
-                        {t('nav.deleteAccount')}
-                      </div>
-                    </button>
-                  </div>
-                </div>
-              </>
-            )}
+    <>
+      {/* Fixed Header with Marquee + Navigation */}
+      <header className="fixed w-full z-[999] top-0">
+        {/* Marquee Strip - Stock Ticker Banner */}
+        <div className="marquee-container">
+          <div className="marquee-track">
+            {renderMarqueeChunk("first")}
+            {renderMarqueeChunk("second")}
           </div>
         </div>
-      </div>
 
+        {/* Main Navigation Bar */}
+        <nav className="flex w-full items-center justify-between bg-white px-4 py-3 border-b border-gray-100">
+          {/* Left: Brand Lockup */}
+          <Link to="/" className="flex items-center gap-2">
+            {/* Hushh Logo Image */}
+            <Image 
+              src={hushhLogo} 
+              alt="Hushh Logo" 
+              className="w-8 h-8"
+              onClick={(e) => {
+                e.preventDefault();
+                handleSecretGesture();
+              }}
+              cursor="pointer"
+              title="Tap 5 times quickly to enable Developer Mode"
+            />
+            {/* Logotype: Brand-forward Primary Color */}
+            <h1 className="font-display text-[18px] font-extrabold leading-tight tracking-tight text-[#135bec]">
+              Hushh Technologies
+            </h1>
+          </Link>
+
+          {/* Right: Actions Group */}
+          <div className="flex items-center gap-1">
+            {/* Language Selector Pill */}
+            <LanguageSwitcher />
+            
+            {/* Hamburger Menu */}
+            <button
+              onClick={toggleDrawer}
+              className="flex h-11 w-11 items-center justify-center rounded-full text-gray-900 transition-colors hover:bg-gray-50 focus:bg-gray-100 active:text-[#135bec]"
+              aria-label="Toggle menu"
+            >
+              <FiMenu className="w-7 h-7" />
+            </button>
+          </div>
+        </nav>
+      </header>
+
+      {/* Spacer for fixed header (marquee 40px + nav ~56px = 96px) */}
+      <div className="h-24" />
+
+      {/* Mobile Drawer Menu */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-50 lg:hidden"
+          className="fixed inset-0 z-[1000]"
           style={{ background: "rgba(11, 17, 32, 0.30)" }}
           onClick={toggleDrawer}
         >
@@ -324,6 +264,7 @@ export default function Navbar() {
                   {[
                     { path: "/", label: t('nav.home') },
                     { path: "/about/leadership", label: t('nav.ourPhilosophy') },
+                    { path: "/discover-fund-a", label: t('nav.fundA') },
                     { path: "/community", label: t('nav.community') },
                     { path: "/a2a-playground", label: t('nav.kycStudio') },
                   ].map(({ path, label }) => {
@@ -334,11 +275,11 @@ export default function Navbar() {
                         onClick={() => handleLinkClick(path)}
                         className="relative w-full text-left"
                       >
-                        <div className="flex items-center h-14 text-[22px] leading-[1.2] text-[#0B1120] font-[500] active:bg-[rgba(0,169,224,0.06)] transition-colors duration-150 px-0">
+                        <div className="flex items-center h-14 text-[22px] leading-[1.2] text-[#0B1120] font-medium active:bg-[rgba(0,169,224,0.06)] transition-colors duration-150 px-0">
                           {active && (
-                            <span className="absolute left-[-12px] h-[18px] w-[2px] bg-[#00A9E0] rounded-full top-1/2 -translate-y-1/2" />
+                            <span className="absolute left-[-12px] h-[18px] w-[2px] bg-[#135bec] rounded-full top-1/2 -translate-y-1/2" />
                           )}
-                          <span className={active ? "font-[500]" : ""}>{label}</span>
+                          <span className={active ? "font-semibold text-[#135bec]" : ""}>{label}</span>
                         </div>
                       </button>
                     );
@@ -357,22 +298,23 @@ export default function Navbar() {
                         onClick={() => handleLinkClick(path)}
                         className="relative w-full text-left"
                       >
-                        <div className="flex items-center h-14 text-[22px] leading-[1.2] text-[#0B1120] font-[500] active:bg-[rgba(0,169,224,0.06)] transition-colors duration-150 px-0">
+                        <div className="flex items-center h-14 text-[22px] leading-[1.2] text-[#0B1120] font-medium active:bg-[rgba(0,169,224,0.06)] transition-colors duration-150 px-0">
                           {active && (
-                            <span className="absolute left-[-12px] h-[18px] w-[2px] bg-[#00A9E0] rounded-full top-1/2 -translate-y-1/2" />
+                            <span className="absolute left-[-12px] h-[18px] w-[2px] bg-[#135bec] rounded-full top-1/2 -translate-y-1/2" />
                           )}
-                          <span className={active ? "font-[500]" : ""}>{label}</span>
+                          <span className={active ? "font-semibold text-[#135bec]" : ""}>{label}</span>
                         </div>
                       </button>
                     );
                   })}
 
+                  {/* Career Dropdown */}
                   <div className="relative w-full text-left">
                     <button
                       onClick={() => setMobileCareerDropdownOpen(!mobileCareerDropdownOpen)}
-                      className="flex items-center h-14 text-[22px] leading-[1.2] text-[#0B1120] font-[500] active:bg-[rgba(0,169,224,0.06)] transition-colors duration-150 w-full text-left"
+                      className="flex items-center h-14 text-[22px] leading-[1.2] text-[#0B1120] font-medium active:bg-[rgba(0,169,224,0.06)] transition-colors duration-150 w-full text-left"
                     >
-                      <span className={(isActive("/career") || isActive("/benefits")) ? "font-[500]" : ""}>
+                      <span className={(isActive("/career") || isActive("/benefits")) ? "font-semibold text-[#135bec]" : ""}>
                         {t('nav.joinUs')}
                       </span>
                       <FiChevronDown
@@ -399,8 +341,8 @@ export default function Navbar() {
                               onClick={() => handleLinkClick(path)}
                               className="w-full text-left"
                             >
-                              <div className="flex items-center h-12 text-[18px] text-[#475569] font-[500] active:bg-[rgba(0,169,224,0.06)] rounded-md px-1">
-                                <span className={active ? "font-[500] text-[#0B1120]" : ""}>{label}</span>
+                              <div className="flex items-center h-12 text-[18px] text-[#475569] font-medium active:bg-[rgba(0,169,224,0.06)] rounded-md px-1">
+                                <span className={active ? "font-semibold text-[#135bec]" : ""}>{label}</span>
                               </div>
                             </button>
                           );
@@ -410,38 +352,53 @@ export default function Navbar() {
                   </div>
 
                   {isAuthenticated && (
-                    <button
-                      onClick={() => handleLinkClick("/user-registration")}
-                      className="w-full text-left"
-                    >
-                      <div className="flex items-center h-14 text-[22px] leading-[1.2] text-[#0B1120] font-[500] active:bg-[rgba(0,169,224,0.06)] transition-colors duration-150 px-0">
-                        <FiUser className="mr-2" />
-                        Edit Profile
-                      </div>
-                    </button>
+                    <>
+                      <div className="my-4 h-px bg-[#E5E7EB]" />
+                      <button
+                        onClick={() => handleLinkClick("/hushh-user-profile")}
+                        className="w-full text-left"
+                      >
+                        <div className="flex items-center h-14 text-[22px] leading-[1.2] text-[#0B1120] font-medium active:bg-[rgba(0,169,224,0.06)] transition-colors duration-150 px-0">
+                          <FiUser className="mr-3" />
+                          {t('nav.viewProfile')}
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => {
+                          setIsOpen(false);
+                          onDeleteModalOpen();
+                        }}
+                        className="w-full text-left"
+                      >
+                        <div className="flex items-center h-14 text-[22px] leading-[1.2] text-red-600 font-medium active:bg-red-50 transition-colors duration-150 px-0">
+                          <FiTrash2 className="mr-3" />
+                          {t('nav.deleteAccount')}
+                        </div>
+                      </button>
+                    </>
                   )}
                 </div>
               </div>
 
+              {/* Bottom CTA */}
               <div className="mt-4 -mx-6 px-6 pt-3 pb-4 bg-white sticky bottom-0">
                 <div className="relative h-px w-full bg-[#E5E7EB] mb-4">
                   <span
                     aria-hidden
-                    className="absolute left-0 top-1/2 h-[2px] w-4 -translate-y-1/2 bg-[#00A9E0]"
+                    className="absolute left-0 top-1/2 h-[2px] w-4 -translate-y-1/2 bg-[#135bec]"
                   />
                 </div>
                 {!isAuthenticated ? (
                   <button
                     onClick={() => handleLinkClick("/Login")}
-                    className="w-full h-[54px] rounded-[16px] text-[17px] font-semibold tracking-[0.01em] text-[#0B1120] transition-[transform,filter] duration-150 active:scale-[0.985] active:brightness-[0.94] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00A9E0] focus-visible:ring-offset-2 focus-visible:ring-offset-white"
-                    style={{ background: "linear-gradient(to right, #00A9E0, #6DD3EF)", fontWeight: 500 }}
+                    className="w-full h-[54px] rounded-full text-[17px] font-semibold tracking-[0.01em] text-white bg-[#135bec] shadow-lg shadow-[#135bec]/30 transition-transform duration-150 active:scale-[0.985]"
                   >
                     {t('nav.login')}
                   </button>
                 ) : (
                   <button
                     onClick={handleLogout}
-                    className="w-full h-[54px] rounded-[16px] text-[17px] font-semibold tracking-[0.01em] text-[#0B1120] border border-[#E5E7EB] bg-white transition-colors duration-150 active:bg-[#F9FAFB]"
+                    className="w-full h-[54px] rounded-full text-[17px] font-semibold tracking-[0.01em] text-[#0B1120] border border-[#E5E7EB] bg-white transition-colors duration-150 active:bg-[#F9FAFB]"
                   >
                     {t('nav.logout')}
                   </button>
@@ -458,6 +415,6 @@ export default function Navbar() {
         onClose={onDeleteModalClose}
         onAccountDeleted={handleAccountDeleted}
       />
-    </nav>
+    </>
   );
 }

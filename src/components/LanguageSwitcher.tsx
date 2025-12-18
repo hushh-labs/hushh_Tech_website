@@ -1,48 +1,23 @@
-import { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FiGlobe, FiChevronDown } from 'react-icons/fi';
+import { FiGlobe, FiCheck } from 'react-icons/fi';
 
-interface Language {
-  code: string;
-  name: string;
-  nativeName: string;
-  flag: string;
-  dir: 'ltr' | 'rtl';
-}
-
-const languages: Language[] = [
-  { code: 'en', name: 'English', nativeName: 'English', flag: '🇺🇸', dir: 'ltr' },
-  { code: 'ar', name: 'Arabic', nativeName: 'العربية', flag: '🇸🇦', dir: 'rtl' },
-  { code: 'fr', name: 'French', nativeName: 'Français', flag: '🇫🇷', dir: 'ltr' },
-  { code: 'zh', name: 'Chinese', nativeName: '中文', flag: '🇨🇳', dir: 'ltr' },
+const languages = [
+  { code: 'en', name: 'English', shortCode: 'EN' },
+  { code: 'zh', name: '中文', shortCode: 'ZH' },
+  { code: 'ar', name: 'العربية', shortCode: 'AR' },
+  { code: 'fr', name: 'Français', shortCode: 'FR' },
 ];
 
-export default function LanguageSwitcher() {
+const LanguageSwitcher: React.FC = () => {
   const { i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const currentLanguage = languages.find((lang) => lang.code === i18n.language) || languages[0];
+  // Get current language short code
+  const currentLang = languages.find(l => l.code === i18n.language)?.shortCode || 'EN';
 
-  const handleLanguageChange = (langCode: string) => {
-    const selectedLang = languages.find((lang) => lang.code === langCode);
-    
-    // Change language
-    i18n.changeLanguage(langCode);
-    
-    // Update document direction for RTL support
-    if (selectedLang) {
-      document.documentElement.dir = selectedLang.dir;
-      document.documentElement.lang = langCode;
-      
-      // Store preference in localStorage
-      localStorage.setItem('i18nextLng', langCode);
-    }
-    
-    setIsOpen(false);
-  };
-
-  // Close dropdown when clicking outside
+  // Handle click outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -51,82 +26,66 @@ export default function LanguageSwitcher() {
     };
 
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
 
-  // Set initial direction based on stored language
-  useEffect(() => {
-    const storedLang = localStorage.getItem('i18nextLng');
-    if (storedLang) {
-      const lang = languages.find((l) => l.code === storedLang);
-      if (lang) {
-        document.documentElement.dir = lang.dir;
-        document.documentElement.lang = storedLang;
-      }
+  const changeLanguage = (langCode: string) => {
+    i18n.changeLanguage(langCode);
+    
+    // Update document direction for RTL languages
+    if (langCode === 'ar') {
+      document.documentElement.setAttribute('dir', 'rtl');
+      document.documentElement.setAttribute('lang', 'ar');
+    } else {
+      document.documentElement.setAttribute('dir', 'ltr');
+      document.documentElement.setAttribute('lang', langCode);
     }
-  }, []);
+    
+    setIsOpen(false);
+  };
 
   return (
-    <div dir="ltr" className="relative" ref={dropdownRef} style={{ isolation: 'isolate' }}>
-      {/* Toggle Button */}
+    <div className="relative" ref={dropdownRef}>
+      {/* Language Selector Pill - Matching HTML template exactly */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors duration-200 text-sm font-medium text-gray-700"
-        aria-label="Select Language"
-        aria-expanded={isOpen}
-        aria-haspopup="listbox"
+        className="group flex h-9 items-center gap-1 rounded-full bg-[#f6f6f8] px-3 transition-colors hover:bg-gray-200"
+        aria-label="Select language"
       >
-        <FiGlobe className="w-4 h-4" />
-        <span className="hidden sm:inline">{currentLanguage.flag}</span>
-        <span className="hidden md:inline">{currentLanguage.code.toUpperCase()}</span>
-        <FiChevronDown 
-          className={`w-3.5 h-3.5 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} 
-        />
+        <FiGlobe className="w-4 h-4 text-gray-600 group-hover:text-gray-900" />
+        <span className="text-[13px] font-bold text-gray-700 group-hover:text-gray-900">
+          {currentLang}
+        </span>
       </button>
 
-      {/* Dropdown Menu - positioned to stay within viewport */}
+      {/* Dropdown Menu */}
       {isOpen && (
-        <div 
-          className="absolute mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-[1000]"
-          style={{
-            right: 'auto',
-            left: '50%',
-            transform: 'translateX(calc(-100% + 20px))',
-          }}
-          role="listbox"
-          aria-label="Language options"
-        >
-          {languages.map((language) => (
-            <button
-              key={language.code}
-              onClick={() => handleLanguageChange(language.code)}
-              className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors duration-150 ${
-                currentLanguage.code === language.code
-                  ? 'bg-[#0AADBC]/10 text-[#0AADBC] font-medium'
-                  : 'text-gray-700 hover:bg-gray-50'
-              }`}
-              role="option"
-              aria-selected={currentLanguage.code === language.code}
-            >
-              <span className="text-lg">{language.flag}</span>
-              <span className="flex-1 text-left">{language.nativeName}</span>
-              {currentLanguage.code === language.code && (
-                <svg 
-                  className="w-4 h-4 text-[#0AADBC]" 
-                  fill="currentColor" 
-                  viewBox="0 0 20 20"
-                >
-                  <path 
-                    fillRule="evenodd" 
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" 
-                    clipRule="evenodd" 
-                  />
-                </svg>
-              )}
-            </button>
-          ))}
+        <div className="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-[200]">
+          {languages.map((lang) => {
+            const isSelected = i18n.language === lang.code;
+            return (
+              <button
+                key={lang.code}
+                onClick={() => changeLanguage(lang.code)}
+                className={`w-full flex items-center justify-between px-4 py-2.5 text-left text-sm transition-colors
+                  ${isSelected 
+                    ? 'bg-[#135bec]/5 text-[#135bec] font-semibold' 
+                    : 'text-gray-700 hover:bg-gray-50'
+                  }`}
+              >
+                <span>{lang.name}</span>
+                {isSelected && (
+                  <FiCheck className="w-4 h-4 text-[#135bec]" />
+                )}
+              </button>
+            );
+          })}
         </div>
       )}
     </div>
   );
-}
+};
+
+export default LanguageSwitcher;
