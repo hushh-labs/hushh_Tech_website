@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import config from '../../resources/config/config';
 import { AccountType, ACCOUNT_TIERS, migrateAccountType } from '../../types/onboarding';
+import { useFooterVisibility } from '../../utils/useFooterVisibility';
 
 // Diamond icon for Premium tier
 const DiamondIcon = () => (
@@ -38,6 +39,7 @@ export default function OnboardingStep1() {
   const [selectedAccount, setSelectedAccount] = useState<AccountType | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
+  const isFooterVisible = useFooterVisibility();
 
   useEffect(() => {
     // Scroll to top on component mount
@@ -250,35 +252,37 @@ export default function OnboardingStep1() {
           </div>
         </main>
 
-        {/* Fixed Footer */}
-        <div className="fixed bottom-0 z-20 w-full max-w-[500px] bg-white border-t border-slate-100 p-6 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]">
-          {/* Continue Button */}
-          <button
-            onClick={handleContinue}
-            disabled={!selectedAccount || isLoading}
-            className={`
-              w-full flex items-center justify-center h-14 rounded-full font-bold text-base tracking-wide transition-all mb-4
-              ${selectedAccount && !isLoading
-                ? 'bg-[#2b8cee] hover:bg-blue-600 active:scale-[0.98] text-white cursor-pointer'
-                : 'bg-slate-100 text-slate-400 cursor-not-allowed'
-              }
-            `}
-          >
-            {isLoading ? 'Saving...' : 'Continue'}
-          </button>
-          
-          {/* Footer Note */}
-          <p className="text-center text-[10px] text-slate-400 px-4 leading-tight">
-            By continuing, you agree to the{' '}
-            <a href="/terms" className="underline decoration-slate-300 hover:text-[#2b8cee] transition-colors">
-              Terms of Service
-            </a>{' '}
-            and{' '}
-            <a href="/privacy" className="underline decoration-slate-300 hover:text-[#2b8cee] transition-colors">
-              Privacy Policy
-            </a>.
-          </p>
-        </div>
+        {/* Fixed Footer - Hidden when main footer is visible */}
+        {!isFooterVisible && (
+          <div className="fixed bottom-0 z-20 w-full max-w-[500px] bg-white border-t border-slate-100 p-6 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]" data-onboarding-footer>
+            {/* Continue Button */}
+            <button
+              onClick={handleContinue}
+              disabled={!selectedAccount || isLoading}
+              className={`
+                w-full flex items-center justify-center h-14 rounded-full font-bold text-base tracking-wide transition-all mb-4
+                ${selectedAccount && !isLoading
+                  ? 'bg-[#2b8cee] hover:bg-blue-600 active:scale-[0.98] text-white cursor-pointer'
+                  : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                }
+              `}
+            >
+              {isLoading ? 'Saving...' : 'Continue'}
+            </button>
+            
+            {/* Footer Note */}
+            <p className="text-center text-[10px] text-slate-400 px-4 leading-tight">
+              By continuing, you agree to the{' '}
+              <a href="/terms" className="underline decoration-slate-300 hover:text-[#2b8cee] transition-colors">
+                Terms of Service
+              </a>{' '}
+              and{' '}
+              <a href="/privacy" className="underline decoration-slate-300 hover:text-[#2b8cee] transition-colors">
+                Privacy Policy
+              </a>.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import config from '../../resources/config/config';
+import { useFooterVisibility } from '../../utils/useFooterVisibility';
 
 // Back arrow icon
 const BackIcon = () => (
@@ -84,6 +85,7 @@ export default function OnboardingStep3() {
   const navigate = useNavigate();
   const [userId, setUserId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const isFooterVisible = useFooterVisibility();
   const [units, setUnits] = useState<Record<string, number>>({
     class_a: 0,
     class_b: 0,
@@ -299,47 +301,49 @@ export default function OnboardingStep3() {
           </div>
         </main>
 
-        {/* Fixed Footer */}
-        <div className="fixed bottom-0 z-20 w-full max-w-[500px] bg-white border-t border-slate-100 p-6 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]">
-          {/* Total Investment */}
-          <div className="flex items-center justify-between mb-6">
-            <span className="text-xs font-bold text-slate-500 tracking-wider uppercase">
-              TOTAL INVESTMENT
-            </span>
-            <span className="text-2xl font-extrabold text-slate-900 tracking-tight">
-              {formatCurrency(totalInvestment)}
-            </span>
-          </div>
+        {/* Fixed Footer - Hidden when main footer is visible */}
+        {!isFooterVisible && (
+          <div className="fixed bottom-0 z-20 w-full max-w-[500px] bg-white border-t border-slate-100 p-6 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]" data-onboarding-footer>
+            {/* Total Investment */}
+            <div className="flex items-center justify-between mb-6">
+              <span className="text-xs font-bold text-slate-500 tracking-wider uppercase">
+                TOTAL INVESTMENT
+              </span>
+              <span className="text-2xl font-extrabold text-slate-900 tracking-tight">
+                {formatCurrency(totalInvestment)}
+              </span>
+            </div>
 
-          {/* Buttons */}
-          <div className="flex flex-col gap-4">
-            {/* Next Button */}
-            <button
-              onClick={handleNext}
-              disabled={!hasSelection || isLoading}
-              className={`flex w-full cursor-pointer items-center justify-center rounded-full bg-[#2b8cee] py-4 text-white text-base font-bold transition-all hover:bg-blue-600 active:scale-[0.98] disabled:bg-slate-100 disabled:text-slate-400 ${
-                !hasSelection || isLoading ? 'disabled:cursor-not-allowed' : ''
-              }`}
-            >
-              {isLoading ? 'Saving...' : 'Next'}
-            </button>
+            {/* Buttons */}
+            <div className="flex flex-col gap-4">
+              {/* Next Button */}
+              <button
+                onClick={handleNext}
+                disabled={!hasSelection || isLoading}
+                className={`flex w-full cursor-pointer items-center justify-center rounded-full bg-[#2b8cee] py-4 text-white text-base font-bold transition-all hover:bg-blue-600 active:scale-[0.98] disabled:bg-slate-100 disabled:text-slate-400 ${
+                  !hasSelection || isLoading ? 'disabled:cursor-not-allowed' : ''
+                }`}
+              >
+                {isLoading ? 'Saving...' : 'Next'}
+              </button>
 
-            {/* Back Button */}
-            <button
-              onClick={handleBack}
-              className="flex w-full cursor-pointer items-center justify-center rounded-full bg-transparent py-2 text-slate-500 text-sm font-bold hover:text-slate-800 transition-colors"
-            >
-              Back
-            </button>
-          </div>
+              {/* Back Button */}
+              <button
+                onClick={handleBack}
+                className="flex w-full cursor-pointer items-center justify-center rounded-full bg-transparent py-2 text-slate-500 text-sm font-bold hover:text-slate-800 transition-colors"
+              >
+                Back
+              </button>
+            </div>
 
-          {/* Footer Note */}
-          <div className="mt-4 text-center">
-            <p className="text-[10px] text-slate-400 leading-tight">
-              Minimum investment per unit • Units can be adjusted later
-            </p>
+            {/* Footer Note */}
+            <div className="mt-4 text-center">
+              <p className="text-[10px] text-slate-400 leading-tight">
+                Minimum investment per unit • Units can be adjusted later
+              </p>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

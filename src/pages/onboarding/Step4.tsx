@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import config from '../../resources/config/config';
 import type { ReferralSource } from '../../types/onboarding';
+import { useFooterVisibility } from '../../utils/useFooterVisibility';
 
 // Back arrow icon
 const BackIcon = () => (
@@ -31,6 +32,7 @@ export default function OnboardingStep4() {
   const [userId, setUserId] = useState<string | null>(null);
   const [selectedSource, setSelectedSource] = useState<ReferralSource | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const isFooterVisible = useFooterVisibility();
 
   useEffect(() => {
     // Scroll to top on component mount
@@ -189,31 +191,33 @@ export default function OnboardingStep4() {
           </div>
         </main>
 
-        {/* Fixed Footer */}
-        <div className="fixed bottom-0 z-20 w-full max-w-[500px] bg-white/80 backdrop-blur-md border-t border-slate-100 p-4 flex flex-col gap-3">
-          {/* Continue Button */}
-          <button
-            onClick={handleContinue}
-            disabled={!selectedSource || isLoading}
-            className={`
-              flex w-full cursor-pointer items-center justify-center rounded-full h-[52px] px-5 text-base font-bold tracking-wide transition-all
-              ${selectedSource && !isLoading
-                ? 'bg-[#2b8cee] hover:bg-blue-600 text-white shadow-lg shadow-blue-200'
-                : 'bg-slate-100 text-slate-400 cursor-not-allowed'
-              }
-            `}
-          >
-            {isLoading ? 'Saving...' : 'Continue'}
-          </button>
-          
-          {/* Skip Button */}
-          <button
-            onClick={handleSkip}
-            className="flex w-full cursor-pointer items-center justify-center rounded-full h-[52px] px-5 bg-transparent border-2 border-slate-200 hover:bg-slate-50 transition-colors text-slate-600 text-base font-bold tracking-wide"
-          >
-            Skip
-          </button>
-        </div>
+        {/* Fixed Footer - Hidden when main footer is visible */}
+        {!isFooterVisible && (
+          <div className="fixed bottom-0 z-20 w-full max-w-[500px] bg-white/80 backdrop-blur-md border-t border-slate-100 p-4 flex flex-col gap-3" data-onboarding-footer>
+            {/* Continue Button */}
+            <button
+              onClick={handleContinue}
+              disabled={!selectedSource || isLoading}
+              className={`
+                flex w-full cursor-pointer items-center justify-center rounded-full h-[52px] px-5 text-base font-bold tracking-wide transition-all
+                ${selectedSource && !isLoading
+                  ? 'bg-[#2b8cee] hover:bg-blue-600 text-white shadow-lg shadow-blue-200'
+                  : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                }
+              `}
+            >
+              {isLoading ? 'Saving...' : 'Continue'}
+            </button>
+            
+            {/* Skip Button */}
+            <button
+              onClick={handleSkip}
+              className="flex w-full cursor-pointer items-center justify-center rounded-full h-[52px] px-5 bg-transparent border-2 border-slate-200 hover:bg-slate-50 transition-colors text-slate-600 text-base font-bold tracking-wide"
+            >
+              Skip
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

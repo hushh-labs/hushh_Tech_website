@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import config from '../../resources/config/config';
+import { useFooterVisibility } from '../../utils/useFooterVisibility';
 
 // Back arrow icon
 const BackIcon = () => (
@@ -14,6 +15,7 @@ export default function OnboardingStep2() {
   const navigate = useNavigate();
   const [userId, setUserId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const isFooterVisible = useFooterVisibility();
 
   useEffect(() => {
     // Scroll to top on component mount
@@ -111,32 +113,34 @@ export default function OnboardingStep2() {
           </div>
         </main>
 
-        {/* Fixed Footer */}
-        <div className="fixed bottom-0 z-20 w-full max-w-[500px] bg-white border-t border-slate-100 p-6 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]">
-          {/* Get Started Button */}
-          <button
-            onClick={handleGetStarted}
-            disabled={isLoading}
-            className="flex w-full cursor-pointer items-center justify-center rounded-full bg-[#2b8cee] py-4 text-white text-base font-bold transition-all hover:bg-blue-600 active:scale-[0.98] disabled:bg-slate-100 disabled:text-slate-400"
-          >
-            {isLoading ? 'Loading...' : 'Get started'}
-          </button>
+        {/* Fixed Footer - Hidden when main footer is visible */}
+        {!isFooterVisible && (
+          <div className="fixed bottom-0 z-20 w-full max-w-[500px] bg-white border-t border-slate-100 p-6 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]" data-onboarding-footer>
+            {/* Get Started Button */}
+            <button
+              onClick={handleGetStarted}
+              disabled={isLoading}
+              className="flex w-full cursor-pointer items-center justify-center rounded-full bg-[#2b8cee] py-4 text-white text-base font-bold transition-all hover:bg-blue-600 active:scale-[0.98] disabled:bg-slate-100 disabled:text-slate-400"
+            >
+              {isLoading ? 'Loading...' : 'Get started'}
+            </button>
 
-          {/* Back Button */}
-          <button
-            onClick={handleBack}
-            className="flex w-full cursor-pointer items-center justify-center rounded-full bg-transparent py-2 mt-4 text-slate-500 text-sm font-bold hover:text-slate-800 transition-colors"
-          >
-            Back
-          </button>
+            {/* Back Button */}
+            <button
+              onClick={handleBack}
+              className="flex w-full cursor-pointer items-center justify-center rounded-full bg-transparent py-2 mt-4 text-slate-500 text-sm font-bold hover:text-slate-800 transition-colors"
+            >
+              Back
+            </button>
 
-          {/* Footer Note */}
-          <div className="mt-4 text-center">
-            <p className="text-[10px] text-slate-400 leading-tight">
-              This takes about 2-3 minutes to complete
-            </p>
+            {/* Footer Note */}
+            <div className="mt-4 text-center">
+              <p className="text-[10px] text-slate-400 leading-tight">
+                This takes about 2-3 minutes to complete
+              </p>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
