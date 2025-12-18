@@ -3,6 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import config from '../../resources/config/config';
 
+// Back arrow icon
+const BackIcon = () => (
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M19 12H5M12 19l-7-7 7-7" />
+  </svg>
+);
+
 export default function OnboardingStep2() {
   const navigate = useNavigate();
   const [userId, setUserId] = useState<string | null>(null);
@@ -50,41 +57,66 @@ export default function OnboardingStep2() {
 
   return (
     <div 
-      className="min-h-screen bg-white flex items-center justify-center px-6 pt-28 pb-12"
-      style={{ fontFamily: 'Inter, -apple-system, system-ui, "SF Pro Text", sans-serif' }}
+      className="min-h-screen bg-white flex flex-col items-center justify-between overflow-x-hidden antialiased"
+      style={{ fontFamily: "'Manrope', sans-serif" }}
     >
-      <div className="max-w-[640px] w-full text-center">
-        {/* Lottie Animation */}
-        <div className="flex justify-center mb-8">
-          <div style={{ width: '280px', height: '280px' }}>
-            <DotLottieReact
-              src="https://lottie.host/cafd861e-6fc0-4a50-8e48-b9d665ddfe8d/VEyMEPbIo3.lottie"
-              loop
-              autoplay
-            />
+      {/* Main Container for Mobile Form Factor */}
+      <div className="relative w-full max-w-md h-full min-h-screen flex flex-col mx-auto bg-white">
+        
+        {/* Top Navigation / Header */}
+        <header className="flex items-center justify-between px-6 py-4 bg-white z-10">
+          {/* Back Button */}
+          <button 
+            onClick={() => navigate(-1)}
+            className="flex items-center justify-center w-10 h-10 -ml-2 rounded-full hover:bg-gray-50 transition-colors text-black"
+          >
+            <BackIcon />
+          </button>
+          {/* Empty space for balance */}
+          <div className="w-10" />
+        </header>
+
+        {/* Main Content Area */}
+        <main className="flex-1 flex flex-col items-center w-full px-6 pt-4 pb-8">
+          
+          {/* Hero Illustration */}
+          <div className="flex-1 w-full flex items-center justify-center py-6 mb-4">
+            <div className="w-full aspect-square max-w-[320px] rounded-full bg-blue-50/50 flex items-center justify-center relative overflow-hidden">
+              {/* Lottie Animation - keeping existing */}
+              <div className="w-full h-full flex items-center justify-center transform scale-90">
+                <DotLottieReact
+                  src="https://lottie.host/cafd861e-6fc0-4a50-8e48-b9d665ddfe8d/VEyMEPbIo3.lottie"
+                  loop
+                  autoplay
+                  style={{ width: '100%', height: '100%' }}
+                />
+              </div>
+            </div>
           </div>
-        </div>
 
-        {/* Heading */}
-        <h1 className="text-[28px] md:text-[36px] font-[500] leading-[1.2] text-[#0B1120] mb-4">
-          Let's find the best portfolio for you
-        </h1>
+          {/* Content Card */}
+          <div className="w-full bg-white rounded-3xl p-6 sm:p-8 shadow-[0_4px_24px_0_rgba(0,0,0,0.04)] border border-gray-100 flex flex-col items-center gap-6">
+            <div className="flex flex-col gap-3 text-center">
+              <h1 className="text-[28px] leading-[1.2] font-extrabold text-black tracking-tight">
+                Let's find the best portfolio for you
+              </h1>
+              <p className="text-base font-medium text-gray-500 leading-normal px-2">
+                Answer a few questions to help us understand your financial goals and risk tolerance.
+              </p>
+            </div>
 
-        {/* Description */}
-        <p className="text-[18px] leading-[1.6] text-[#64748B] mb-10">
-          Answer a short series of questions so we can recommend the right portfolio for you.
-        </p>
+            {/* CTA Button - Filled Primary Blue */}
+            <button
+              onClick={handleGetStarted}
+              className="w-full h-14 bg-[#2B8CEE] hover:bg-[#2B8CEE]/90 active:scale-[0.98] transition-all rounded-full flex items-center justify-center text-white font-bold text-lg tracking-wide shadow-sm mt-2"
+            >
+              Get started
+            </button>
+          </div>
+        </main>
 
-        {/* Get Started Button */}
-        <button
-          onClick={handleGetStarted}
-          className="w-full h-[56px] rounded-[16px] text-[17px] font-[500] tracking-[0.01em] text-[#0B1120] cursor-pointer hover:scale-[1.01] active:scale-[0.99] transition-all duration-200"
-          style={{
-            background: 'linear-gradient(to right, #00A9E0, #6DD3EF)'
-          }}
-        >
-          Get started
-        </button>
+        {/* Bottom Spacing for safe area */}
+        <div className="h-4 w-full bg-white" />
       </div>
     </div>
   );
