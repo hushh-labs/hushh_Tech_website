@@ -132,143 +132,153 @@ export default function OnboardingStep1() {
 
   return (
     <div 
-      className="min-h-screen bg-white flex flex-col overflow-x-hidden"
+      className="bg-slate-50 min-h-screen"
       style={{ fontFamily: "'Manrope', sans-serif" }}
     >
-      {/* Sticky Header */}
-      <header className="flex items-center p-4 sticky top-0 z-10 bg-white/95 backdrop-blur-sm">
-        <button 
-          onClick={() => navigate(-1)}
-          className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-slate-100 transition-colors text-slate-900"
-        >
-          <BackIcon />
-        </button>
-        <div className="flex-1" />
-        <button className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-slate-100 transition-colors text-slate-900">
-          <HelpIcon />
-        </button>
-      </header>
+      <div className="relative flex min-h-screen w-full flex-col bg-white max-w-[500px] mx-auto shadow-xl overflow-hidden border-x border-slate-100">
+        
+        {/* Sticky Header */}
+        <header className="flex items-center px-4 pt-4 pb-2 bg-white sticky top-0 z-10">
+          <button 
+            onClick={() => navigate(-1)}
+            aria-label="Go back"
+            className="flex size-10 shrink-0 items-center justify-center text-slate-900 rounded-full hover:bg-slate-50 transition-colors"
+          >
+            <BackIcon />
+          </button>
+          <div className="flex-1" />
+          <button 
+            className="flex size-10 shrink-0 items-center justify-center text-slate-900 rounded-full hover:bg-slate-50 transition-colors"
+            aria-label="Help"
+          >
+            <HelpIcon />
+          </button>
+        </header>
 
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col px-6 pb-8 max-w-md mx-auto w-full">
-        {/* Header Section */}
-        <div className="flex flex-col items-center text-center mt-2 mb-8 space-y-3">
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
-            Select Your Account
-          </h1>
-          <p className="text-slate-500 text-base font-medium leading-relaxed max-w-[280px]">
-            Choose the investment level that best fits your financial goals.
-          </p>
-        </div>
+        {/* Main Content */}
+        <main className="flex-1 flex flex-col px-6 pb-52">
+          {/* Header Section */}
+          <div className="flex flex-col items-center text-center mt-2 mb-8 space-y-3">
+            <h1 className="text-slate-900 text-[22px] font-extrabold leading-tight tracking-tight">
+              Select Your Account
+            </h1>
+            <p className="text-slate-500 text-sm font-medium leading-relaxed max-w-[280px]">
+              Choose the investment level that best fits your financial goals.
+            </p>
+          </div>
 
-        {/* Account Options */}
-        <div className="flex flex-col gap-4 w-full">
-          {tierData.map((tier) => {
-            const isSelected = selectedAccount === tier.id;
-            const isPremium = tier.badge === 'PREMIUM';
-            const isUltra = tier.badge === 'ULTRA';
+          {/* Account Options */}
+          <div className="flex flex-col gap-4 w-full">
+            {tierData.map((tier) => {
+              const isSelected = selectedAccount === tier.id;
+              const isPremium = tier.badge === 'PREMIUM';
+              const isUltra = tier.badge === 'ULTRA';
 
-            return (
-              <label
-                key={tier.id}
-                className="group relative flex flex-col w-full cursor-pointer select-none"
-              >
-                <input
-                  type="radio"
-                  name="tier_selection"
-                  value={tier.id}
-                  checked={isSelected}
-                  onChange={() => setSelectedAccount(tier.id)}
-                  className="peer sr-only"
-                />
-                <div
-                  className={`
-                    flex flex-col p-5 rounded-2xl border-2 bg-white transition-all duration-300 ease-out
-                    ${isSelected 
-                      ? 'border-[#2b8cee] shadow-[0_0_20px_-5px_rgba(43,140,238,0.3)] bg-[rgba(43,140,238,0.03)]' 
-                      : 'border-slate-200 group-hover:border-slate-300'
-                    }
-                  `}
+              return (
+                <label
+                  key={tier.id}
+                  className="group relative flex flex-col w-full cursor-pointer select-none"
                 >
-                  {/* Minimum Amount & Radio Button Row */}
-                  <div className="flex justify-between items-start mb-3">
-                    <div className="flex flex-col">
-                      <span className="text-xl font-extrabold text-slate-900 tracking-tight">
-                        {tier.minimum}{' '}
-                        <span className="text-sm font-semibold text-slate-400 uppercase tracking-wide ml-0.5">
-                          minimum
+                  <input
+                    type="radio"
+                    name="tier_selection"
+                    value={tier.id}
+                    checked={isSelected}
+                    onChange={() => setSelectedAccount(tier.id)}
+                    className="peer sr-only"
+                  />
+                  <div
+                    className={`
+                      flex flex-col p-5 rounded-2xl border-2 bg-white transition-all duration-300 ease-out
+                      ${isSelected 
+                        ? 'border-[#2b8cee] shadow-[0_0_20px_-5px_rgba(43,140,238,0.3)] bg-[rgba(43,140,238,0.03)]' 
+                        : 'border-slate-200 group-hover:border-slate-300'
+                      }
+                    `}
+                  >
+                    {/* Minimum Amount & Radio Button Row */}
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex flex-col">
+                        <span className="text-xl font-extrabold text-slate-900 tracking-tight">
+                          {tier.minimum}{' '}
+                          <span className="text-sm font-semibold text-slate-400 uppercase tracking-wide ml-0.5">
+                            minimum
+                          </span>
                         </span>
-                      </span>
+                      </div>
+                      {/* Custom Radio UI */}
+                      <div 
+                        className={`
+                          w-6 h-6 rounded-full border-2 relative transition-all duration-200 shrink-0
+                          ${isSelected 
+                            ? 'bg-[#2b8cee] border-[#2b8cee]' 
+                            : 'border-slate-300'
+                          }
+                        `}
+                      >
+                        {isSelected && (
+                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full" />
+                        )}
+                      </div>
                     </div>
-                    {/* Custom Radio UI */}
-                    <div 
-                      className={`
-                        w-6 h-6 rounded-full border-2 relative transition-all duration-200 shrink-0
-                        ${isSelected 
-                          ? 'bg-[#2b8cee] border-[#2b8cee]' 
-                          : 'border-slate-300'
-                        }
-                      `}
-                    >
-                      {isSelected && (
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full" />
+
+                    {/* Account Name & Badge Row */}
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <h3 className="text-lg font-bold text-slate-900 leading-tight">
+                        {tier.name}
+                      </h3>
+                      {isPremium && (
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-gradient-to-r from-gray-100 to-[#E5E4E2] text-slate-600 border border-slate-200 shadow-sm flex items-center gap-1 shrink-0">
+                          <DiamondIcon /> PREMIUM
+                        </span>
+                      )}
+                      {isUltra && (
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-gradient-to-r from-[#FFF8E1] to-[#FFE082] text-yellow-800 border border-yellow-200 shadow-sm flex items-center gap-1 shrink-0">
+                          <VerifiedIcon /> ULTRA
+                        </span>
                       )}
                     </div>
-                  </div>
 
-                  {/* Account Name & Badge Row */}
-                  <div className="flex flex-wrap items-center gap-2 mb-2">
-                    <h3 className="text-lg font-bold text-slate-900 leading-tight">
-                      {tier.name}
-                    </h3>
-                    {isPremium && (
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-gradient-to-r from-gray-100 to-[#E5E4E2] text-slate-600 border border-slate-200 shadow-sm flex items-center gap-1 shrink-0">
-                        <DiamondIcon /> PREMIUM
-                      </span>
-                    )}
-                    {isUltra && (
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-gradient-to-r from-[#FFF8E1] to-[#FFE082] text-yellow-800 border border-yellow-200 shadow-sm flex items-center gap-1 shrink-0">
-                        <VerifiedIcon /> ULTRA
-                      </span>
-                    )}
+                    {/* Description */}
+                    <p className="text-sm text-slate-500 font-medium leading-relaxed">
+                      {tier.description}
+                    </p>
                   </div>
+                </label>
+              );
+            })}
+          </div>
+        </main>
 
-                  {/* Description */}
-                  <p className="text-sm text-slate-500 font-medium leading-relaxed">
-                    {tier.description}
-                  </p>
-                </div>
-              </label>
-            );
-          })}
+        {/* Fixed Footer */}
+        <div className="fixed bottom-0 z-20 w-full max-w-[500px] bg-white border-t border-slate-100 p-6 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]">
+          {/* Continue Button */}
+          <button
+            onClick={handleContinue}
+            disabled={!selectedAccount || isLoading}
+            className={`
+              w-full flex items-center justify-center h-14 rounded-full font-bold text-base tracking-wide transition-all mb-4
+              ${selectedAccount && !isLoading
+                ? 'bg-[#2b8cee] hover:bg-blue-600 active:scale-[0.98] text-white cursor-pointer'
+                : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+              }
+            `}
+          >
+            {isLoading ? 'Saving...' : 'Continue'}
+          </button>
+          
+          {/* Footer Note */}
+          <p className="text-center text-[10px] text-slate-400 px-4 leading-tight">
+            By continuing, you agree to the{' '}
+            <a href="/terms" className="underline decoration-slate-300 hover:text-[#2b8cee] transition-colors">
+              Terms of Service
+            </a>{' '}
+            and{' '}
+            <a href="/privacy" className="underline decoration-slate-300 hover:text-[#2b8cee] transition-colors">
+              Privacy Policy
+            </a>.
+          </p>
         </div>
-      </main>
-
-      {/* Footer CTA Section */}
-      <div className="p-6 pt-2 w-full max-w-md mx-auto">
-        <button
-          onClick={handleContinue}
-          disabled={!selectedAccount || isLoading}
-          className={`
-            w-full flex items-center justify-center h-14 rounded-full font-bold text-lg tracking-wide transition-all mb-4
-            ${selectedAccount && !isLoading
-              ? 'bg-[#2b8cee] hover:bg-blue-600 active:bg-blue-700 text-white shadow-lg shadow-blue-500/20 cursor-pointer'
-              : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-            }
-          `}
-        >
-          {isLoading ? 'Saving...' : 'Continue'}
-        </button>
-        <p className="text-center text-xs text-slate-400 px-4">
-          By continuing, you agree to the{' '}
-          <a href="/terms" className="underline decoration-slate-300 hover:text-[#2b8cee] transition-colors">
-            Terms of Service
-          </a>{' '}
-          and{' '}
-          <a href="/privacy" className="underline decoration-slate-300 hover:text-[#2b8cee] transition-colors">
-            Privacy Policy
-          </a>.
-        </p>
       </div>
     </div>
   );
