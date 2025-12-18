@@ -187,10 +187,8 @@ function App() {
       <Router>
         <ScrollToTop />
         <div className="min-h-screen flex flex-col">
-          {/* Navbar includes marquee strip */}
+          {/* Navbar - Sticky header with brand lockup */}
           <Navbar />
-          {/* Spacer for fixed header (marquee h-10 + nav h-14 = 96px on mobile) */}
-          <div className="h-24 lg:h-[104px]" />
           <FloatingContactBubble />
           {/* {session && <NDAPopup />} */}
           <ContentWrapper>
