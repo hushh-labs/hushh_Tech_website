@@ -1,10 +1,9 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { Button, Text, Box, Container, VStack, Image, Flex, Icon, SimpleGrid } from "@chakra-ui/react";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { Button, Text, Box, Container, VStack, Image, Flex, Icon, SimpleGrid, Spinner } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import config from "../resources/config/config";
-import ProfilePage from "./profile/profilePage";
 import WhyChooseSection from "./WhyChooseSection";
 import { Session } from "@supabase/supabase-js";
 import HushhLogo from "./images/Hushhogo.png";
@@ -83,6 +82,19 @@ export default function Hero() {
   const { t } = useTranslation();
   const [session, setSession] = useState<Session | null>(null);
   
+  // Onboarding status state (from ProfilePage logic)
+  const [onboardingStatus, setOnboardingStatus] = useState<{
+    hasProfile: boolean;
+    isCompleted: boolean;
+    currentStep: number;
+    loading: boolean;
+  }>({
+    hasProfile: false,
+    isCompleted: false,
+    currentStep: 1,
+    loading: true
+  });
+  
   useEffect(() => {
     if (config.supabaseClient) {
       config.supabaseClient.auth.getSession().then(({ data: { session } }) => {
@@ -97,12 +109,91 @@ export default function Hero() {
     }
   }, []);
 
+  // Check user's onboarding status when logged in
+  useEffect(() => {
+    async function checkUserStatus() {
+      if (!session?.user?.id || !config.supabaseClient) {
+        setOnboardingStatus(prev => ({ ...prev, loading: false }));
+        return;
+      }
+      
+      try {
+        // Check if investor_profile exists
+        const { data: profile, error: profileError } = await config.supabaseClient
+          .from('investor_profiles')
+          .select('id, user_confirmed')
+          .eq('user_id', session.user.id)
+          .single();
+
+        // Check onboarding_data status
+        const { data: onboarding, error: onboardingError } = await config.supabaseClient
+          .from('onboarding_data')
+          .select('is_completed, current_step')
+          .eq('user_id', session.user.id)
+          .single();
+
+        setOnboardingStatus({
+          hasProfile: !!profile && !profileError,
+          isCompleted: onboarding?.is_completed || false,
+          currentStep: onboarding?.current_step || 1,
+          loading: false
+        });
+      } catch (error) {
+        console.error('Error checking user status:', error);
+        setOnboardingStatus(prev => ({ ...prev, loading: false }));
+      }
+    }
+
+    if (session?.user?.id) {
+      checkUserStatus();
+    } else {
+      setOnboardingStatus(prev => ({ ...prev, loading: false }));
+    }
+  }, [session?.user?.id]);
+
+  // Get primary CTA content based on login state
+  const getPrimaryCTAContent = () => {
+    // Not logged in
+    if (!session) {
+      return { 
+        text: "Get Started", 
+        action: () => navigate("/investor-profile"),
+        loading: false
+      };
+    }
+    
+    // Logged in - check onboarding status
+    if (onboardingStatus.loading) {
+      return { text: "Loading...", action: () => {}, loading: true };
+    }
+    if (onboardingStatus.hasProfile || onboardingStatus.isCompleted) {
+      return { 
+        text: "View Your Profile", 
+        action: () => navigate("/hushh-user-profile"),
+        loading: false
+      };
+    }
+    if (onboardingStatus.currentStep > 1) {
+      return { 
+        text: `Continue Onboarding (Step ${onboardingStatus.currentStep})`, 
+        action: () => navigate(`/onboarding/step-${onboardingStatus.currentStep}`),
+        loading: false
+      };
+    }
+    return { 
+      text: "Complete Your Hushh Profile", 
+      action: () => navigate("/onboarding/step-1"),
+      loading: false
+    };
+  };
+
+  const primaryCTA = getPrimaryCTAContent();
+  const secondaryButtonText = session ? "Discover Fund A" : "Learn More";
+
   return (
     <>
-      {!session ? (
-        <>
-          {/* Hero Section */}
-          <Box
+      {/* Hero Section - Same design for both logged in and logged out */}
+      <Box
             bg="#f6f6f8"
             position="relative"
             display="flex"
@@ -239,7 +330,7 @@ export default function Hero() {
                   <VStack spacing={3}>
                     {/* Primary Button - Rounded full, primary color */}
                     <MotionButton
-                      onClick={() => navigate("/investor-profile")}
+                      onClick={primaryCTA.action}
                       w="100%"
                       h="48px"
                       borderRadius="full"
@@ -248,11 +339,16 @@ export default function Hero() {
                       fontSize="16px"
                       fontWeight="700"
                       letterSpacing="0.015em"
+                      isDisabled={primaryCTA.loading}
                       _hover={{ 
                         bg: "#2563eb",
                       }}
                       _active={{
                         transform: "scale(0.98)",
+                      }}
+                      _disabled={{
+                        opacity: 0.7,
+                        cursor: "not-allowed",
                       }}
                       boxShadow="0 10px 25px rgba(43, 140, 238, 0.25)"
                       variants={buttonHoverVariants}
@@ -260,7 +356,7 @@ export default function Hero() {
                       whileHover="hover"
                       whileTap="tap"
                     >
-                      Get Started
+                      {primaryCTA.loading ? <Spinner size="sm" /> : primaryCTA.text}
                     </MotionButton>
 
                     {/* Secondary Button - Outlined with primary border */}
@@ -287,7 +383,7 @@ export default function Hero() {
                       whileHover="hover"
                       whileTap="tap"
                     >
-                      Learn More
+                      {secondaryButtonText}
                     </MotionButton>
                   </VStack>
                 </Box>
@@ -338,10 +434,6 @@ export default function Hero() {
               </Box>
             </Box>
           </Box>
-        </>
-      ) : (
-        <ProfilePage />
-      )}
       
       <WhyChooseSection />
       
