@@ -211,7 +211,7 @@ export default function Navbar() {
               title="Tap 5 times quickly to enable Developer Mode"
             />
             {/* Logotype: Brand-forward Primary Color */}
-            <h1 className="font-display text-[18px] font-extrabold leading-tight tracking-tight text-[#135bec]">
+            <h1 className="font-display text-[18px] font-extrabold leading-tight tracking-tight text-[#2b8cee]">
               Hushh Technologies
             </h1>
           </Link>
