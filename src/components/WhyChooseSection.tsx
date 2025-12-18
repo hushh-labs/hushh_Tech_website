@@ -1,7 +1,6 @@
 import React from "react";
 import {
   Box,
-  Container,
   Heading,
   Text,
   VStack,
@@ -12,9 +11,8 @@ import {
 } from "@chakra-ui/react";
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
-import { FaRocket, FaChartLine, FaBrain, FaShieldAlt } from "react-icons/fa";
-import { HiSparkles } from "react-icons/hi";
-import { MdVisibility, MdVerifiedUser, MdSmartToy } from "react-icons/md";
+import { FaChartBar, FaPercent, FaRobot, FaLock, FaEye } from "react-icons/fa";
+import { MdVerifiedUser, MdSmartToy, MdPsychology, MdVisibility, MdLock, MdAnalytics } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 
 // Motion components for smooth animations
@@ -27,75 +25,52 @@ const appleEase: [number, number, number, number] = [0.25, 0.46, 0.45, 0.94];
 // Design tokens matching HTML template exactly
 const tokens = {
   // Typography colors
-  textMain: "#111418",
-  textMuted: "#617589",
+  textMain: "#0f172a", // slate-900
+  textMuted: "#64748b", // slate-500
   
   // Brand colors
   primary: "#2b8cee",
   
   // Background colors
   backgroundLight: "#ffffff",
-  bgGray50: "#f9fafb",
-  borderSubtle: "#f0f2f4",
-  slate100: "#e2e8f0",
-  slate50: "#f1f5f9",
+  bgSlate50: "#f8fafc",
+  slate100: "#f1f5f9",
+  slate200: "#e2e8f0",
+  slate400: "#94a3b8",
 };
 
 // SF Pro font family
 const fontFamily = 'Manrope, -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif';
 
-// Feature Cards with colored backgrounds matching screenshots
+// Feature Cards matching exact HTML template
 const featureCards = [
   {
-    title: "AI-Driven Alpha",
-    body: "Proprietary AI algorithms systematically extract alpha and adapt to market changes.",
-    icon: FaRocket,
-    bgColor: "#dbeafe", // Light blue
-    iconColor: "#3b82f6", // Blue
+    title: "Data Driven",
+    body: "Real-time market analytics.",
+    icon: MdAnalytics,
   },
   {
-    title: "Systematic Risk Management",
-    body: "Rigorous quantitative analysis and AI meticulously control risk every day.",
-    icon: FaChartLine,
-    bgColor: "#dcfce7", // Light green
-    iconColor: "#22c55e", // Green
+    title: "Low Fees",
+    body: "Maximize your total returns.",
+    icon: FaPercent,
   },
   {
-    title: "Hushh Enterprise × AI Synergy",
-    body: "AI provides speed and scale; human insight delivers deep understanding and strategic oversight.",
-    icon: FaBrain,
-    bgColor: "#f3e8ff", // Light purple
-    iconColor: "#a855f7", // Purple
+    title: "Expert Vetted",
+    body: "Curated top opportunities.",
+    icon: MdVerifiedUser,
   },
   {
-    title: "Transparency You Trust",
-    body: "Clear reporting and ethical practices you can depend on.",
-    icon: FaShieldAlt,
-    bgColor: "#ffedd5", // Light orange
-    iconColor: "#f97316", // Orange
+    title: "Automated",
+    body: "Hands-free smart investing.",
+    icon: MdSmartToy,
   },
 ];
 
-// Trust chips with colored icons
+// Trust chips
 const trustChips = [
-  {
-    label: "AI-First",
-    icon: MdSmartToy,
-    bgColor: "#dbeafe",
-    iconColor: "#3b82f6",
-  },
-  {
-    label: "Secure",
-    icon: MdVerifiedUser,
-    bgColor: "#dcfce7",
-    iconColor: "#22c55e",
-  },
-  {
-    label: "Transparent",
-    icon: HiSparkles,
-    bgColor: "#f3e8ff",
-    iconColor: "#a855f7",
-  },
+  { label: "AI-First", icon: MdPsychology },
+  { label: "Secure", icon: MdLock },
+  { label: "Transparent", icon: MdVisibility },
 ];
 
 // Animation variants
@@ -122,67 +97,66 @@ const itemVariants = {
   },
 };
 
-// Feature Card Component - Exact HTML template match with horizontal layout
+// Feature Card Component - Exact HTML template match
 const FeatureCard = ({ item }: { item: typeof featureCards[0] }) => {
   return (
     <MotionBox
       variants={itemVariants}
       display="flex"
-      flexDirection="row"
-      alignItems="flex-start"
-      gap={4}
-      p={5}
-      borderRadius="16px"
+      flexDirection="column"
+      gap={2}
+      p={4}
+      borderRadius="xl"
       bg="white"
       border="1px solid"
-      borderColor={tokens.slate100}
-      boxShadow="0 2px 8px -2px rgba(0, 0, 0, 0.04)"
+      borderColor={tokens.slate200}
+      boxShadow="0 2px 8px -2px rgba(0, 0, 0, 0.05)"
       cursor="pointer"
       role="group"
-      sx={{ transition: "all 0.3s ease" }}
+      sx={{ transition: "all 0.2s ease" }}
       _hover={{
-        boxShadow: "0 4px 20px -2px rgba(0, 0, 0, 0.08)",
+        borderColor: "rgba(43, 140, 238, 0.3)",
       }}
     >
-      {/* Icon Container - Rounded square with colored bg */}
+      {/* Icon Container */}
       <Flex
-        w="56px"
-        h="56px"
-        minW="56px"
-        borderRadius="12px"
+        w="40px"
+        h="40px"
+        borderRadius="lg"
         align="center"
         justify="center"
-        bg={item.bgColor}
-        transition="all 0.3s ease"
+        bg="rgba(43, 140, 238, 0.1)"
+        mb={1}
       >
         <Icon 
           as={item.icon} 
-          boxSize="28px" 
-          color={item.iconColor}
+          boxSize="20px" 
+          color={tokens.primary}
         />
       </Flex>
 
       {/* Content */}
-      <VStack align="start" spacing={1.5} flex={1}>
+      <Box>
         <Text
-          fontSize="18px"
+          fontSize="15px"
           fontWeight="700"
           color={tokens.textMain}
           lineHeight="tight"
+          mb={1}
           fontFamily={fontFamily}
         >
           {item.title}
         </Text>
         <Text
-          fontSize="14px"
+          fontSize="12px"
           fontWeight="500"
           color={tokens.textMuted}
-          lineHeight="relaxed"
+          lineHeight="normal"
           fontFamily={fontFamily}
         >
           {item.body}
         </Text>
-      </VStack>
+      </Box>
     </MotionBox>
   );
 };
@@ -195,15 +169,13 @@ const WhyChooseSection = () => {
   return (
     <Box
       ref={sectionRef}
-      bg={tokens.bgGray50}
+      bg={tokens.bgSlate50}
       display="flex"
-      alignItems="start"
       justifyContent="center"
       minH="100vh"
       fontFamily={fontFamily}
-      p={{ base: 0, sm: 4 }}
     >
-      {/* Mobile Container Simulation */}
+      {/* Mobile Container */}
       <Box
         position="relative"
         display="flex"
@@ -212,131 +184,114 @@ const WhyChooseSection = () => {
         maxW="500px"
         flexDirection="column"
         bg={tokens.backgroundLight}
-        boxShadow="xl"
-        borderRadius={{ base: 0, sm: "32px" }}
         overflow="hidden"
+        boxShadow="sm"
       >
-        {/* Main Content Wrapper */}
+        {/* Main Content Area */}
         <Box
           as="main"
           flex="1"
           display="flex"
           flexDirection="column"
-          alignItems="center"
-          px={6}
-          py={12}
-          gap={8}
+          px={5}
+          py={6}
         >
           <MotionBox
             initial="hidden"
             animate={isInView ? "visible" : "hidden"}
             variants={containerVariants}
-            w="100%"
             display="flex"
             flexDirection="column"
-            alignItems="center"
-            gap={8}
+            flex="1"
           >
-            {/* Header Section */}
-            <VStack spacing={4} w="100%">
-              {/* Pill Label */}
-              <MotionBox variants={itemVariants}>
-                <Flex
-                  h="32px"
-                  align="center"
-                  justify="center"
-                  gap={2}
-                  px={3}
-                  pr={4}
-                  borderRadius="full"
-                  border="1px solid"
-                  borderColor={tokens.borderSubtle}
-                  bg={tokens.slate50}
+            {/* Section Tag */}
+            <MotionBox 
+              variants={itemVariants} 
+              display="flex" 
+              justifyContent="center" 
+              mb={3}
+            >
+              <Flex
+                display="inline-flex"
+                align="center"
+                justify="center"
+                px={4}
+                py={1.5}
+                borderRadius="full"
+                bg={tokens.slate100}
+                border="1px solid"
+                borderColor={tokens.slate200}
+              >
+                <Text
+                  fontSize="11px"
+                  fontWeight="700"
+                  letterSpacing="0.1em"
+                  textTransform="uppercase"
+                  color={tokens.primary}
                 >
-                  <Icon as={HiSparkles} boxSize="18px" color={tokens.primary} />
-                  <Text
-                    fontSize="12px"
-                    fontWeight="700"
-                    color={tokens.primary}
-                    letterSpacing="0.1em"
-                    textTransform="uppercase"
-                  >
-                    Why Hushh
-                  </Text>
-                </Flex>
-              </MotionBox>
+                  Why Hushh
+                </Text>
+              </Flex>
+            </MotionBox>
 
-              {/* Headline */}
-              <MotionBox variants={itemVariants} textAlign="center">
-                <VStack spacing={2}>
-                  <Heading
-                    as="h1"
-                    fontSize="32px"
-                    fontWeight="800"
-                    color={tokens.textMain}
-                    lineHeight="1.15"
-                    letterSpacing="tight"
-                    fontFamily={fontFamily}
-                  >
-                    The Hushh{" "}
-                    <Text as="span" color={tokens.primary}>
-                      Advantage
-                    </Text>
-                  </Heading>
-                  <Text
-                    fontSize="16px"
-                    fontWeight="500"
-                    color={tokens.textMuted}
-                    maxW="320px"
-                    mx="auto"
-                    lineHeight="relaxed"
-                  >
-                    What you reliably get with every Hushh investor profile.
-                  </Text>
-                </VStack>
-              </MotionBox>
-            </VStack>
+            {/* Headline */}
+            <MotionBox variants={itemVariants} textAlign="center" mb={8}>
+              <Heading
+                as="h1"
+                fontSize="32px"
+                fontWeight="800"
+                lineHeight="1.1"
+                letterSpacing="tight"
+                color={tokens.textMain}
+                mb={2}
+                fontFamily={fontFamily}
+              >
+                The Hushh<br />Advantage
+              </Heading>
+              <Text
+                fontSize="14px"
+                fontWeight="500"
+                color={tokens.textMuted}
+                lineHeight="relaxed"
+                maxW="280px"
+                mx="auto"
+              >
+                Built for the modern investor who values clarity over complexity.
+              </Text>
+            </MotionBox>
 
-            {/* Feature Cards - Stacked Layout */}
-            <VStack spacing={4} w="100%">
-              {featureCards.map((item) => (
-                <FeatureCard key={item.title} item={item} />
-              ))}
-            </VStack>
+            {/* Feature Grid (Compact 2x2) */}
+            <MotionBox variants={itemVariants} mb={8}>
+              <SimpleGrid columns={2} spacing={3}>
+                {featureCards.map((item) => (
+                  <FeatureCard key={item.title} item={item} />
+                ))}
+              </SimpleGrid>
+            </MotionBox>
 
-            {/* Trust Chips - Pyramid Layout */}
-            <MotionBox variants={itemVariants} w="100%">
+            {/* Chips Cluster (Pyramid Layout) */}
+            <MotionBox variants={itemVariants} mb={10}>
               <VStack spacing={3} align="center">
-                {/* Top Row: 2 chips */}
-                <Flex justify="center" gap={3} w="100%" flexWrap="wrap">
+                {/* Top Row: 2 Chips */}
+                <Flex gap={3}>
                   {trustChips.slice(0, 2).map((chip) => (
-                    <Flex 
+                    <Flex
                       key={chip.label}
-                      align="center" 
+                      h="36px"
+                      align="center"
                       justify="center"
                       gap={2}
-                      h="40px"
-                      px={4}
-                      bg="white"
-                      borderRadius="full"
+                      borderRadius="lg"
+                      bg={tokens.bgSlate50}
                       border="1px solid"
                       borderColor={tokens.slate100}
-                      boxShadow="0 2px 8px -2px rgba(0, 0, 0, 0.04)"
+                      px={4}
                     >
-                      <Flex
-                        w="28px"
-                        h="28px"
-                        borderRadius="8px"
-                        align="center"
-                        justify="center"
-                        bg={chip.bgColor}
-                      >
-                        <Icon as={chip.icon} boxSize="16px" color={chip.iconColor} />
-                      </Flex>
+                      <Icon as={chip.icon} boxSize="18px" color={tokens.slate400} />
                       <Text
                         fontSize="14px"
                         fontWeight="600"
-                        color={tokens.textMain}
+                        color="#334155" /* slate-700 */
                         fontFamily={fontFamily}
                       >
                         {chip.label}
@@ -344,80 +299,68 @@ const WhyChooseSection = () => {
                     </Flex>
                   ))}
                 </Flex>
-                {/* Bottom Row: 1 chip centered */}
-                <Flex justify="center" w="100%">
-                  <Flex 
-                    align="center" 
-                    justify="center"
-                    gap={2}
-                    h="40px"
-                    px={4}
-                    bg="white"
-                    borderRadius="full"
-                    border="1px solid"
-                    borderColor={tokens.slate100}
-                    boxShadow="0 2px 8px -2px rgba(0, 0, 0, 0.04)"
+                {/* Bottom Row: 1 Centered Chip */}
+                <Flex
+                  h="36px"
+                  align="center"
+                  justify="center"
+                  gap={2}
+                  borderRadius="lg"
+                  bg={tokens.bgSlate50}
+                  border="1px solid"
+                  borderColor={tokens.slate100}
+                  px={4}
+                >
+                  <Icon as={trustChips[2].icon} boxSize="18px" color={tokens.slate400} />
+                  <Text
+                    fontSize="14px"
+                    fontWeight="600"
+                    color="#334155" /* slate-700 */
+                    fontFamily={fontFamily}
                   >
-                    <Flex
-                      w="28px"
-                      h="28px"
-                      borderRadius="8px"
-                      align="center"
-                      justify="center"
-                      bg={trustChips[2].bgColor}
-                    >
-                      <Icon as={trustChips[2].icon} boxSize="16px" color={trustChips[2].iconColor} />
-                    </Flex>
-                    <Text
-                      fontSize="14px"
-                      fontWeight="600"
-                      color={tokens.textMain}
-                      fontFamily={fontFamily}
-                    >
-                      {trustChips[2].label}
-                    </Text>
-                  </Flex>
+                    {trustChips[2].label}
+                  </Text>
                 </Flex>
               </VStack>
             </MotionBox>
 
-            {/* CTA Button - Gradient background matching screenshot */}
-            <MotionBox variants={itemVariants} w="100%" pt={4}>
+            {/* Primary CTA - mt-auto to push to bottom */}
+            <Box mt="auto" pb={4}>
               <MotionButton
                 onClick={() => navigate("/discover-fund-a")}
                 position="relative"
                 display="flex"
                 w="100%"
-                h="56px"
+                h="52px"
                 alignItems="center"
                 justifyContent="center"
-                borderRadius="full"
-                bgGradient="linear(to-r, #93c5fd, #c4b5fd)"
-                color={tokens.primary}
-                fontSize="16px"
+                borderRadius="xl"
+                bg={tokens.primary}
+                color="white"
+                fontSize="17px"
                 fontWeight="700"
-                letterSpacing="0.015em"
+                letterSpacing="wide"
                 fontFamily={fontFamily}
                 overflow="hidden"
-                border="none"
                 _hover={{
-                  opacity: 0.9,
-                  transform: "scale(1.02)",
+                  bg: "#2563eb",
                 }}
                 _active={{
                   transform: "scale(0.98)",
                 }}
-                whileHover={{ scale: 1.02 }}
+                whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.98 }}
               >
-                Explore Our Approach
+                <Text position="relative" zIndex={10}>
+                  Explore Our Approach
+                </Text>
               </MotionButton>
-            </MotionBox>
+            </Box>
           </MotionBox>
         </Box>
 
-        {/* Bottom Safe Area Spacer (iOS home indicator) */}
-        <Box h={6} w="100%" bg="white" />
+        {/* Bottom Spacing for safe area */}
+        <Box h={4} w="100%" bg="transparent" />
       </Box>
     </Box>
   );
