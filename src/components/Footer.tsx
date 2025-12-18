@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import config from "../resources/config/config";
-import { FaGlobe, FaAt, FaRss, FaPhone, FaFingerprint } from "react-icons/fa";
+import { FaGlobe, FaAt, FaRss, FaPhone } from "react-icons/fa";
+import HushhLogo from "./images/Hushhogo.png";
 
 export default function Footer() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -45,11 +46,13 @@ export default function Footer() {
       <div className="px-6 pt-10 pb-6 max-w-7xl mx-auto">
         {/* Brand */}
         <div className="mb-6">
-          <div className="flex items-center gap-2 mb-3 text-white">
-            {/* Fingerprint logo icon */}
-            <div className="w-8 h-8 rounded-lg bg-[#135bec] flex items-center justify-center">
-              <FaFingerprint className="text-white text-[16px]" />
-            </div>
+          <div className="flex items-center gap-3 mb-3 text-white">
+            {/* Hushh Logo */}
+            <img 
+              src={HushhLogo} 
+              alt="Hushh Logo" 
+              className="w-10 h-10 object-contain"
+            />
             <h2 className="tracking-tight text-[22px] font-extrabold leading-tight">
               Hushh 🤫 Technologies LLC
             </h2>
