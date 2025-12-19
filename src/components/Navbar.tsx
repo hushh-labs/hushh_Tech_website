@@ -34,23 +34,26 @@ const marqueeTickers = [
 
 const marqueePrefix = "Introducing the hushh 27 alpha bets —";
 
-// Render marquee chunk helper (Dark Theme)
+// Render marquee chunk helper (Dark Theme - White Text + White Logo BG)
 const renderMarqueeChunk = (key: string) => (
   <span className="marquee-chunk" key={key}>
-    <span className="marquee-prefix text-white/70">{marqueePrefix}</span>
+    <span className="marquee-prefix text-white font-semibold">{marqueePrefix}</span>
     <span className="marquee-body text-white">
       {marqueeTickers.map((ticker, idx) => (
         <React.Fragment key={`${key}-${ticker.label}-${idx}`}>
-          <span className="ticker inline-flex items-center gap-1">
-            <img
-              src={ticker.logo}
-              alt={`${ticker.label} logo`}
-              className="ticker-logo w-4 h-4 object-contain rounded-sm"
-            />
-            <span>{ticker.label}</span>
+          <span className="ticker inline-flex items-center gap-1.5">
+            {/* White circular background for logos */}
+            <span className="w-5 h-5 rounded-full bg-white flex items-center justify-center shrink-0">
+              <img
+                src={ticker.logo}
+                alt={`${ticker.label} logo`}
+                className="w-3.5 h-3.5 object-contain"
+              />
+            </span>
+            <span className="text-white font-medium">{ticker.label}</span>
           </span>
           {idx !== marqueeTickers.length - 1 && (
-            <span className="ticker-sep text-white/50">,</span>
+            <span className="ticker-sep text-white/60">,</span>
           )}
         </React.Fragment>
       ))}
@@ -194,8 +197,8 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Main Navigation Bar - Dark Theme */}
-        <nav className="flex w-full items-center justify-between bg-[#101922] px-4 py-3 border-b border-white/5">
+        {/* Main Navigation Bar - BLACK Background */}
+        <nav className="flex w-full items-center justify-between bg-black px-4 py-3 border-b border-white/5">
           {/* Left: Brand Lockup */}
           <Link to="/" className="flex items-center gap-3">
             {/* Hushh Logo Image in Circle */}
