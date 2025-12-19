@@ -10,6 +10,14 @@ const BackIcon = () => (
     <path d="M19 12H5M12 19l-7-7 7-7" />
   </svg>
 );
+// Help icon
+const HelpIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+    <line x1="12" y1="17" x2="12.01" y2="17" />
+  </svg>
+);
 
 export default function OnboardingStep7() {
   const navigate = useNavigate();
@@ -82,16 +90,27 @@ export default function OnboardingStep7() {
     >
       <div className="relative flex min-h-screen w-full flex-col bg-white max-w-[500px] mx-auto shadow-xl overflow-hidden border-x border-slate-100">
         
-        {/* Sticky Header */}
-        <header className="flex items-center px-4 pt-4 pb-2 bg-white sticky top-0 z-10">
-          <button 
-            onClick={handleBack}
-            aria-label="Go back"
-            className="flex size-10 shrink-0 items-center justify-center text-slate-900 rounded-full hover:bg-slate-50 transition-colors"
-          >
-            <BackIcon />
-          </button>
-        </header>
+        {/* Fixed Header - Hidden when main footer is visible */}
+        {!isFooterVisible && (
+          <header className="fixed top-0 z-20 w-full max-w-[500px] flex items-center justify-between px-4 py-3 bg-white border-b border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)]" data-onboarding-header>
+            <button 
+              onClick={handleBack}
+              aria-label="Go back"
+              className="flex size-10 shrink-0 items-center justify-center text-slate-900 rounded-full hover:bg-slate-50 transition-colors"
+            >
+              <BackIcon />
+            </button>
+            <button 
+              className="flex size-10 shrink-0 items-center justify-center text-slate-900 rounded-full hover:bg-slate-50 transition-colors"
+              aria-label="Help"
+            >
+              <HelpIcon />
+            </button>
+          </header>
+        )}
+        
+        {/* Spacer for fixed header */}
+        <div className="h-16" />
 
         {/* Main Content */}
         <main className="flex-1 flex flex-col px-6 pb-44">

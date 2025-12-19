@@ -10,6 +10,14 @@ const BackIcon = () => (
     <path d="M15 18l-6-6 6-6" />
   </svg>
 );
+// Help icon
+const HelpIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+    <line x1="12" y1="17" x2="12.01" y2="17" />
+  </svg>
+);
 
 // Referral options matching the HTML template
 interface ReferralOption {
@@ -115,17 +123,27 @@ export default function OnboardingStep4() {
     >
       <div className="relative flex min-h-screen w-full flex-col bg-white max-w-[500px] mx-auto shadow-xl overflow-hidden border-x border-slate-100">
         
-        {/* Sticky Header */}
-        <header className="flex items-center px-4 pt-6 pb-4 bg-white/95 backdrop-blur-sm sticky top-0 z-10">
-          <button 
-            onClick={handleBack}
-            className="flex items-center gap-1 text-slate-900 hover:text-[#2b8cee] transition-colors"
-          >
-            <BackIcon />
-            <span className="text-base font-bold tracking-tight">Back</span>
-          </button>
-          <div className="flex-1" />
-        </header>
+        {/* Fixed Header - Hidden when main footer is visible */}
+        {!isFooterVisible && (
+          <header className="fixed top-0 z-20 w-full max-w-[500px] flex items-center justify-between px-4 py-3 bg-white border-b border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)]" data-onboarding-header>
+            <button 
+              onClick={handleBack}
+              aria-label="Go back"
+              className="flex size-10 shrink-0 items-center justify-center text-slate-900 rounded-full hover:bg-slate-50 transition-colors"
+            >
+              <BackIcon />
+            </button>
+            <button 
+              className="flex size-10 shrink-0 items-center justify-center text-slate-900 rounded-full hover:bg-slate-50 transition-colors"
+              aria-label="Help"
+            >
+              <HelpIcon />
+            </button>
+          </header>
+        )}
+        
+        {/* Spacer for fixed header */}
+        <div className="h-16" />
 
         {/* Main Content */}
         <main className="flex-1 flex flex-col px-6 pb-48">
@@ -193,29 +211,35 @@ export default function OnboardingStep4() {
 
         {/* Fixed Footer - Hidden when main footer is visible */}
         {!isFooterVisible && (
-          <div className="fixed bottom-0 z-20 w-full max-w-[500px] bg-white/80 backdrop-blur-md border-t border-slate-100 p-4 flex flex-col gap-3" data-onboarding-footer>
-            {/* Continue Button */}
-            <button
-              onClick={handleContinue}
-              disabled={!selectedSource || isLoading}
-              className={`
-                flex w-full cursor-pointer items-center justify-center rounded-full h-[52px] px-5 text-base font-bold tracking-wide transition-all
-                ${selectedSource && !isLoading
-                  ? 'bg-[#2b8cee] hover:bg-blue-600 text-white shadow-lg shadow-blue-200'
-                  : 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                }
-              `}
-            >
-              {isLoading ? 'Saving...' : 'Continue'}
-            </button>
-            
-            {/* Skip Button */}
-            <button
-              onClick={handleSkip}
-              className="flex w-full cursor-pointer items-center justify-center rounded-full h-[52px] px-5 bg-transparent border-2 border-slate-200 hover:bg-slate-50 transition-colors text-slate-600 text-base font-bold tracking-wide"
-            >
-              Skip
-            </button>
+          <div className="fixed bottom-0 z-20 w-full max-w-[500px] bg-white border-t border-slate-100 p-6 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]" data-onboarding-footer>
+            {/* Buttons */}
+            <div className="flex flex-col gap-4">
+              {/* Continue Button */}
+              <button
+                onClick={handleContinue}
+                disabled={!selectedSource || isLoading}
+                className={`flex w-full cursor-pointer items-center justify-center rounded-full bg-[#2b8cee] py-4 text-white text-base font-bold transition-all hover:bg-blue-600 active:scale-[0.98] disabled:bg-slate-100 disabled:text-slate-400 ${
+                  !selectedSource || isLoading ? 'disabled:cursor-not-allowed' : ''
+                }`}
+              >
+                {isLoading ? 'Saving...' : 'Continue'}
+              </button>
+
+              {/* Skip Button */}
+              <button
+                onClick={handleSkip}
+                className="flex w-full cursor-pointer items-center justify-center rounded-full bg-transparent py-2 text-slate-500 text-sm font-bold hover:text-slate-800 transition-colors"
+              >
+                Skip
+              </button>
+            </div>
+
+            {/* Footer Note */}
+            <div className="mt-4 text-center">
+              <p className="text-[10px] text-slate-400 leading-tight">
+                This helps us understand how you discovered us
+              </p>
+            </div>
           </div>
         )}
       </div>
