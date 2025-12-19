@@ -1,6 +1,21 @@
- import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import config from '../../resources/config/config';
+import { useFooterVisibility } from '../../utils/useFooterVisibility';
+
+// Back arrow icon
+const BackIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M19 12H5M12 19l-7-7 7-7" />
+  </svg>
+);
+
+// Chevron down icon for select
+const ChevronDownIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M6 9l6 6 6-6" />
+  </svg>
+);
 
 // United States first, then all other countries alphabetically
 const countries = [
@@ -38,13 +53,13 @@ export default function OnboardingStep6() {
   const [citizenshipCountry, setCitizenshipCountry] = useState('United States');
   const [residenceCountry, setResidenceCountry] = useState('United States');
   const [isLoading, setIsLoading] = useState(false);
+  const isFooterVisible = useFooterVisibility();
 
   useEffect(() => {
     // Scroll to top on component mount
     window.scrollTo(0, 0);
   }, []);
 
-  
   useEffect(() => {
     const getCurrentUser = async () => {
       if (!config.supabaseClient) return;
@@ -95,81 +110,112 @@ export default function OnboardingStep6() {
     }
   };
 
+  const handleBack = () => {
+    navigate('/onboarding/step-5');
+  };
+
   return (
-    <div
-      className="min-h-screen bg-white flex items-center justify-center px-6 pt-28 pb-12"
-      style={{ fontFamily: 'Inter, -apple-system, system-ui, "SF Pro Text", sans-serif' }}
+    <div 
+      className="bg-slate-50 min-h-screen"
+      style={{ fontFamily: "'Manrope', sans-serif" }}
     >
-      <div className="max-w-[640px] w-full">
-        {/* Header */}
-        <div className="mb-8 text-center">
-          <h1 className="text-[28px] md:text-[36px] font-[500] leading-[1.2] text-[#0B1120] mb-4">
-            Confirm your residence
-          </h1>
-          <p className="text-[18px] leading-[1.6] text-[#64748B]">
-            We only accept investments from residents of the United States at this time.
-          </p>
-        </div>
+      <div className="relative flex min-h-screen w-full flex-col bg-white max-w-[500px] mx-auto shadow-xl overflow-hidden border-x border-slate-100">
+        
+        {/* Sticky Header */}
+        <header className="flex items-center px-4 pt-4 pb-2 bg-white sticky top-0 z-10">
+          <button 
+            onClick={handleBack}
+            aria-label="Go back"
+            className="flex size-10 shrink-0 items-center justify-center text-slate-900 rounded-full hover:bg-slate-50 transition-colors"
+          >
+            <BackIcon />
+          </button>
+        </header>
 
-        {/* Country of Citizenship */}
-        <div className="mb-6">
-          <label className="block text-[16px] font-[500] text-[#0B1120] mb-2">
-            Country of citizenship
-          </label>
-          <div className="relative">
-            <select
-              value={citizenshipCountry}
-              onChange={(e) => setCitizenshipCountry(e.target.value)}
-              className="w-full h-[56px] px-4 pr-10 text-[17px] text-[#0B1120] bg-white border-2 border-[#E2E8F0] rounded-[12px] appearance-none cursor-pointer focus:outline-none focus:border-[#00A9E0] transition-colors"
-            >
-              {countries.map((country) => (
-                <option key={country} value={country}>{country}</option>
-              ))}
-            </select>
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M5 7.5L10 12.5L15 7.5" stroke="#64748B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+        {/* Main Content */}
+        <main className="flex-1 flex flex-col px-6 pb-44">
+          {/* Header Section */}
+          <div className="mb-8 text-center">
+            <h1 className="text-slate-900 text-[22px] font-bold leading-tight tracking-tight mb-3">
+              Confirm your residence
+            </h1>
+            <p className="text-slate-500 text-[14px] font-normal leading-relaxed">
+              We need to know where you live and pay taxes to open your investment account.
+            </p>
+          </div>
+
+          {/* Carded Form Block */}
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-[0_2px_8px_rgba(0,0,0,0.04)] p-6 mb-8">
+            {/* Country of Citizenship */}
+            <div className="mb-6 relative">
+              <label className="block text-slate-900 text-sm font-medium leading-normal mb-2 ml-1">
+                Country of citizenship
+              </label>
+              <div className="relative">
+                <select
+                  value={citizenshipCountry}
+                  onChange={(e) => setCitizenshipCountry(e.target.value)}
+                  className="w-full bg-white text-slate-900 border border-gray-200 rounded-xl h-14 px-4 pr-10 text-base font-normal focus:outline-none focus:border-[#2b8cee] focus:ring-1 focus:ring-[#2b8cee] transition-all cursor-pointer appearance-none"
+                >
+                  <option disabled value="">Select country</option>
+                  {countries.map((country) => (
+                    <option key={country} value={country}>{country}</option>
+                  ))}
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-500">
+                  <ChevronDownIcon />
+                </div>
+              </div>
+            </div>
+
+            {/* Country of Residence */}
+            <div className="relative">
+              <label className="block text-slate-900 text-sm font-medium leading-normal mb-2 ml-1">
+                Country of residence
+              </label>
+              <div className="relative">
+                <select
+                  value={residenceCountry}
+                  onChange={(e) => setResidenceCountry(e.target.value)}
+                  className="w-full bg-white text-slate-900 border border-gray-200 rounded-xl h-14 px-4 pr-10 text-base font-normal focus:outline-none focus:border-[#2b8cee] focus:ring-1 focus:ring-[#2b8cee] transition-all cursor-pointer appearance-none"
+                >
+                  <option disabled value="">Select country</option>
+                  {countries.map((country) => (
+                    <option key={country} value={country}>{country}</option>
+                  ))}
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-500">
+                  <ChevronDownIcon />
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        </main>
 
-        {/* Country of Residence */}
-        <div className="mb-8">
-          <label className="block text-[16px] font-[500] text-[#0B1120] mb-2">
-            Country of residence
-          </label>
-          <div className="relative">
-            <select
-              value={residenceCountry}
-              onChange={(e) => setResidenceCountry(e.target.value)}
-              className="w-full h-[56px] px-4 pr-10 text-[17px] text-[#0B1120] bg-white border-2 border-[#E2E8F0] rounded-[12px] appearance-none cursor-pointer focus:outline-none focus:border-[#00A9E0] transition-colors"
-            >
-              {countries.map((country) => (
-                <option key={country} value={country}>{country}</option>
-              ))}
-            </select>
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M5 7.5L10 12.5L15 7.5" stroke="#64748B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+        {/* Fixed Footer - Hidden when main footer is visible */}
+        {!isFooterVisible && (
+          <div className="fixed bottom-0 z-20 w-full max-w-[500px] bg-white border-t border-slate-100 p-6 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]" data-onboarding-footer>
+            {/* Buttons */}
+            <div className="flex flex-col gap-4">
+              {/* Continue Button */}
+              <button
+                onClick={handleContinue}
+                disabled={isLoading}
+                className="flex w-full h-12 cursor-pointer items-center justify-center rounded-full bg-[#2b8cee] text-white text-base font-bold transition-all hover:bg-[#2070c0] active:scale-[0.98] disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed shadow-md shadow-[#2b8cee]/20"
+              >
+                {isLoading ? 'Saving...' : 'Continue'}
+              </button>
+
+              {/* Back Button */}
+              <button
+                onClick={handleBack}
+                className="flex w-full cursor-pointer items-center justify-center rounded-full bg-transparent py-2 text-slate-500 text-sm font-bold hover:text-slate-800 transition-colors"
+              >
+                Back
+              </button>
             </div>
           </div>
-        </div>
-
-        {/* Continue Button */}
-        <button
-          onClick={handleContinue}
-          disabled={isLoading}
-          className={`w-full h-[56px] rounded-[16px] text-[17px] font-[500] tracking-[0.01em] text-[#0B1120] transition-all duration-200 ${
-            isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-[1.01] active:scale-[0.99]'
-          }`}
-          style={{
-            background: 'linear-gradient(to right, #00A9E0, #6DD3EF)'
-          }}
-        >
-          {isLoading ? 'Saving...' : 'Continue'}
-        </button>
+        )}
       </div>
     </div>
   );
