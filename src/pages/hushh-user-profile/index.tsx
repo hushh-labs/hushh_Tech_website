@@ -133,6 +133,9 @@ const HushhUserProfilePage: React.FC = () => {
           setForm((prev) => ({
             ...prev,
             age: calculatedAge || prev.age,
+            // Pre-fill phone number from onboarding (Step 8)
+            phoneCountryCode: onboardingData.phone_country_code || prev.phoneCountryCode,
+            phoneNumber: onboardingData.phone_number || prev.phoneNumber,
             accountType: onboardingData.account_type || "",
             selectedFund: onboardingData.selected_fund || "",
             referralSource: onboardingData.referral_source || "",
@@ -168,10 +171,11 @@ const HushhUserProfilePage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!form.name || !form.email || !form.phoneCountryCode || !form.phoneNumber || form.age === "") {
+    // Only name, email, and age are required - phone is pre-filled from onboarding and optional here
+    if (!form.name || !form.email || form.age === "") {
       toast({
         title: "Missing fields",
-        description: "Please fill in all required fields",
+        description: "Please fill in all required fields (Name, Email, Age)",
         status: "warning",
         duration: 4000,
       });
@@ -348,9 +352,7 @@ const HushhUserProfilePage: React.FC = () => {
               </div>
               <div className="grid grid-cols-3 gap-3">
                 <div className="col-span-1">
-                  <label className={labelClassName}>
-                    Code <span className="text-[#2B8CEE]">*</span>
-                  </label>
+                  <label className={labelClassName}>Code</label>
                   <div className="relative">
                     <select 
                       value={form.phoneCountryCode}
@@ -365,14 +367,12 @@ const HushhUserProfilePage: React.FC = () => {
                   </div>
                 </div>
                 <div className="col-span-2">
-                  <label className={labelClassName}>
-                    Phone Number <span className="text-[#2B8CEE]">*</span>
-                  </label>
+                  <label className={labelClassName}>Phone Number</label>
                   <input
                     type="tel"
                     value={form.phoneNumber}
                     onChange={(e) => handleChange("phoneNumber", e.target.value)}
-                    placeholder="(555) 000-0000"
+                    placeholder="Pre-filled from onboarding"
                     className={inputClassName}
                   />
                 </div>
