@@ -44,6 +44,15 @@ const ChevronDownIcon = () => (
   </svg>
 );
 
+// Field validation errors type
+interface FieldErrors {
+  addressLine1?: string;
+  country?: string;
+  state?: string;
+  city?: string;
+  zipCode?: string;
+}
+
 function OnboardingStep10() {
   const navigate = useNavigate();
   const [addressLine1, setAddressLine1] = useState('');
@@ -54,6 +63,8 @@ function OnboardingStep10() {
   const [zipCode, setZipCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
   const isFooterVisible = useFooterVisibility();
 
   // Location data from Edge Function
@@ -164,9 +175,91 @@ function OnboardingStep10() {
     loadData();
   }, []);
 
+  // Validation functions
+  const validateAddressLine1 = (value: string): string | undefined => {
+    if (!value.trim()) return 'Address is required';
+    if (value.trim().length < 5) return 'Address is too short';
+    if (value.trim().length > 100) return 'Address is too long';
+    // Check for basic address format (should contain letters and numbers)
+    if (!/[a-zA-Z]/.test(value)) return 'Please enter a valid address';
+    return undefined;
+  };
+
+  const validateZipCode = (value: string): string | undefined => {
+    if (!value.trim()) return 'ZIP code is required';
+    // Allow 5 or 6 digit ZIP codes
+    if (!/^\d{5,6}$/.test(value.trim())) return 'ZIP code must be 5 or 6 digits';
+    return undefined;
+  };
+
+  const validateCountry = (value: string): string | undefined => {
+    if (!value) return 'Please select a country';
+    return undefined;
+  };
+
+  const validateState = (value: string): string | undefined => {
+    if (!value) return 'Please select a state';
+    return undefined;
+  };
+
+  const validateCity = (value: string): string | undefined => {
+    if (!value) return 'Please select a city';
+    return undefined;
+  };
+
+  // Handle field blur (mark as touched)
+  const handleBlur = (field: string) => {
+    setTouched(prev => ({ ...prev, [field]: true }));
+    
+    // Validate the field on blur
+    let error: string | undefined;
+    switch (field) {
+      case 'addressLine1':
+        error = validateAddressLine1(addressLine1);
+        break;
+      case 'zipCode':
+        error = validateZipCode(zipCode);
+        break;
+      case 'country':
+        error = validateCountry(country);
+        break;
+      case 'state':
+        error = validateState(state);
+        break;
+      case 'city':
+        error = validateCity(city);
+        break;
+    }
+    
+    setFieldErrors(prev => ({ ...prev, [field]: error }));
+  };
+
+  // Validate all fields
+  const validateAllFields = (): boolean => {
+    const errors: FieldErrors = {
+      addressLine1: validateAddressLine1(addressLine1),
+      country: validateCountry(country),
+      state: validateState(state),
+      city: validateCity(city),
+      zipCode: validateZipCode(zipCode),
+    };
+    
+    setFieldErrors(errors);
+    setTouched({
+      addressLine1: true,
+      country: true,
+      state: true,
+      city: true,
+      zipCode: true,
+    });
+    
+    return !Object.values(errors).some(e => e !== undefined);
+  };
+
   const handleContinue = async () => {
-    if (!addressLine1.trim() || !country || !state || !city || !zipCode.trim()) {
-      setError('Please fill in all required fields');
+    // Validate all fields first
+    if (!validateAllFields()) {
+      setError('Please fix the errors above');
       return;
     }
 
@@ -266,17 +359,34 @@ function OnboardingStep10() {
                 id="address1"
                 type="text"
                 value={addressLine1}
-                onChange={(e) => setAddressLine1(e.target.value)}
+                onChange={(e) => {
+                  setAddressLine1(e.target.value);
+                  // Clear error when user starts typing
+                  if (touched.addressLine1) {
+                    setFieldErrors(prev => ({ ...prev, addressLine1: validateAddressLine1(e.target.value) }));
+                  }
+                }}
+                onBlur={() => handleBlur('addressLine1')}
                 placeholder="Street address"
-                className="w-full h-12 px-4 rounded-lg border border-gray-200 bg-white text-slate-900 placeholder:text-slate-400 text-base focus:outline-none focus:ring-2 focus:ring-[#2b8cee]/20 focus:border-[#2b8cee] transition-all"
+                className={`w-full h-12 px-4 rounded-lg border bg-white text-slate-900 placeholder:text-slate-400 text-base focus:outline-none focus:ring-2 transition-all ${
+                  touched.addressLine1 && fieldErrors.addressLine1
+                    ? 'border-red-400 focus:ring-red-200 focus:border-red-400'
+                    : 'border-gray-200 focus:ring-[#2b8cee]/20 focus:border-[#2b8cee]'
+                }`}
               />
-              {/* Helper Text */}
-              <div className="flex items-start gap-1.5 mt-1.5">
-                <InfoIcon />
-                <p className="text-slate-400 text-xs font-normal leading-tight">
-                  Use your street address, not a P.O. Box.
+              {/* Error or Helper Text */}
+              {touched.addressLine1 && fieldErrors.addressLine1 ? (
+                <p className="text-red-500 text-xs font-normal leading-tight mt-1">
+                  {fieldErrors.addressLine1}
                 </p>
-              </div>
+              ) : (
+                <div className="flex items-start gap-1.5 mt-1.5">
+                  <InfoIcon />
+                  <p className="text-slate-400 text-xs font-normal leading-tight">
+                    Use your street address, not a P.O. Box.
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Address Line 2 */}
@@ -396,11 +506,33 @@ function OnboardingStep10() {
                 id="zip"
                 type="text"
                 value={zipCode}
-                onChange={(e) => setZipCode(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+                  setZipCode(value);
+                  // Update validation on change
+                  if (touched.zipCode) {
+                    setFieldErrors(prev => ({ ...prev, zipCode: validateZipCode(value) }));
+                  }
+                }}
+                onBlur={() => handleBlur('zipCode')}
                 inputMode="numeric"
                 placeholder="00000"
-                className="w-full h-12 px-4 rounded-lg border border-gray-200 bg-white text-slate-900 placeholder:text-slate-400 text-base focus:outline-none focus:ring-2 focus:ring-[#2b8cee]/20 focus:border-[#2b8cee] transition-all"
+                className={`w-full h-12 px-4 rounded-lg border bg-white text-slate-900 placeholder:text-slate-400 text-base focus:outline-none focus:ring-2 transition-all ${
+                  touched.zipCode && fieldErrors.zipCode
+                    ? 'border-red-400 focus:ring-red-200 focus:border-red-400'
+                    : 'border-gray-200 focus:ring-[#2b8cee]/20 focus:border-[#2b8cee]'
+                }`}
               />
+              {/* Error or Helper Text */}
+              {touched.zipCode && fieldErrors.zipCode ? (
+                <p className="text-red-500 text-xs font-normal leading-tight mt-1">
+                  {fieldErrors.zipCode}
+                </p>
+              ) : (
+                <p className="text-slate-400 text-xs font-normal leading-tight mt-1">
+                  Enter 5 or 6 digit ZIP code
+                </p>
+              )}
             </div>
           </div>
         </main>
