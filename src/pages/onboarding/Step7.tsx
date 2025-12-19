@@ -96,7 +96,7 @@ export default function OnboardingStep7() {
         {/* Main Content */}
         <main className="flex-1 flex flex-col px-6 pb-44">
           {/* Header Section */}
-          <div className="mb-8">
+          <div className="mb-8 text-center">
             <h1 className="text-slate-900 text-[28px] font-bold leading-tight tracking-tight">
               What type of general account would you like to open?
             </h1>
