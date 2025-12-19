@@ -9,14 +9,6 @@ const BackIcon = () => (
     <path d="M19 12H5M12 19l-7-7 7-7" />
   </svg>
 );
-// Help icon
-const HelpIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10" />
-    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-    <line x1="12" y1="17" x2="12.01" y2="17" />
-  </svg>
-);
 
 const BankIcon = () => (
   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2b8cee" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -52,7 +44,7 @@ const StarIcon = () => (
 );
 
 const DiamondIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4B5563" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M6 3H18L22 9L12 21L2 9L6 3Z" />
   </svg>
 );
@@ -80,19 +72,19 @@ const SHARE_CLASSES: ShareClassInfo[] = [
     id: 'class_a',
     name: 'Class A',
     unitPrice: 25000000,
-    color: '#B8860B',
-    bgColor: '#FFFAEB',
-    borderColor: 'rgba(255, 215, 0, 0.4)',
-    icon: <StarIcon />,
+    color: '#6B7280',
+    bgColor: '#F3F4F6',
+    borderColor: '#E5E7EB',
+    icon: <DiamondIcon />,
   },
   {
     id: 'class_b',
     name: 'Class B',
     unitPrice: 5000000,
-    color: '#4B5563',
-    bgColor: '#F3F4F6',
-    borderColor: '#E5E7EB',
-    icon: <DiamondIcon />,
+    color: '#B8860B',
+    bgColor: '#FFFAEB',
+    borderColor: 'rgba(255, 215, 0, 0.4)',
+    icon: <StarIcon />,
   },
   {
     id: 'class_c',
@@ -436,27 +428,16 @@ function OnboardingStep15() {
     >
       <div className="relative flex min-h-screen w-full flex-col bg-white max-w-[500px] mx-auto shadow-xl overflow-hidden border-x border-slate-100">
         
-        {/* Fixed Header - Hidden when main footer is visible */}
-        {!isFooterVisible && (
-          <header className="fixed top-0 z-20 w-full max-w-[500px] flex items-center justify-between px-4 py-3 bg-white border-b border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)]" data-onboarding-header>
-            <button 
-              onClick={handleBack}
-              aria-label="Go back"
-              className="flex size-10 shrink-0 items-center justify-center text-slate-900 rounded-full hover:bg-slate-50 transition-colors"
-            >
-              <BackIcon />
-            </button>
-            <button 
-              className="flex size-10 shrink-0 items-center justify-center text-slate-900 rounded-full hover:bg-slate-50 transition-colors"
-              aria-label="Help"
-            >
-              <HelpIcon />
-            </button>
-          </header>
-        )}
-        
-        {/* Spacer for fixed header */}
-        <div className="h-16" />
+        {/* Sticky Header */}
+        <header className="flex items-center px-4 pt-4 pb-2 bg-white sticky top-0 z-10">
+          <button 
+            onClick={handleBack}
+            aria-label="Go back"
+            className="flex size-10 shrink-0 items-center justify-center text-slate-900 rounded-full hover:bg-slate-50 transition-colors"
+          >
+            <BackIcon />
+          </button>
+        </header>
 
         {/* Main Content */}
         <main className="flex-1 overflow-y-auto pb-64">
