@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FiGlobe, FiCheck } from 'react-icons/fi';
+import { FiGlobe, FiCheck, FiChevronDown } from 'react-icons/fi';
 
 const languages = [
   { code: 'en', name: 'English', shortCode: 'EN' },
@@ -9,7 +9,11 @@ const languages = [
   { code: 'fr', name: 'Français', shortCode: 'FR' },
 ];
 
-const LanguageSwitcher: React.FC = () => {
+interface LanguageSwitcherProps {
+  variant?: 'light' | 'dark';
+}
+
+const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ variant = 'light' }) => {
   const { i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -46,18 +50,26 @@ const LanguageSwitcher: React.FC = () => {
     setIsOpen(false);
   };
 
+  // Dark variant styles (for dark header)
+  const isDark = variant === 'dark';
+
   return (
     <div className="relative" ref={dropdownRef}>
-      {/* Language Selector Pill - Matching HTML template exactly */}
+      {/* Language Selector Pill */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="group flex h-9 items-center gap-1 rounded-full bg-[#f6f6f8] px-3 transition-colors hover:bg-gray-200"
+        className={`group flex h-9 items-center gap-1.5 rounded-full px-2.5 transition-colors ${
+          isDark 
+            ? 'bg-white/5 active:bg-white/10 border border-white/5' 
+            : 'bg-[#f6f6f8] hover:bg-gray-200'
+        }`}
         aria-label="Select language"
       >
-        <FiGlobe className="w-4 h-4 text-gray-600 group-hover:text-gray-900" />
-        <span className="text-[13px] font-bold text-gray-700 group-hover:text-gray-900">
+        <FiGlobe className={`w-4 h-4 ${isDark ? 'text-white' : 'text-gray-600 group-hover:text-gray-900'}`} />
+        <span className={`text-[13px] font-bold tracking-wide ${isDark ? 'text-white' : 'text-gray-700 group-hover:text-gray-900'}`}>
           {currentLang}
         </span>
+        <FiChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''} ${isDark ? 'text-white/70' : 'text-gray-500'}`} />
       </button>
 
       {/* Dropdown Menu */}
