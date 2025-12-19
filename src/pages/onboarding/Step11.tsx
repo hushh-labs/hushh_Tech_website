@@ -1,14 +1,58 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import config from '../../resources/config/config';
+import { useFooterVisibility } from '../../utils/useFooterVisibility';
+
+// Back arrow icon (same as Step3)
+const BackIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M19 12H5M12 19l-7-7 7-7" />
+  </svg>
+);
+
+// Lock icon
+const LockIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+  </svg>
+);
+
+// Calendar icon
+const CalendarIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+    <line x1="16" y1="2" x2="16" y2="6" />
+    <line x1="8" y1="2" x2="8" y2="6" />
+    <line x1="3" y1="10" x2="21" y2="10" />
+  </svg>
+);
+
+// Info icon
+const InfoIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <line x1="12" y1="16" x2="12" y2="12" />
+    <line x1="12" y1="8" x2="12.01" y2="8" />
+  </svg>
+);
+
+// Chevron down icon
+const ChevronDownIcon = ({ className }: { className?: string }) => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <polyline points="6,9 12,15 18,9" />
+  </svg>
+);
 
 function OnboardingStep11() {
   const navigate = useNavigate();
+  const isFooterVisible = useFooterVisibility();
   const [ssn, setSsn] = useState('');
   const [dob, setDob] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showInfo, setShowInfo] = useState(false);
+
   const formatIsoToDisplay = (iso?: string | null) => {
     if (!iso) return '';
     const parts = iso.split('-');
@@ -22,7 +66,6 @@ function OnboardingStep11() {
   const parseDobToIso = (value: string) => {
     if (!value) return null;
 
-    // Support both MM/DD/YYYY and DD/MM/YYYY (auto-detect if first segment > 12)
     const parts = value.split('/');
     if (parts.length === 3) {
       let [p1, p2, year] = parts.map((p) => p.trim());
@@ -30,7 +73,6 @@ function OnboardingStep11() {
       let day = p2;
 
       if (parseInt(p1, 10) > 12) {
-        // Treat as DD/MM/YYYY
         day = p1;
         month = p2;
       }
@@ -41,7 +83,6 @@ function OnboardingStep11() {
       }
     }
 
-    // Already ISO
     if (/^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(value))) {
       return value;
     }
@@ -49,13 +90,10 @@ function OnboardingStep11() {
     return null;
   };
 
-  // Load existing data
   useEffect(() => {
-    // Scroll to top on component mount
     window.scrollTo(0, 0);
   }, []);
 
-  
   useEffect(() => {
     const loadData = async () => {
       if (!config.supabaseClient) return;
@@ -70,7 +108,6 @@ function OnboardingStep11() {
         .single();
 
       if (data) {
-        // Don't pre-fill SSN for security
         setDob(formatIsoToDisplay(data.date_of_birth) || '');
       }
     };
@@ -78,7 +115,6 @@ function OnboardingStep11() {
     loadData();
   }, []);
 
-  // Format SSN
   const formatSSN = (value: string) => {
     const cleaned = value.replace(/\D/g, '');
     if (cleaned.length <= 3) return cleaned;
@@ -91,7 +127,6 @@ function OnboardingStep11() {
     setSsn(formatted);
   };
 
-  // Format date
   const formatDate = (value: string) => {
     const cleaned = value.replace(/\D/g, '');
     if (cleaned.length <= 2) return cleaned;
@@ -104,19 +139,12 @@ function OnboardingStep11() {
     setDob(formatted);
   };
 
+  const isFormValid = ssn.length === 11 && dob.length === 10;
+  const canSkip = dob.length === 10;
+
   const handleContinue = async () => {
-    if (!ssn.trim() || !dob.trim()) {
+    if (!isFormValid) {
       setError('Please fill in all required fields');
-      return;
-    }
-
-    if (ssn.length !== 11) {
-      setError('Please enter a complete Social Security number');
-      return;
-    }
-
-    if (dob.length !== 10) {
-      setError('Please enter a complete date of birth');
       return;
     }
 
@@ -147,7 +175,7 @@ function OnboardingStep11() {
       .from('onboarding_data')
       .upsert({
         user_id: user.id,
-        ssn_encrypted: ssn, // In production, encrypt this before storing
+        ssn_encrypted: ssn,
         date_of_birth: isoDob,
         current_step: 11,
         updated_at: new Date().toISOString(),
@@ -165,13 +193,8 @@ function OnboardingStep11() {
   };
 
   const handleSkip = async () => {
-    if (!dob.trim()) {
+    if (!canSkip) {
       setError('Please enter your date of birth before skipping');
-      return;
-    }
-
-    if (dob.length !== 10) {
-      setError('Please enter a complete date of birth');
       return;
     }
 
@@ -198,12 +221,11 @@ function OnboardingStep11() {
       return;
     }
 
-    // Save with placeholder SSN for users who don't have one
     const { error: upsertError } = await config.supabaseClient
       .from('onboarding_data')
       .upsert({
         user_id: user.id,
-        ssn_encrypted: '999-99-9999', // Placeholder for users without SSN
+        ssn_encrypted: '999-99-9999',
         date_of_birth: isoDob,
         current_step: 11,
         updated_at: new Date().toISOString(),
@@ -225,106 +247,141 @@ function OnboardingStep11() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 pt-28 pb-12" style={{ backgroundColor: '#FFFFFF' }}>
-      <div className="w-full max-w-2xl">
-        <div className="mb-8 text-center">
-          <h1 className="text-[28px] md:text-[36px] mb-4" style={{ color: '#0B1120', fontWeight: 500 }}>
-            We just need a few more details
-          </h1>
-          <p className="text-lg text-gray-700">
-            This should be the same information you use on your tax returns.
-          </p>
-        </div>
+    <div 
+      className="bg-slate-50 min-h-screen"
+      style={{ fontFamily: "'Manrope', sans-serif" }}
+    >
+      <div className="relative flex min-h-screen w-full flex-col bg-white max-w-[500px] mx-auto shadow-xl overflow-hidden border-x border-slate-100">
+        
+        {/* Sticky Header */}
+        <header className="flex items-center px-4 pt-4 pb-2 bg-white sticky top-0 z-10">
+          <button 
+            onClick={handleBack}
+            aria-label="Go back"
+            className="flex size-10 shrink-0 items-center justify-center text-slate-900 rounded-full hover:bg-slate-50 transition-colors"
+          >
+            <BackIcon />
+          </button>
+        </header>
 
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-            {error}
+        {/* Main Content */}
+        <main className="flex-1 flex flex-col px-6 pb-44">
+          {/* Header Section - 22px title, 14px subtitle, center aligned */}
+          <div className="mb-8 mt-2 flex flex-col items-center text-center">
+            <h1 className="text-slate-900 text-[22px] font-extrabold leading-tight tracking-tight mb-2">
+              We just need a few more details
+            </h1>
+            <p className="text-slate-500 text-sm font-bold">
+              Federal law requires us to collect this info for tax reporting.
+            </p>
+          </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
+              {error}
+            </div>
+          )}
+
+          {/* SSN Card */}
+          <div className="bg-white border border-slate-200 rounded-xl p-5 mb-4 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+            <label className="flex flex-col w-full">
+              <p className="text-slate-900 text-sm font-semibold leading-normal pb-2">Social Security number</p>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={ssn}
+                  onChange={handleSSNChange}
+                  placeholder="000-00-0000"
+                  maxLength={11}
+                  inputMode="numeric"
+                  className="flex w-full rounded-lg text-slate-900 border border-slate-200 bg-white h-12 px-4 pr-10 text-base font-medium placeholder:text-slate-400 focus:outline-0 focus:ring-2 focus:ring-[#2b8cee]/20 focus:border-[#2b8cee] transition-all"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <LockIcon />
+                </span>
+              </div>
+            </label>
+            
+            {/* Accordion for SSN info */}
+            <div className="mt-4 border-t border-slate-100 pt-3">
+              <details 
+                className="group"
+                open={showInfo}
+                onToggle={(e) => setShowInfo((e.target as HTMLDetailsElement).open)}
+              >
+                <summary className="flex cursor-pointer items-center gap-2 py-1 text-[#2b8cee] hover:text-[#2b8cee]/80 transition-colors list-none select-none">
+                  <InfoIcon />
+                  <span className="text-sm font-bold">Why do we need your SSN?</span>
+                  <ChevronDownIcon className="ml-auto transition-transform group-open:rotate-180" />
+                </summary>
+                <div className="pt-3 pb-1">
+                  <p className="text-slate-500 text-sm font-medium leading-relaxed">
+                    We are required by federal law to collect this information to prevent fraud and verify your identity before opening an investment account.
+                  </p>
+                </div>
+              </details>
+            </div>
+          </div>
+
+          {/* DOB Card */}
+          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+            <label className="flex flex-col w-full">
+              <p className="text-slate-900 text-sm font-semibold leading-normal pb-2">Date of birth</p>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={dob}
+                  onChange={handleDobChange}
+                  placeholder="MM/DD/YYYY"
+                  maxLength={10}
+                  inputMode="numeric"
+                  className="flex w-full rounded-lg text-slate-900 border border-slate-200 bg-white h-12 px-4 pr-10 text-base font-medium placeholder:text-slate-400 focus:outline-0 focus:ring-2 focus:ring-[#2b8cee]/20 focus:border-[#2b8cee] transition-all"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <CalendarIcon />
+                </span>
+              </div>
+            </label>
+          </div>
+        </main>
+
+        {/* Fixed Footer - Hidden when main footer is visible (matching Step3 exactly) */}
+        {!isFooterVisible && (
+          <div className="fixed bottom-0 z-20 w-full max-w-[500px] bg-white border-t border-slate-100 p-6 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]" data-onboarding-footer>
+            {/* Buttons */}
+            <div className="flex flex-col gap-4">
+              {/* Continue Button */}
+              <button
+                onClick={handleContinue}
+                disabled={!isFormValid || loading}
+                className={`flex w-full cursor-pointer items-center justify-center rounded-full bg-[#2b8cee] py-4 text-white text-base font-bold transition-all hover:bg-blue-600 active:scale-[0.98] disabled:bg-slate-100 disabled:text-slate-400 ${
+                  !isFormValid || loading ? 'disabled:cursor-not-allowed' : ''
+                }`}
+              >
+                {loading ? 'Saving...' : 'Continue'}
+              </button>
+
+              {/* Skip Button */}
+              <button
+                onClick={handleSkip}
+                disabled={!canSkip || loading}
+                className={`flex w-full cursor-pointer items-center justify-center rounded-full bg-transparent py-2 text-slate-500 text-sm font-bold hover:text-slate-800 transition-colors ${
+                  !canSkip || loading ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+              >
+                Skip for now
+              </button>
+            </div>
+
+            {/* Footer Note */}
+            <div className="mt-4 text-center">
+              <p className="text-[10px] text-slate-400 leading-tight">
+                Your information is encrypted and secure
+              </p>
+            </div>
           </div>
         )}
-
-        <div className="space-y-6 mb-8">
-          <div>
-            <label className="block text-base font-semibold mb-2" style={{ color: '#0B1120' }}>
-              Social Security number
-            </label>
-            <input
-              type="text"
-              value={ssn}
-              onChange={handleSSNChange}
-              placeholder="___-__-____"
-              maxLength={11}
-              className="w-full px-4 py-4 border-2 border-gray-300 rounded-lg text-lg focus:outline-none focus:border-gray-400"
-              style={{ backgroundColor: '#FFFFFF' }}
-            />
-          </div>
-
-          {/* Info box */}
-          <div className="bg-gray-100 rounded-lg p-4">
-            <button
-              onClick={() => setShowInfo(!showInfo)}
-              className="flex items-start gap-3 w-full text-left"
-            >
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="mt-1 flex-shrink-0">
-                <path d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM10 18C5.59 18 2 14.41 2 10C2 5.59 5.59 2 10 2C14.41 2 18 5.59 18 10C18 14.41 14.41 18 10 18ZM9 5H11V7H9V5ZM9 9H11V15H9V9Z" fill="#0B1120"/>
-              </svg>
-              <div className="flex-1">
-                <p className="font-semibold" style={{ color: '#0B1120' }}>
-                  Why do we need your SSN?
-                </p>
-                {showInfo && (
-                  <p className="text-sm text-gray-700 mt-2">
-                    Federal law requires us to collect this for tax reporting purposes. Your data is encrypted and protected with bank-grade security.
-                  </p>
-                )}
-              </div>
-            </button>
-          </div>
-
-          <div>
-            <label className="block text-base font-semibold mb-2" style={{ color: '#0B1120' }}>
-              Date of birth
-            </label>
-            <input
-              type="text"
-              value={dob}
-              onChange={handleDobChange}
-              placeholder="MM/DD/YYYY"
-              maxLength={10}
-              className="w-full px-4 py-4 border-2 border-gray-300 rounded-lg text-lg focus:outline-none focus:border-gray-400"
-              style={{ backgroundColor: '#FFFFFF' }}
-            />
-          </div>
-        </div>
-
-        <button
-          onClick={handleContinue}
-          disabled={loading || ssn.length !== 11 || dob.length !== 10}
-          className="w-full py-4 rounded-lg text-lg font-semibold mb-4 transition-opacity disabled:opacity-50"
-          style={{
-            background: 'linear-gradient(to right, #00A9E0, #6DD3EF)',
-            color: '#0B1120',
-            fontWeight: 500,
-          }}
-        >
-          {loading ? 'Saving...' : 'Continue'}
-        </button>
-
-        <button
-          onClick={handleSkip}
-          disabled={loading || dob.length !== 10}
-          className="w-full py-4 rounded-lg text-lg font-semibold mb-6 border-2 border-gray-300 bg-white hover:border-gray-400 transition-all disabled:opacity-50"
-          style={{ color: '#0B1120' }}
-        >
-          Skip (Don't have SSN)
-        </button>
-
-        <button
-          onClick={handleBack}
-          className="w-full py-4 text-lg font-semibold"
-          style={{ color: '#8B4513' }}
-        >
-          Back
-        </button>
       </div>
     </div>
   );

@@ -5,8 +5,9 @@ import React from 'react';
 
 /**
  * FloatingContactBubble component
- * A 3D floating bubble that appears on the right side of the screen across all pages
+ * A floating bubble that appears on the right side of the screen across all pages
  * Clicking it opens email to invest@hushh.ai
+ * Updated to match the template design with solid blue (#2b8cee)
  */
 
 // Create motion components
@@ -32,18 +33,18 @@ export default function FloatingContactBubble() {
       <MotionBox
         as="button"
         position="fixed"
-        bottom={{ base: '20px', md: '32px' }}
-        right={{ base: '20px', md: '32px' }}
-        width={{ base: '56px', md: '64px' }}
-        height={{ base: '56px', md: '64px' }}
+        bottom={{ base: '24px', md: '32px' }}
+        right={{ base: '24px', md: '32px' }}
+        width={{ base: '56px', md: '56px' }}
+        height={{ base: '56px', md: '56px' }}
         borderRadius="full"
-        bgGradient="linear(to-br, blue.500, purple.600)"
+        bg="#2b8cee"
         color="white"
         display="flex"
         alignItems="center"
         justifyContent="center"
         cursor="pointer"
-        boxShadow="0 8px 24px rgba(0, 0, 0, 0.15), 0 4px 8px rgba(0, 0, 0, 0.1)"
+        boxShadow="0 4px 14px rgba(43, 140, 238, 0.3)"
         zIndex={9999}
         border="none"
         outline="none"
@@ -58,56 +59,31 @@ export default function FloatingContactBubble() {
           }
         }}
         _hover={{
-          bgGradient: 'linear(to-br, blue.600, purple.700)',
+          bg: '#2579d4',
         }}
         _focus={{
           outline: '3px solid',
           outlineColor: 'blue.300',
           outlineOffset: '2px',
         }}
-        // Floating animation
-        animate={{
-          y: [0, -8, 0],
-        }}
-        transition={{
-          duration: 3,
-          repeat: Infinity,
-          ease: 'easeInOut',
-        } as any}
         // Hover animation
         whileHover={{
-          scale: 1.1,
-          boxShadow: '0 12px 32px rgba(0, 0, 0, 0.2), 0 6px 12px rgba(0, 0, 0, 0.15)',
+          scale: 1.05,
+          boxShadow: '0 6px 20px rgba(43, 140, 238, 0.4)',
         }}
         whileTap={{
           scale: 0.95,
         }}
+        // Smooth transition
+        transition={{
+          duration: 0.2,
+          ease: 'easeInOut',
+        } as any}
       >
-        {/* Pulse ring effect */}
-        <MotionBox
-          position="absolute"
-          top="0"
-          left="0"
-          right="0"
-          bottom="0"
-          borderRadius="full"
-          border="2px solid"
-          borderColor="blue.400"
-          animate={{
-            scale: [1, 1.3, 1],
-            opacity: [0.6, 0, 0.6],
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            ease: 'easeOut',
-          } as any}
-        />
-        
         {/* Mail Icon */}
         <Icon 
           as={Mail} 
-          boxSize={{ base: '24px', md: '28px' }}
+          boxSize={{ base: '24px', md: '24px' }}
           strokeWidth={2}
         />
       </MotionBox>
