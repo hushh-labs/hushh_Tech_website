@@ -17,6 +17,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import config from '../../resources/config/config';
+import { useFooterVisibility } from '../../utils/useFooterVisibility';
 
 type VerificationResult = 'verified' | 'processing' | 'requires_input' | 'failed' | 'loading';
 
@@ -26,6 +27,7 @@ function VerifyCompletePage() {
   const toast = useToast();
   const [result, setResult] = useState<VerificationResult>('loading');
   const [pollingCount, setPollingCount] = useState(0);
+  const isFooterVisible = useFooterVisibility();
 
   useEffect(() => {
     window.scrollTo(0, 0);
