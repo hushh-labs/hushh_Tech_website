@@ -237,15 +237,15 @@ function MeetCeoPage() {
               strokeLinecap="round" 
               strokeLinejoin="round"
             >
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              <polyline points="9 12 11 14 15 10" />
             </svg>
           </div>
           <h1 className="text-[28px] md:text-[36px] mb-3" style={{ color: '#1A1A1A', fontWeight: 500 }}>
-            Meet Manish Sainani
+            Complete Your Registration
           </h1>
           <p className="text-lg" style={{ color: '#666666' }}>
-            CEO & Co-Founder of Hushh Technologies
+            Final step to verify your Hushh Fund A account
           </p>
         </div>
 
@@ -286,8 +286,8 @@ function MeetCeoPage() {
                 </div>
               </div>
               <p className="text-[15px] leading-relaxed" style={{ color: '#666666' }}>
-                To ensure Manish's time is spent with genuine investors, we ask for a simple $1 verification. 
-                This helps us filter out bots and automated requests.
+                To complete your Hushh Fund A registration, we require a simple $1 verification. 
+                This small step helps us filter out bots, scammers, and automated requests.
               </p>
             </div>
 
@@ -296,14 +296,17 @@ function MeetCeoPage() {
               className="rounded-2xl p-6 mb-8"
               style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E5E5' }}
             >
-              <div className="flex items-center gap-2 mb-4">
+              <div className="flex items-center gap-2 mb-2">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00A9E0" strokeWidth="2">
                   <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                 </svg>
                 <h3 className="text-lg" style={{ color: '#1A1A1A', fontWeight: 500 }}>
-                  Bonus Rewards
+                  You'll Also Receive
                 </h3>
               </div>
+              <p className="text-sm mb-4" style={{ color: '#888888' }}>
+                As a thank you for completing verification
+              </p>
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
                   <div 
@@ -363,7 +366,7 @@ function MeetCeoPage() {
                   Redirecting to payment...
                 </span>
               ) : (
-                'Verify You\'re Human — $1'
+                'Complete Registration — $1'
               )}
             </button>
 
@@ -396,7 +399,7 @@ function MeetCeoPage() {
                 </svg>
               </div>
               <h2 className="text-xl mb-2" style={{ color: '#1A1A1A', fontWeight: 500 }}>
-                Payment Successful!
+                Registration Complete!
               </h2>
               <p style={{ color: '#666666' }}>
                 You've earned <span className="font-bold" style={{ color: '#1A1A1A' }}>{hushhCoins} Hushh Coins</span>

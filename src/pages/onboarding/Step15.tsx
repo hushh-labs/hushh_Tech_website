@@ -1,18 +1,70 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import config from '../../resources/config/config';
+import { useFooterVisibility } from '../../utils/useFooterVisibility';
 
-// Share class configurations (consistent with other onboarding steps)
+// SVG Icons
+const BackIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M19 12H5M12 19l-7-7 7-7" />
+  </svg>
+);
+
+const BankIcon = () => (
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2b8cee" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 21H21M3 10H21M5 6L12 3L19 6M4 10V21M20 10V21M8 14V17M12 14V17M16 14V17" />
+  </svg>
+);
+
+const LockIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2b8cee" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+  </svg>
+);
+
+const ChevronDownIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="6,9 12,15 18,9" />
+  </svg>
+);
+
+const ArrowForwardIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="5" y1="12" x2="19" y2="12" />
+    <polyline points="12,5 19,12 12,19" />
+  </svg>
+);
+
+// Share class pill icons
+const StarIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="#D4AF37" stroke="#D4AF37" strokeWidth="1">
+    <polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5" />
+  </svg>
+);
+
+const DiamondIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4B5563" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M6 3H18L22 9L12 21L2 9L6 3Z" />
+  </svg>
+);
+
+const VerifiedIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2b8cee" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 2L15 5L19 5L19 9L22 12L19 15L19 19L15 19L12 22L9 19L5 19L5 15L2 12L5 9L5 5L9 5L12 2Z" />
+    <polyline points="9,12 11,14 15,10" />
+  </svg>
+);
+
+// Share class configurations
 interface ShareClassInfo {
   id: string;
   name: string;
   unitPrice: number;
-  tier: 'gold' | 'silver' | 'standard';
-  colors: {
-    primary: string;
-    secondary: string;
-    background: string;
-  };
+  color: string;
+  bgColor: string;
+  borderColor: string;
+  icon: React.ReactNode;
 }
 
 const SHARE_CLASSES: ShareClassInfo[] = [
@@ -20,35 +72,46 @@ const SHARE_CLASSES: ShareClassInfo[] = [
     id: 'class_a',
     name: 'Class A',
     unitPrice: 25000000,
-    tier: 'gold',
-    colors: {
-      primary: '#B8860B',
-      secondary: '#DAA520',
-      background: '#FFFEF7',
-    },
+    color: '#B8860B',
+    bgColor: '#FFFAEB',
+    borderColor: 'rgba(255, 215, 0, 0.4)',
+    icon: <StarIcon />,
   },
   {
     id: 'class_b',
     name: 'Class B',
     unitPrice: 5000000,
-    tier: 'silver',
-    colors: {
-      primary: '#71717A',
-      secondary: '#A1A1AA',
-      background: '#FAFAFA',
-    },
+    color: '#4B5563',
+    bgColor: '#F3F4F6',
+    borderColor: '#E5E7EB',
+    icon: <DiamondIcon />,
   },
   {
     id: 'class_c',
     name: 'Class C',
     unitPrice: 1000000,
-    tier: 'standard',
-    colors: {
-      primary: '#00A9E0',
-      secondary: '#6DD3EF',
-      background: '#F0F9FF',
-    },
+    color: '#2b8cee',
+    bgColor: '#F0F7FF',
+    borderColor: 'rgba(43, 140, 238, 0.3)',
+    icon: <VerifiedIcon />,
   },
+];
+
+// Country list
+const COUNTRIES = [
+  { code: '', name: 'Select Country' },
+  { code: 'US', name: 'United States' },
+  { code: 'CA', name: 'Canada' },
+  { code: 'GB', name: 'United Kingdom' },
+  { code: 'DE', name: 'Germany' },
+  { code: 'FR', name: 'France' },
+  { code: 'CH', name: 'Switzerland' },
+  { code: 'SG', name: 'Singapore' },
+  { code: 'HK', name: 'Hong Kong' },
+  { code: 'AU', name: 'Australia' },
+  { code: 'JP', name: 'Japan' },
+  { code: 'IN', name: 'India' },
+  { code: 'AE', name: 'United Arab Emirates' },
 ];
 
 // Format currency for display
@@ -65,49 +128,9 @@ const formatCurrency = (amount: number): string => {
   return `$${amount.toLocaleString()}`;
 };
 
-// Crown icon for Gold tier
-const CrownIcon = () => (
-  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" 
-          fill="#DAA520" stroke="#B8860B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
-
-// Diamond icon for Silver tier
-const DiamondIcon = () => (
-  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M6 3H18L22 9L12 21L2 9L6 3Z" 
-          fill="#A1A1AA" stroke="#71717A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
-
-// Bank icon
-const BankIcon = () => (
-  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M3 21H21M3 10H21M5 6L12 3L19 6M4 10V21M20 10V21M8 14V17M12 14V17M16 14V17" 
-          stroke="#0B1120" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
-
-// Country list for bank address
-const COUNTRIES = [
-  { code: 'US', name: 'United States' },
-  { code: 'CA', name: 'Canada' },
-  { code: 'GB', name: 'United Kingdom' },
-  { code: 'DE', name: 'Germany' },
-  { code: 'FR', name: 'France' },
-  { code: 'CH', name: 'Switzerland' },
-  { code: 'SG', name: 'Singapore' },
-  { code: 'HK', name: 'Hong Kong' },
-  { code: 'AU', name: 'Australia' },
-  { code: 'JP', name: 'Japan' },
-  { code: 'IN', name: 'India' },
-  { code: 'AE', name: 'United Arab Emirates' },
-  { code: 'OTHER', name: 'Other' },
-];
-
 function OnboardingStep15() {
   const navigate = useNavigate();
+  const isFooterVisible = useFooterVisibility();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
@@ -117,10 +140,20 @@ function OnboardingStep15() {
   const [accountNumber, setAccountNumber] = useState('');
   const [confirmAccountNumber, setConfirmAccountNumber] = useState('');
   const [routingNumber, setRoutingNumber] = useState('');
-  const [swiftCode, setSwiftCode] = useState('');
   const [bankCity, setBankCity] = useState('');
-  const [bankCountry, setBankCountry] = useState('US');
+  const [bankCountry, setBankCountry] = useState('');
   const [accountType, setAccountType] = useState<'checking' | 'savings'>('checking');
+  
+  // Touched state for showing validation errors only after user interaction
+  const [touched, setTouched] = useState({
+    bankName: false,
+    accountHolderName: false,
+    accountNumber: false,
+    confirmAccountNumber: false,
+    routingNumber: false,
+    bankCountry: false,
+    bankCity: false,
+  });
   
   // Share class units state
   const [shareUnits, setShareUnits] = useState<{
@@ -163,31 +196,26 @@ function OnboardingStep15() {
           class_a_units, class_b_units, class_c_units,
           legal_first_name, legal_last_name,
           bank_name, bank_account_holder_name, bank_account_type,
-          bank_routing_number, bank_swift_code,
-          bank_address_city, bank_address_country
+          bank_routing_number, bank_address_city, bank_address_country
         `)
         .eq('user_id', user.id)
         .single();
 
       if (data) {
-        // Load share class units
         setShareUnits({
           class_a_units: data.class_a_units || 0,
           class_b_units: data.class_b_units || 0,
           class_c_units: data.class_c_units || 0,
         });
         
-        // Pre-fill account holder name from legal name if available
         if (data.legal_first_name && data.legal_last_name && !data.bank_account_holder_name) {
           setAccountHolderName(`${data.legal_first_name} ${data.legal_last_name}`);
         }
         
-        // Load existing banking info if any
         if (data.bank_name) setBankName(data.bank_name);
         if (data.bank_account_holder_name) setAccountHolderName(data.bank_account_holder_name);
         if (data.bank_account_type) setAccountType(data.bank_account_type as 'checking' | 'savings');
         if (data.bank_routing_number) setRoutingNumber(data.bank_routing_number);
-        if (data.bank_swift_code) setSwiftCode(data.bank_swift_code);
         if (data.bank_address_city) setBankCity(data.bank_address_city);
         if (data.bank_address_country) setBankCountry(data.bank_address_country);
       }
@@ -195,13 +223,6 @@ function OnboardingStep15() {
 
     loadData();
   }, []);
-
-  // Get tier icon
-  const getTierIcon = (tier: string) => {
-    if (tier === 'gold') return <CrownIcon />;
-    if (tier === 'silver') return <DiamondIcon />;
-    return null;
-  };
 
   // Get units for a class
   const getUnits = (classId: string): number => {
@@ -211,39 +232,102 @@ function OnboardingStep15() {
     return 0;
   };
 
-  // Validate form
-  const validateForm = (): boolean => {
-    if (!bankName.trim()) {
-      setError('Please enter your bank name');
-      return false;
-    }
-    if (!accountHolderName.trim()) {
-      setError('Please enter the account holder name');
-      return false;
-    }
-    if (!accountNumber.trim()) {
-      setError('Please enter your account number');
-      return false;
-    }
-    if (accountNumber !== confirmAccountNumber) {
-      setError('Account numbers do not match');
-      return false;
-    }
-    // For US banks, require routing number. For international, require SWIFT
-    if (bankCountry === 'US' && !routingNumber.trim()) {
-      setError('Please enter the routing number for US banks');
-      return false;
-    }
-    if (bankCountry !== 'US' && !swiftCode.trim()) {
-      setError('Please enter the SWIFT code for international banks');
-      return false;
-    }
-    return true;
+  // Mark field as touched on blur
+  const handleBlur = (field: keyof typeof touched) => {
+    setTouched(prev => ({ ...prev, [field]: true }));
+  };
+
+  // Validation functions for each field
+  const validateBankName = (value: string): string | null => {
+    if (!value.trim()) return 'Bank name is required';
+    if (value.trim().length < 2) return 'Bank name must be at least 2 characters';
+    if (value.trim().length > 100) return 'Bank name is too long';
+    return null;
+  };
+
+  const validateAccountHolderName = (value: string): string | null => {
+    if (!value.trim()) return 'Account holder name is required';
+    if (value.trim().length < 2) return 'Name must be at least 2 characters';
+    if (!/^[a-zA-Z\s\-'.]+$/.test(value.trim())) return 'Name should only contain letters';
+    if (value.trim().length > 100) return 'Name is too long';
+    return null;
+  };
+
+  const validateAccountNumber = (value: string): string | null => {
+    if (!value.trim()) return 'Account number is required';
+    if (!/^\d+$/.test(value)) return 'Account number must contain only digits';
+    if (value.length < 4) return 'Account number must be at least 4 digits';
+    if (value.length > 17) return 'Account number is too long';
+    return null;
+  };
+
+  const validateConfirmAccountNumber = (value: string, original: string): string | null => {
+    if (!value.trim()) return 'Please confirm your account number';
+    if (value !== original) return 'Account numbers do not match';
+    return null;
+  };
+
+  const validateBankCountry = (value: string): string | null => {
+    if (!value) return 'Please select a country';
+    return null;
+  };
+
+  const validateRoutingNumber = (value: string, country: string): string | null => {
+    if (!value.trim()) return 'Routing number is required';
+    if (!/^\d+$/.test(value)) return 'Routing number must contain only digits';
+    // US routing numbers must be exactly 9 digits
+    if (country === 'US' && value.length !== 9) return 'US routing number must be exactly 9 digits';
+    // For other countries, allow 5-15 digits
+    if (country !== 'US' && (value.length < 5 || value.length > 15)) return 'Routing number must be 5-15 digits';
+    return null;
+  };
+
+  // Get error for each field
+  const bankNameError = validateBankName(bankName);
+  const accountHolderNameError = validateAccountHolderName(accountHolderName);
+  const accountNumberError = validateAccountNumber(accountNumber);
+  const confirmAccountNumberError = validateConfirmAccountNumber(confirmAccountNumber, accountNumber);
+  const bankCountryError = validateBankCountry(bankCountry);
+  const routingNumberError = validateRoutingNumber(routingNumber, bankCountry);
+
+  // Check if form is valid
+  const isFormValid = (): boolean => {
+    return (
+      !bankNameError &&
+      !accountHolderNameError &&
+      !accountNumberError &&
+      !confirmAccountNumberError &&
+      !bankCountryError &&
+      !routingNumberError
+    );
   };
 
   // Save banking info and continue
   const handleContinue = async () => {
-    if (!validateForm()) return;
+    if (!bankName.trim()) {
+      setError('Please enter your bank name');
+      return;
+    }
+    if (!accountHolderName.trim()) {
+      setError('Please enter the account holder name');
+      return;
+    }
+    if (!accountNumber.trim()) {
+      setError('Please enter your account number');
+      return;
+    }
+    if (accountNumber !== confirmAccountNumber) {
+      setError('Account numbers do not match');
+      return;
+    }
+    if (!bankCountry) {
+      setError('Please select your bank country');
+      return;
+    }
+    if (!routingNumber.trim()) {
+      setError('Please enter the routing number');
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -261,7 +345,6 @@ function OnboardingStep15() {
       return;
     }
 
-    // Simple encryption for account number (in production, use proper encryption)
     const encryptedAccountNumber = btoa(accountNumber);
 
     const { error: upsertError } = await config.supabaseClient
@@ -271,8 +354,7 @@ function OnboardingStep15() {
         bank_name: bankName.trim(),
         bank_account_holder_name: accountHolderName.trim(),
         bank_account_number_encrypted: encryptedAccountNumber,
-        bank_routing_number: routingNumber.trim() || null,
-        bank_swift_code: swiftCode.trim() || null,
+        bank_routing_number: routingNumber.trim(),
         bank_address_city: bankCity.trim() || null,
         bank_address_country: bankCountry,
         bank_account_type: accountType,
@@ -292,7 +374,6 @@ function OnboardingStep15() {
       return;
     }
 
-    // Navigate to Meet CEO page
     navigate('/onboarding/meet-ceo');
   };
 
@@ -340,317 +421,358 @@ function OnboardingStep15() {
     navigate('/onboarding/step-14');
   };
 
-  // Mask account number for display
-  const maskAccountNumber = (num: string): string => {
-    if (num.length <= 4) return num;
-    return '•'.repeat(num.length - 4) + num.slice(-4);
-  };
-
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 pt-28 pb-12" style={{ backgroundColor: '#FFFFFF' }}>
-      <div className="w-full max-w-2xl">
-        <div className="mb-8">
-          {/* Header */}
-          <div className="text-center mb-6">
-            <div className="flex justify-center mb-4">
-              <div className="p-4 bg-[#F8FAFC] rounded-full">
-                <BankIcon />
-              </div>
+    <div 
+      className="bg-slate-50 min-h-screen"
+      style={{ fontFamily: "'Manrope', sans-serif" }}
+    >
+      <div className="relative flex min-h-screen w-full flex-col bg-white max-w-[500px] mx-auto shadow-xl overflow-hidden border-x border-slate-100">
+        
+        {/* Sticky Header */}
+        <header className="flex items-center px-4 pt-4 pb-2 bg-white sticky top-0 z-10">
+          <button 
+            onClick={handleBack}
+            aria-label="Go back"
+            className="flex size-10 shrink-0 items-center justify-center text-slate-900 rounded-full hover:bg-slate-50 transition-colors"
+          >
+            <BackIcon />
+          </button>
+        </header>
+
+        {/* Main Content */}
+        <main className="flex-1 overflow-y-auto pb-64">
+          {/* Header Section - 22px title, 14px subtitle, center aligned */}
+          <div className="px-5 pt-2 pb-6 flex flex-col items-center text-center">
+            {/* Bank Icon */}
+            <div className="mb-4 inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#2b8cee]/10">
+              <BankIcon />
             </div>
-            <h1 className="text-[28px] md:text-[36px] mb-2" style={{ color: '#0B1120', fontWeight: 500 }}>
+            
+            <h1 className="text-slate-900 text-[22px] font-extrabold leading-tight tracking-tight mb-2">
               Wire Transfer Details
             </h1>
-            <p className="text-[16px] text-[#64748B]">
+            <p className="text-slate-500 text-sm font-bold">
               Provide your banking information for investment transfers
             </p>
           </div>
 
-          {/* Share Class Allocation Summary */}
-          {hasAnyUnits && (
-            <div className="bg-[#F8FAFC] rounded-[16px] p-4 mb-6 border border-[#E2E8F0]">
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="text-[13px] uppercase tracking-wider text-[#64748B]">
-                  Investment Amount
-                </h2>
-                <span className="text-[18px] font-[600] text-[#0B1120]">
-                  {formatCurrency(totalInvestment)}
-                </span>
-              </div>
-              
-              {/* Compact share class display */}
-              <div className="flex flex-wrap gap-2">
-                {SHARE_CLASSES.map((shareClass) => {
-                  const units = getUnits(shareClass.id);
-                  if (units === 0) return null;
-                  
-                  return (
-                    <div
-                      key={shareClass.id}
-                      className="flex items-center gap-2 px-3 py-2 rounded-[10px]"
-                      style={{
-                        backgroundColor: shareClass.colors.background,
-                        border: `1.5px solid ${shareClass.colors.primary}`,
-                      }}
-                    >
-                      {getTierIcon(shareClass.tier)}
-                      <span 
-                        className="text-[13px] font-[600]"
-                        style={{ color: shareClass.colors.primary }}
-                      >
-                        {shareClass.name}
-                      </span>
-                      <span 
-                        className="text-[13px] font-[500] ml-1"
-                        style={{ color: shareClass.colors.primary }}
-                      >
-                        ×{units}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
+          {/* Error Message */}
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+            <div className="mx-5 mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
               {error}
             </div>
           )}
 
-          {/* Banking Form */}
-          <div className="space-y-5">
+          {/* Investment Amount Card */}
+          {hasAnyUnits && (
+            <div className="mx-5 mb-6">
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+                <p className="text-xs font-bold tracking-widest text-slate-500 uppercase mb-1">
+                  INVESTMENT AMOUNT
+                </p>
+                <div className="text-3xl font-bold text-slate-900 mb-4">
+                  {formatCurrency(totalInvestment)}
+                </div>
+                
+                {/* Share Class Pills */}
+                <div className="flex flex-wrap gap-2">
+                  {SHARE_CLASSES.map((shareClass) => {
+                    const units = getUnits(shareClass.id);
+                    if (units === 0) return null;
+                    
+                    return (
+                      <div
+                        key={shareClass.id}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full"
+                        style={{
+                          backgroundColor: shareClass.bgColor,
+                          border: `1px solid ${shareClass.borderColor}`,
+                        }}
+                      >
+                        {shareClass.icon}
+                        <span 
+                          className="text-xs font-bold"
+                          style={{ color: shareClass.color }}
+                        >
+                          {shareClass.name} ×{units}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Form Fields */}
+          <div className="px-5 space-y-5">
             {/* Bank Name */}
-            <div>
-              <label className="block text-[15px] mb-2" style={{ color: '#0B1120', fontWeight: 500 }}>
-                Bank Name <span className="text-red-500">*</span>
-              </label>
+            <div className="space-y-2">
+              <label className="block text-sm font-bold text-slate-900">Bank Name*</label>
               <input
                 type="text"
                 value={bankName}
                 onChange={(e) => setBankName(e.target.value)}
-                placeholder="e.g. Chase Bank, Bank of America"
-                className="w-full px-4 py-4 border-2 border-gray-300 rounded-lg text-[16px] focus:outline-none focus:border-[#00A9E0]"
-                style={{ backgroundColor: '#FFFFFF' }}
+                onBlur={() => handleBlur('bankName')}
+                placeholder="e.g. Chase Bank"
+                className={`w-full rounded-xl border bg-white px-4 py-3.5 text-base font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 transition-all ${
+                  touched.bankName && bankNameError
+                    ? 'border-red-400 focus:border-red-500 focus:ring-red-500'
+                    : touched.bankName && !bankNameError
+                    ? 'border-green-400 focus:border-green-500 focus:ring-green-500'
+                    : 'border-slate-200 focus:border-[#2b8cee] focus:ring-[#2b8cee]'
+                }`}
               />
+              {touched.bankName && bankNameError && (
+                <p className="text-red-500 text-xs font-medium">{bankNameError}</p>
+              )}
+              {touched.bankName && !bankNameError && bankName && (
+                <p className="text-green-600 text-xs font-medium">✓ Valid bank name</p>
+              )}
             </div>
 
             {/* Account Holder Name */}
-            <div>
-              <label className="block text-[15px] mb-2" style={{ color: '#0B1120', fontWeight: 500 }}>
-                Account Holder Name <span className="text-red-500">*</span>
-              </label>
+            <div className="space-y-2">
+              <label className="block text-sm font-bold text-slate-900">Account Holder Name*</label>
               <input
                 type="text"
                 value={accountHolderName}
                 onChange={(e) => setAccountHolderName(e.target.value)}
-                placeholder="Name as it appears on the account"
-                className="w-full px-4 py-4 border-2 border-gray-300 rounded-lg text-[16px] focus:outline-none focus:border-[#00A9E0]"
-                style={{ backgroundColor: '#FFFFFF' }}
+                onBlur={() => handleBlur('accountHolderName')}
+                placeholder="e.g. John Doe"
+                className={`w-full rounded-xl border bg-white px-4 py-3.5 text-base font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 transition-all ${
+                  touched.accountHolderName && accountHolderNameError
+                    ? 'border-red-400 focus:border-red-500 focus:ring-red-500'
+                    : touched.accountHolderName && !accountHolderNameError
+                    ? 'border-green-400 focus:border-green-500 focus:ring-green-500'
+                    : 'border-slate-200 focus:border-[#2b8cee] focus:ring-[#2b8cee]'
+                }`}
               />
+              {touched.accountHolderName && accountHolderNameError && (
+                <p className="text-red-500 text-xs font-medium">{accountHolderNameError}</p>
+              )}
+              {touched.accountHolderName && !accountHolderNameError && accountHolderName && (
+                <p className="text-green-600 text-xs font-medium">✓ Valid name</p>
+              )}
             </div>
 
             {/* Account Type */}
-            <div>
-              <label className="block text-[15px] mb-2" style={{ color: '#0B1120', fontWeight: 500 }}>
-                Account Type <span className="text-red-500">*</span>
-              </label>
-              <div className="flex gap-4">
-                {[
-                  { value: 'checking', label: 'Checking' },
-                  { value: 'savings', label: 'Savings' },
-                ].map((type) => (
-                  <button
-                    key={type.value}
-                    type="button"
-                    onClick={() => setAccountType(type.value as 'checking' | 'savings')}
-                    className="flex-1 py-4 rounded-lg border-2 transition-colors"
-                    style={{
-                      borderColor: accountType === type.value ? '#0B1120' : '#D1D5DB',
-                      backgroundColor: accountType === type.value ? '#F3F4F6' : '#FFFFFF',
-                      color: '#0B1120',
-                      fontWeight: accountType === type.value ? 600 : 400,
-                    }}
-                  >
-                    {type.label}
-                  </button>
-                ))}
+            <div className="space-y-2">
+              <label className="block text-sm font-bold text-slate-900">Account Type*</label>
+              <div className="flex rounded-xl bg-slate-100 p-1">
+                <button
+                  type="button"
+                  onClick={() => setAccountType('checking')}
+                  className={`flex-1 rounded-lg py-2.5 text-sm font-bold transition-all ${
+                    accountType === 'checking'
+                      ? 'bg-white text-[#2b8cee] shadow-sm border border-slate-100'
+                      : 'bg-transparent text-slate-500 hover:text-slate-900'
+                  }`}
+                >
+                  Checking
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAccountType('savings')}
+                  className={`flex-1 rounded-lg py-2.5 text-sm font-bold transition-all ${
+                    accountType === 'savings'
+                      ? 'bg-white text-[#2b8cee] shadow-sm border border-slate-100'
+                      : 'bg-transparent text-slate-500 hover:text-slate-900'
+                  }`}
+                >
+                  Savings
+                </button>
               </div>
             </div>
 
             {/* Account Number */}
-            <div>
-              <label className="block text-[15px] mb-2" style={{ color: '#0B1120', fontWeight: 500 }}>
-                Account Number <span className="text-red-500">*</span>
-              </label>
+            <div className="space-y-2">
+              <label className="block text-sm font-bold text-slate-900">Account Number*</label>
               <input
-                type="password"
+                type="text"
+                inputMode="numeric"
                 value={accountNumber}
                 onChange={(e) => setAccountNumber(e.target.value.replace(/\D/g, ''))}
-                placeholder="Enter account number"
-                className="w-full px-4 py-4 border-2 border-gray-300 rounded-lg text-[16px] focus:outline-none focus:border-[#00A9E0]"
-                style={{ backgroundColor: '#FFFFFF' }}
+                onBlur={() => handleBlur('accountNumber')}
+                placeholder="000000000"
+                className={`w-full rounded-xl border bg-white px-4 py-3.5 text-base font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 transition-all ${
+                  touched.accountNumber && accountNumberError
+                    ? 'border-red-400 focus:border-red-500 focus:ring-red-500'
+                    : touched.accountNumber && !accountNumberError
+                    ? 'border-green-400 focus:border-green-500 focus:ring-green-500'
+                    : 'border-slate-200 focus:border-[#2b8cee] focus:ring-[#2b8cee]'
+                }`}
               />
-              {accountNumber && (
-                <p className="text-[13px] text-gray-500 mt-1">
-                  Will be stored as: {maskAccountNumber(accountNumber)}
-                </p>
+              {touched.accountNumber && accountNumberError && (
+                <p className="text-red-500 text-xs font-medium">{accountNumberError}</p>
+              )}
+              {touched.accountNumber && !accountNumberError && accountNumber && (
+                <p className="text-green-600 text-xs font-medium">✓ Valid account number ({accountNumber.length} digits)</p>
               )}
             </div>
 
             {/* Confirm Account Number */}
-            <div>
-              <label className="block text-[15px] mb-2" style={{ color: '#0B1120', fontWeight: 500 }}>
-                Confirm Account Number <span className="text-red-500">*</span>
-              </label>
+            <div className="space-y-2">
+              <label className="block text-sm font-bold text-slate-900">Confirm Account Number*</label>
               <input
-                type="password"
+                type="text"
+                inputMode="numeric"
                 value={confirmAccountNumber}
                 onChange={(e) => setConfirmAccountNumber(e.target.value.replace(/\D/g, ''))}
-                placeholder="Re-enter account number"
-                className="w-full px-4 py-4 border-2 border-gray-300 rounded-lg text-[16px] focus:outline-none focus:border-[#00A9E0]"
-                style={{ backgroundColor: '#FFFFFF' }}
+                onBlur={() => handleBlur('confirmAccountNumber')}
+                placeholder="000000000"
+                className={`w-full rounded-xl border bg-white px-4 py-3.5 text-base font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 transition-all ${
+                  touched.confirmAccountNumber && confirmAccountNumberError
+                    ? 'border-red-400 focus:border-red-500 focus:ring-red-500'
+                    : touched.confirmAccountNumber && !confirmAccountNumberError
+                    ? 'border-green-400 focus:border-green-500 focus:ring-green-500'
+                    : 'border-slate-200 focus:border-[#2b8cee] focus:ring-[#2b8cee]'
+                }`}
               />
-              {confirmAccountNumber && accountNumber && (
-                <p className={`text-[13px] mt-1 ${accountNumber === confirmAccountNumber ? 'text-green-600' : 'text-red-500'}`}>
-                  {accountNumber === confirmAccountNumber ? '✓ Account numbers match' : '✗ Account numbers do not match'}
-                </p>
+              {touched.confirmAccountNumber && confirmAccountNumberError && (
+                <p className="text-red-500 text-xs font-medium">{confirmAccountNumberError}</p>
+              )}
+              {touched.confirmAccountNumber && !confirmAccountNumberError && confirmAccountNumber && (
+                <p className="text-green-600 text-xs font-medium">✓ Account numbers match</p>
               )}
             </div>
 
             {/* Bank Country */}
-            <div>
-              <label className="block text-[15px] mb-2" style={{ color: '#0B1120', fontWeight: 500 }}>
-                Bank Country <span className="text-red-500">*</span>
-              </label>
+            <div className="space-y-2">
+              <label className="block text-sm font-bold text-slate-900">Bank Country*</label>
               <div className="relative">
                 <select
                   value={bankCountry}
-                  onChange={(e) => setBankCountry(e.target.value)}
-                  className="w-full px-4 py-4 border-2 border-gray-300 rounded-lg text-[16px] focus:outline-none focus:border-[#00A9E0] appearance-none"
-                  style={{ backgroundColor: '#FFFFFF' }}
+                  onChange={(e) => {
+                    setBankCountry(e.target.value);
+                    handleBlur('bankCountry');
+                  }}
+                  onBlur={() => handleBlur('bankCountry')}
+                  className={`w-full appearance-none rounded-xl border bg-white px-4 py-3.5 text-base font-medium text-slate-900 focus:outline-none focus:ring-1 transition-all ${
+                    touched.bankCountry && bankCountryError
+                      ? 'border-red-400 focus:border-red-500 focus:ring-red-500'
+                      : touched.bankCountry && !bankCountryError
+                      ? 'border-green-400 focus:border-green-500 focus:ring-green-500'
+                      : 'border-slate-200 focus:border-[#2b8cee] focus:ring-[#2b8cee]'
+                  }`}
                 >
                   {COUNTRIES.map((country) => (
-                    <option key={country.code} value={country.code}>
+                    <option key={country.code} value={country.code} disabled={country.code === ''}>
                       {country.name}
                     </option>
                   ))}
                 </select>
-                <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                  <svg width="16" height="10" viewBox="0 0 16 10" fill="none">
-                    <path d="M1 1L8 8L15 1" stroke="#0B1120" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
+                  <ChevronDownIcon />
                 </div>
               </div>
+              {touched.bankCountry && bankCountryError && (
+                <p className="text-red-500 text-xs font-medium">{bankCountryError}</p>
+              )}
+              {touched.bankCountry && !bankCountryError && bankCountry && (
+                <p className="text-green-600 text-xs font-medium">✓ Country selected</p>
+              )}
             </div>
 
-            {/* Routing Number (US) or SWIFT Code (International) */}
-            {bankCountry === 'US' ? (
-              <div>
-                <label className="block text-[15px] mb-2" style={{ color: '#0B1120', fontWeight: 500 }}>
-                  Routing Number (ABA) <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={routingNumber}
-                  onChange={(e) => setRoutingNumber(e.target.value.replace(/\D/g, '').slice(0, 9))}
-                  placeholder="9-digit routing number"
-                  maxLength={9}
-                  className="w-full px-4 py-4 border-2 border-gray-300 rounded-lg text-[16px] focus:outline-none focus:border-[#00A9E0]"
-                  style={{ backgroundColor: '#FFFFFF' }}
-                />
-                <p className="text-[13px] text-gray-500 mt-1">
-                  Find this on the bottom left of your checks
+            {/* Routing Number */}
+            <div className="space-y-2">
+              <label className="block text-sm font-bold text-slate-900">Routing Number (ABA)*</label>
+              <input
+                type="text"
+                inputMode="numeric"
+                value={routingNumber}
+                onChange={(e) => setRoutingNumber(e.target.value.replace(/\D/g, '').slice(0, bankCountry === 'US' ? 9 : 15))}
+                onBlur={() => handleBlur('routingNumber')}
+                placeholder={bankCountry === 'US' ? '000000000' : 'Enter routing number'}
+                maxLength={bankCountry === 'US' ? 9 : 15}
+                className={`w-full rounded-xl border bg-white px-4 py-3.5 text-base font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 transition-all ${
+                  touched.routingNumber && routingNumberError
+                    ? 'border-red-400 focus:border-red-500 focus:ring-red-500'
+                    : touched.routingNumber && !routingNumberError
+                    ? 'border-green-400 focus:border-green-500 focus:ring-green-500'
+                    : 'border-slate-200 focus:border-[#2b8cee] focus:ring-[#2b8cee]'
+                }`}
+              />
+              {touched.routingNumber && routingNumberError && (
+                <p className="text-red-500 text-xs font-medium">{routingNumberError}</p>
+              )}
+              {touched.routingNumber && !routingNumberError && routingNumber && (
+                <p className="text-green-600 text-xs font-medium">✓ Valid routing number ({routingNumber.length} digits)</p>
+              )}
+              {!touched.routingNumber && (
+                <p className="text-xs font-medium text-slate-500 pt-1 pl-1">
+                  {bankCountry === 'US' ? 'Must be exactly 9 digits (bottom left of your check)' : 'Usually 5-15 digits'}
                 </p>
-              </div>
-            ) : (
-              <div>
-                <label className="block text-[15px] mb-2" style={{ color: '#0B1120', fontWeight: 500 }}>
-                  SWIFT/BIC Code <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={swiftCode}
-                  onChange={(e) => setSwiftCode(e.target.value.toUpperCase().slice(0, 11))}
-                  placeholder="8 or 11 character SWIFT code"
-                  maxLength={11}
-                  className="w-full px-4 py-4 border-2 border-gray-300 rounded-lg text-[16px] focus:outline-none focus:border-[#00A9E0]"
-                  style={{ backgroundColor: '#FFFFFF' }}
-                />
-                <p className="text-[13px] text-gray-500 mt-1">
-                  Required for international wire transfers
-                </p>
-              </div>
-            )}
+              )}
+            </div>
 
             {/* Bank City (Optional) */}
-            <div>
-              <label className="block text-[15px] mb-2" style={{ color: '#0B1120', fontWeight: 500 }}>
-                Bank City <span className="text-gray-400 text-[13px]">(Optional)</span>
+            <div className="space-y-2">
+              <label className="block text-sm font-bold text-slate-900">
+                Bank City <span className="text-slate-400 font-medium">(Optional)</span>
               </label>
               <input
                 type="text"
                 value={bankCity}
                 onChange={(e) => setBankCity(e.target.value)}
-                placeholder="City where your bank branch is located"
-                className="w-full px-4 py-4 border-2 border-gray-300 rounded-lg text-[16px] focus:outline-none focus:border-[#00A9E0]"
-                style={{ backgroundColor: '#FFFFFF' }}
+                placeholder="e.g. New York"
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-base font-medium text-slate-900 placeholder:text-slate-400 focus:border-[#2b8cee] focus:outline-none focus:ring-1 focus:ring-[#2b8cee] transition-all"
               />
             </div>
           </div>
 
           {/* Security Note */}
-          <div className="mt-6 p-4 bg-[#F0F9FF] rounded-lg border border-[#BAE6FD]">
-            <div className="flex items-start gap-3">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="mt-0.5 flex-shrink-0">
-                <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#0284C7" strokeWidth="2"/>
-                <path d="M12 16V12M12 8H12.01" stroke="#0284C7" strokeWidth="2" strokeLinecap="round"/>
-              </svg>
+          <div className="mx-5 mt-6 mb-8">
+            <div className="flex gap-4 rounded-xl bg-[#F0F7FF] p-4 border border-[#2b8cee]/20">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#2b8cee]/10">
+                <LockIcon />
+              </div>
               <div>
-                <p className="text-[14px] text-[#0369A1] font-medium">Your information is secure</p>
-                <p className="text-[13px] text-[#0284C7] mt-1">
-                  Your banking details are encrypted and stored securely. We use bank-level security to protect your information.
+                <h3 className="text-sm font-bold text-slate-900 mb-1">Bank-level Security</h3>
+                <p className="text-xs leading-relaxed text-slate-500">
+                  Your data is encrypted with 256-bit SSL security and sent securely to your bank.
                 </p>
               </div>
             </div>
           </div>
-        </div>
+        </main>
 
-        {/* Buttons */}
-        <button
-          onClick={handleContinue}
-          disabled={loading}
-          className="w-full py-4 rounded-lg text-lg font-semibold mb-3 transition-opacity disabled:opacity-50"
-          style={{
-            background: 'linear-gradient(to right, #00A9E0, #6DD3EF)',
-            color: '#0B1120',
-            fontWeight: 500,
-          }}
-        >
-          {loading ? 'Saving...' : 'Continue'}
-        </button>
+        {/* Fixed Footer - matching Step3 pattern */}
+        {!isFooterVisible && (
+          <div className="fixed bottom-0 left-0 right-0 w-full max-w-[500px] mx-auto bg-white border-t border-slate-100 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-50" data-onboarding-footer>
+            <div className="p-5 pb-8 flex flex-col gap-3">
+              {/* Continue Button */}
+              <button
+                onClick={handleContinue}
+                disabled={loading || !isFormValid()}
+                className={`w-full bg-[#2b8cee] hover:bg-blue-600 text-white font-bold text-base py-4 rounded-full shadow-lg shadow-blue-500/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2 ${
+                  loading || !isFormValid() ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+              >
+                {loading ? 'Saving...' : 'Continue'}
+                {!loading && <ArrowForwardIcon />}
+              </button>
 
-        <button
-          onClick={handleSkip}
-          disabled={loading}
-          className="w-full py-4 rounded-lg text-lg font-semibold mb-3 border-2 transition-opacity disabled:opacity-50"
-          style={{
-            borderColor: '#0B1120',
-            backgroundColor: '#FFFFFF',
-            color: '#0B1120',
-          }}
-        >
-          I'll do this later
-        </button>
+              {/* Skip Button */}
+              <button
+                onClick={handleSkip}
+                disabled={loading}
+                className="w-full text-center text-slate-500 hover:text-slate-900 text-sm font-semibold py-2 transition-colors"
+              >
+                I'll do this later
+              </button>
 
-        <button
-          onClick={handleBack}
-          disabled={loading}
-          className="w-full py-4 text-lg font-semibold"
-          style={{ color: '#64748B' }}
-        >
-          Back
-        </button>
+              {/* Back Button */}
+              <button
+                onClick={handleBack}
+                disabled={loading}
+                className="w-full text-center text-slate-400 hover:text-slate-900 text-sm font-semibold py-2 transition-colors"
+              >
+                Back
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

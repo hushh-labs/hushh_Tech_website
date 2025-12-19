@@ -7,63 +7,43 @@ import { Image, useToast, useBreakpointValue, useDisclosure } from "@chakra-ui/r
 import hushhLogo from "../components/images/Hushhogo.png";
 import LanguageSwitcher from "./LanguageSwitcher";
 import DeleteAccountModal from "./DeleteAccountModal";
-
-// Marquee tickers data
-const marqueeTickers = [
-  { label: "Saudi Aramco", logo: "https://www.nicepng.com/png/full/274-2744280_saudi-aramco-logo-saudi-aramco-logo-vector.png" },
-  { label: "GOOG", logo: "https://thumbs.dreamstime.com/b/google-logo-vector-format-white-background-illustration-407571048.jpg" },
-  { label: "AAPL", logo: "https://fabrikbrands.com/wp-content/uploads/Apple-Logo-History-1-1155x770.png" },
-  { label: "MSFT", logo: "https://static.vecteezy.com/system/resources/previews/027/127/473/non_2x/microsoft-logo-microsoft-icon-transparent-free-png.png" },
-  { label: "NVDA", logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVEu8tfOJpA-vMjPqyI2gEyaDjTaI7tSJFzQ&s" },
-  { label: "AMZN", logo: "https://static.vecteezy.com/system/resources/previews/014/018/561/non_2x/amazon-logo-on-transparent-background-free-vector.jpg" },
-  { label: "BRK.B", logo: "https://www.shutterstock.com/shutterstock/photos/2378735305/display_1500/stock-vector-brk-letter-logo-design-on-a-white-background-or-monogram-logo-design-for-entrepreneur-and-business-2378735305.jpg" },
-  { label: "META", logo: "https://img.freepik.com/premium-vector/meta-company-logo_265339-667.jpg?semt=ais_hybrid&w=740&q=80" },
-  { label: "JPM", logo: "https://e7.pngegg.com/pngimages/225/668/png-clipart-jpmorgan-chase-logo-bank-business-morgan-stanley-bank-text-logo.png" },
-  { label: "ICBC", logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkYKU2DFnDgpOtiG7XP3N9Am69IFfZj5hLTg&s" },
-  { label: "China Construction Bank", logo: "https://www.nfcw.com/wp-content/uploads/2021/06/china-construction-bank-logo-400W.jpg" },
-  { label: "XOM", logo: "https://static.vecteezy.com/system/resources/previews/009/116/598/non_2x/com-logo-com-letter-com-letter-logo-design-initials-com-logo-linked-with-circle-and-uppercase-monogram-logo-com-typography-for-technology-business-and-real-estate-brand-vector.jpg" },
-  { label: "Agricultural Bank of China", logo: "https://static.wikia.nocookie.net/logopedia/images/d/d6/ABC_china_symbol.svg/revision/latest/scale-to-width-down/1200?cb=20240204071833" },
-  { label: "TSM", logo: "https://upload.wikimedia.org/wikipedia/en/thumb/6/63/Tsmc.svg/1200px-Tsmc.svg.png" },
-  { label: "Bank of China", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Bank_of_China_symbol.svg/2048px-Bank_of_China_symbol.svg.png" },
-  { label: "TM", logo: "https://global.toyota/pages/global_toyota/mobility/toyota-brand/emblem_001.jpg" },
-  { label: "PetroChina", logo: "https://upload.wikimedia.org/wikipedia/en/thumb/2/2b/Petrochina_logo.svg/250px-Petrochina_logo.svg.png" },
-  { label: "WMT", logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRxwPUD4NGc7WTQVqDstT5ZPRQXm6ka0KTsmTsKfiY&usqp=CAE&s" },
-  { label: "TCEHY", logo: "https://upload.wikimedia.org/wikipedia/commons/2/22/Tencent_Logo.svg" },
-  { label: "BAC", logo: "https://www.bankofamerica.com/content/images/ContextualSiteGraphics/Logos/en_US/logos/bac-logo-v2.png" },
-];
-
-const marqueePrefix = "Introducing the hushh 27 alpha bets —";
-
-// Render marquee chunk helper (Dark Theme - White Text + White Logo BG)
-const renderMarqueeChunk = (key: string) => (
-  <span className="marquee-chunk" key={key}>
-    <span className="marquee-prefix text-white font-semibold">{marqueePrefix}</span>
-    <span className="marquee-body text-white">
-      {marqueeTickers.map((ticker, idx) => (
-        <React.Fragment key={`${key}-${ticker.label}-${idx}`}>
-          <span className="ticker inline-flex items-center gap-1.5">
-            {/* White circular background for logos */}
-            <span className="w-5 h-5 rounded-full bg-white flex items-center justify-center shrink-0">
-              <img
-                src={ticker.logo}
-                alt={`${ticker.label} logo`}
-                className="w-3.5 h-3.5 object-contain"
-              />
-            </span>
-            <span className="text-white font-medium">{ticker.label}</span>
-          </span>
-          {idx !== marqueeTickers.length - 1 && (
-            <span className="ticker-sep text-white/60">,</span>
-          )}
-        </React.Fragment>
-      ))}
-    </span>
-  </span>
-);
+import { useStockQuotes, StockQuote, STOCK_LOGOS } from "../hooks/useStockQuotes";
 
 // Secret gesture state for dev console activation
 let tapCount = 0;
 let lastTapTime = 0;
+
+// Chip-based ticker component
+const TickerChip = ({ quote, isLoading }: { quote: StockQuote; isLoading?: boolean }) => {
+  return (
+    <div className="group flex h-9 shrink-0 items-center gap-2 rounded-full bg-[#1a232e] border border-white/5 pl-2 pr-3 hover:border-white/10 transition-colors">
+      {/* Logo in white circle */}
+      <div className="flex w-6 h-6 items-center justify-center rounded-full bg-white shrink-0 overflow-hidden">
+        {quote.logo ? (
+          <img
+            src={quote.logo}
+            alt={`${quote.displaySymbol} logo`}
+            className="w-4 h-4 object-contain"
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = 'none';
+            }}
+          />
+        ) : (
+          <span className="text-[10px] font-bold text-black">{quote.displaySymbol.charAt(0)}</span>
+        )}
+      </div>
+      {/* Stock symbol - use displaySymbol for cleaner display */}
+      <span className="text-[11px] font-bold text-white leading-none">{quote.displaySymbol}</span>
+      {/* Percent change with arrow */}
+      <div className={`ml-0.5 flex items-center gap-0.5 ${quote.isUp ? 'text-green-400' : 'text-red-400'}`}>
+        <span className="text-[12px]">{quote.isUp ? '▲' : '▼'}</span>
+        <span className={`text-[11px] font-medium ${isLoading ? 'animate-pulse' : ''}`}>
+          {Math.abs(quote.percentChange).toFixed(1)}%
+        </span>
+      </div>
+    </div>
+  );
+};
 
 export default function Navbar() {
   const { t, i18n } = useTranslation();
@@ -81,6 +61,12 @@ export default function Navbar() {
   const profileDropdownRef = useRef<HTMLDivElement>(null);
   const toast = useToast();
   const isMobile = useBreakpointValue({ base: true, lg: false });
+
+  // Fetch real-time stock quotes (refreshes every 2 minutes for 27 stocks)
+  const { quotes, loading: quotesLoading, lastUpdated } = useStockQuotes(120000);
+
+  // quotes already includes fallback data from the hook, so we can use it directly
+  const displayQuotes = quotes;
 
   // Handle secret gesture - 5 rapid taps on logo to open dev console
   const handleSecretGesture = () => {
@@ -187,18 +173,10 @@ export default function Navbar() {
 
   return (
     <>
-      {/* Fixed Header with Marquee + Navigation - Dark Theme */}
+      {/* Fixed Header with Navigation + Ticker - Dark Theme */}
       <header className="fixed w-full z-[999] top-0">
-        {/* Marquee Strip - Stock Ticker Banner (Off-Black Background) */}
-        <div className="marquee-container-dark bg-[#0a0a0a] border-b border-white/5">
-          <div className="marquee-track-dark">
-            {renderMarqueeChunk("first")}
-            {renderMarqueeChunk("second")}
-          </div>
-        </div>
-
-        {/* Main Navigation Bar - BLACK Background */}
-        <nav className="flex w-full items-center justify-between bg-black px-4 py-3 border-b border-white/5">
+        {/* Main Navigation Bar - BLACK Background (NOW ON TOP) */}
+        <nav className="flex w-full items-center justify-between bg-black px-4 py-3 border-b border-white/10">
           {/* Left: Brand Lockup */}
           <Link to="/" className="flex items-center gap-3">
             {/* Hushh Logo Image in Circle */}
@@ -238,10 +216,45 @@ export default function Navbar() {
             </button>
           </div>
         </nav>
+
+        {/* Chip-based Ticker Strip - BELOW Navigation (No Watchlist Label) */}
+        <section className="relative w-full bg-black py-2.5 border-b border-white/5">
+          {/* Ticker Marquee with Fade Mask */}
+          <div className="ticker-mask relative flex w-full overflow-hidden">
+            <div className="ticker-track flex items-center gap-3 px-4">
+              {/* First set of tickers */}
+              {displayQuotes.map((quote, idx) => (
+                <TickerChip 
+                  key={`first-${quote.symbol}-${idx}`} 
+                  quote={quote} 
+                  isLoading={quotesLoading && quotes.length === 0}
+                />
+              ))}
+              {/* Duplicate for seamless loop */}
+              {displayQuotes.map((quote, idx) => (
+                <TickerChip 
+                  key={`second-${quote.symbol}-${idx}`} 
+                  quote={quote}
+                  isLoading={quotesLoading && quotes.length === 0}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Live Indicator - Small dot on right */}
+          {lastUpdated && (
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+              <span className="text-[9px] font-medium text-gray-500">
+                {lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </span>
+            </div>
+          )}
+        </section>
       </header>
 
-      {/* Spacer for fixed header (marquee ~32px + nav ~64px = 96px) */}
-      <div className="h-24" />
+      {/* Spacer for fixed header (ticker ~48px + nav ~64px = 112px) */}
+      <div className="h-28" />
 
       {/* Mobile Drawer Menu */}
       {isOpen && (
@@ -423,47 +436,33 @@ export default function Navbar() {
         onAccountDeleted={handleAccountDeleted}
       />
 
-      {/* Dark Marquee Styles */}
+      {/* Chip-based Ticker Styles */}
       <style>{`
-        .marquee-container-dark {
-          width: 100%;
-          overflow: hidden;
-          white-space: nowrap;
-          padding: 8px 0;
+        /* Ticker mask for fade edges */
+        .ticker-mask {
+          mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+          -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
         }
-        .marquee-track-dark {
-          display: inline-flex;
-          animation: marquee-scroll-dark 60s linear infinite;
+        
+        /* Ticker animation */
+        .ticker-track {
+          display: flex;
+          animation: ticker-scroll 40s linear infinite;
+          width: max-content;
         }
-        .marquee-track-dark .marquee-chunk {
-          display: inline-flex;
-          align-items: center;
-          gap: 0.5rem;
-          padding-right: 2rem;
+        
+        @keyframes ticker-scroll {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
         }
-        .marquee-track-dark .marquee-prefix {
-          font-weight: 600;
-          font-size: 12px;
-          margin-right: 0.5rem;
-        }
-        .marquee-track-dark .marquee-body {
-          display: inline-flex;
-          align-items: center;
-          gap: 0.35rem;
-          font-size: 12px;
-          font-weight: 500;
-        }
-        .marquee-track-dark .ticker {
-          display: inline-flex;
-          align-items: center;
-          gap: 4px;
-        }
-        .marquee-track-dark .ticker-sep {
-          margin: 0 4px;
-        }
-        @keyframes marquee-scroll-dark {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
+        
+        /* Pause animation on hover */
+        .ticker-mask:hover .ticker-track {
+          animation-play-state: paused;
         }
       `}</style>
     </>
