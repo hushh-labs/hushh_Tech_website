@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import config from '../../resources/config/config';
+import { useFooterVisibility } from '../../utils/useFooterVisibility';
 
 // Types for location data from our Edge Function
 interface Country {
@@ -18,8 +19,30 @@ interface City {
 }
 
 // Supabase Edge Function URL
-// Using hardcoded URL - will work in production via env vars
 const LOCATIONS_API = 'https://ibsisfnjxeowvdtvgzff.supabase.co/functions/v1/get-locations';
+
+// Back arrow icon
+const BackIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M15 18l-6-6 6-6" />
+  </svg>
+);
+
+// Info icon for helper text
+const InfoIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400 flex-shrink-0 mt-0.5">
+    <circle cx="12" cy="12" r="10" />
+    <path d="M12 16v-4" />
+    <path d="M12 8h.01" />
+  </svg>
+);
+
+// Chevron down icon for selects
+const ChevronDownIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400">
+    <path d="M6 9l6 6 6-6" />
+  </svg>
+);
 
 function OnboardingStep10() {
   const navigate = useNavigate();
@@ -31,20 +54,20 @@ function OnboardingStep10() {
   const [zipCode, setZipCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const isFooterVisible = useFooterVisibility();
 
-  // Location data from Edge Function (replaces heavy country-state-city library)
+  // Location data from Edge Function
   const [countries, setCountries] = useState<Country[]>([]);
   const [states, setStates] = useState<State[]>([]);
   const [cities, setCities] = useState<City[]>([]);
   const [loadingLocations, setLoadingLocations] = useState(false);
 
-  // Fetch countries on mount
+  // Scroll to top on component mount
   useEffect(() => {
-    // Scroll to top on component mount
     window.scrollTo(0, 0);
   }, []);
 
-  
+  // Fetch countries on mount
   useEffect(() => {
     const fetchCountries = async () => {
       try {
@@ -188,169 +211,227 @@ function OnboardingStep10() {
     navigate('/onboarding/step-11');
   };
 
+  const handleBack = () => {
+    navigate('/onboarding/step-9');
+  };
+
+  const isValid = addressLine1.trim() && country && state && city && zipCode.trim();
+
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 pt-28 pb-12" style={{ backgroundColor: '#FFFFFF' }}>
-      <div className="w-full max-w-2xl">
-        <div className="mb-8 text-center">
-          <h1 className="text-[28px] md:text-[36px] mb-4" style={{ color: '#0B1120', fontWeight: 500 }}>
-            Enter your address
-          </h1>
-          <p className="text-lg text-gray-700">
-            This should be the same information you use on your tax returns.
-          </p>
-        </div>
+    <div 
+      className="bg-slate-50 min-h-screen"
+      style={{ fontFamily: "'Manrope', sans-serif" }}
+    >
+      <div className="relative flex min-h-screen w-full flex-col bg-white max-w-[500px] mx-auto shadow-xl overflow-hidden border-x border-slate-100">
+        
+        {/* Sticky Header */}
+        <header className="flex items-center px-4 pt-6 pb-4 bg-white/95 backdrop-blur-sm sticky top-0 z-10">
+          <button 
+            onClick={handleBack}
+            className="flex items-center gap-1 text-slate-900 hover:text-[#2b8cee] transition-colors"
+          >
+            <BackIcon />
+            <span className="text-base font-bold tracking-tight">Back</span>
+          </button>
+          <div className="flex-1" />
+        </header>
 
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-            {error}
-          </div>
-        )}
-
-        <div className="space-y-6 mb-8">
-          <div>
-            <label className="block text-base font-semibold mb-2" style={{ color: '#0B1120' }}>
-              Address line 1
-            </label>
-            <input
-              type="text"
-              value={addressLine1}
-              onChange={(e) => setAddressLine1(e.target.value)}
-              className="w-full px-4 py-4 border-2 border-gray-300 rounded-lg text-lg focus:outline-none focus:border-gray-400"
-              style={{ backgroundColor: '#FFFFFF' }}
-            />
-            <p className="text-sm text-gray-600 mt-2">
-              This should be the address used for tax purposes
+        {/* Main Content */}
+        <main className="flex-1 flex flex-col px-6 pb-48 overflow-y-auto">
+          {/* Header Section - Center Aligned */}
+          <div className="mb-8 text-center">
+            <h1 className="text-slate-900 text-[22px] font-bold leading-tight tracking-tight mb-3">
+              Enter your address
+            </h1>
+            <p className="text-slate-500 text-[14px] font-normal leading-relaxed">
+              Please provide your primary residence address.
             </p>
           </div>
 
-          <div>
-            <label className="block text-base font-semibold mb-2" style={{ color: '#0B1120' }}>
-              Address line 2
-            </label>
-            <input
-              type="text"
-              value={addressLine2}
-              onChange={(e) => setAddressLine2(e.target.value)}
-              className="w-full px-4 py-4 border-2 border-gray-300 rounded-lg text-lg focus:outline-none focus:border-gray-400"
-              style={{ backgroundColor: '#FFFFFF' }}
-            />
-          </div>
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
+              {error}
+            </div>
+          )}
 
-          <div>
-            <label className="block text-base font-semibold mb-2" style={{ color: '#0B1120' }}>
-              Country
-            </label>
-            <div className="relative">
-              <select
-                value={country}
-                onChange={(e) => {
-                  setCountry(e.target.value);
-                  setState('');
-                  setCity('');
-                }}
-                className="w-full px-4 py-4 border-2 border-gray-300 rounded-lg text-lg focus:outline-none focus:border-gray-400 appearance-none"
-                style={{ backgroundColor: '#FFFFFF' }}
-              >
-                <option value="">Select country...</option>
-                {countries.map((c) => (
-                  <option key={c.isoCode} value={c.isoCode}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-              <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                <svg width="16" height="10" viewBox="0 0 16 10" fill="none">
-                  <path d="M1 1L8 8L15 1" stroke="#0B1120" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
+          {/* Form Card 1: Street Address */}
+          <div className="bg-white rounded-xl border border-gray-200 shadow-[0_2px_8px_rgba(0,0,0,0.04)] p-5 mb-6 space-y-5">
+            {/* Address Line 1 */}
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-slate-900" htmlFor="address1">
+                Address line 1
+              </label>
+              <input
+                id="address1"
+                type="text"
+                value={addressLine1}
+                onChange={(e) => setAddressLine1(e.target.value)}
+                placeholder="Street address"
+                className="w-full h-12 px-4 rounded-lg border border-gray-200 bg-white text-slate-900 placeholder:text-slate-400 text-base focus:outline-none focus:ring-2 focus:ring-[#2b8cee]/20 focus:border-[#2b8cee] transition-all"
+              />
+              {/* Helper Text */}
+              <div className="flex items-start gap-1.5 mt-1.5">
+                <InfoIcon />
+                <p className="text-slate-400 text-xs font-normal leading-tight">
+                  Use your street address, not a P.O. Box.
+                </p>
               </div>
+            </div>
+
+            {/* Address Line 2 */}
+            <div className="space-y-1.5">
+              <div className="flex justify-between items-baseline">
+                <label className="block text-sm font-medium text-slate-900" htmlFor="address2">
+                  Address line 2
+                </label>
+                <span className="text-xs text-slate-400">Optional</span>
+              </div>
+              <input
+                id="address2"
+                type="text"
+                value={addressLine2}
+                onChange={(e) => setAddressLine2(e.target.value)}
+                placeholder="Apt, suite, unit, etc."
+                className="w-full h-12 px-4 rounded-lg border border-gray-200 bg-white text-slate-900 placeholder:text-slate-400 text-base focus:outline-none focus:ring-2 focus:ring-[#2b8cee]/20 focus:border-[#2b8cee] transition-all"
+              />
             </div>
           </div>
 
-          <div>
-            <label className="block text-base font-semibold mb-2" style={{ color: '#0B1120' }}>
-              State / Province
-            </label>
-            <div className="relative">
-              <select
-                value={state}
-                onChange={(e) => {
-                  setState(e.target.value);
-                  setCity('');
-                }}
-                className="w-full px-4 py-4 border-2 border-gray-300 rounded-lg text-lg focus:outline-none focus:border-gray-400 appearance-none"
-                style={{ backgroundColor: '#FFFFFF' }}
-                disabled={!country}
-              >
-                <option value="">Select state...</option>
-                {states.map((s) => (
-                  <option key={s.isoCode} value={s.isoCode}>
-                    {s.name}
-                  </option>
-                ))}
-              </select>
-              <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                <svg width="16" height="10" viewBox="0 0 16 10" fill="none">
-                  <path d="M1 1L8 8L15 1" stroke="#0B1120" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
+          {/* Form Card 2: Region Details */}
+          <div className="bg-white rounded-xl border border-gray-200 shadow-[0_2px_8px_rgba(0,0,0,0.04)] p-5 space-y-5 mb-4">
+            {/* Country */}
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-slate-900" htmlFor="country">
+                Country
+              </label>
+              <div className="relative">
+                <select
+                  id="country"
+                  value={country}
+                  onChange={(e) => {
+                    setCountry(e.target.value);
+                    setState('');
+                    setCity('');
+                  }}
+                  className="w-full h-12 px-4 pr-10 rounded-lg border border-gray-200 bg-white text-slate-900 text-base focus:outline-none focus:ring-2 focus:ring-[#2b8cee]/20 focus:border-[#2b8cee] transition-all appearance-none"
+                >
+                  <option value="">Select country...</option>
+                  {countries.map((c) => (
+                    <option key={c.isoCode} value={c.isoCode}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                  <ChevronDownIcon />
+                </div>
               </div>
             </div>
-          </div>
 
-          <div>
-            <label className="block text-base font-semibold mb-2" style={{ color: '#0B1120' }}>
-              City
-            </label>
-            <div className="relative">
-              <select
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                className="w-full px-4 py-4 border-2 border-gray-300 rounded-lg text-lg focus:outline-none focus:border-gray-400 appearance-none"
-                style={{ backgroundColor: '#FFFFFF' }}
-                disabled={!state}
-              >
-                <option value="">Select city...</option>
-                {cities.map((c) => (
-                  <option key={c.name} value={c.name}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-              <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                <svg width="16" height="10" viewBox="0 0 16 10" fill="none">
-                  <path d="M1 1L8 8L15 1" stroke="#0B1120" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
+            {/* State & City Row */}
+            <div className="grid grid-cols-2 gap-4">
+              {/* State */}
+              <div className="space-y-1.5">
+                <label className="block text-sm font-medium text-slate-900" htmlFor="state">
+                  State
+                </label>
+                <div className="relative">
+                  <select
+                    id="state"
+                    value={state}
+                    onChange={(e) => {
+                      setState(e.target.value);
+                      setCity('');
+                    }}
+                    disabled={!country || loadingLocations}
+                    className="w-full h-12 px-4 pr-10 rounded-lg border border-gray-200 bg-white text-slate-900 text-base focus:outline-none focus:ring-2 focus:ring-[#2b8cee]/20 focus:border-[#2b8cee] transition-all appearance-none disabled:bg-slate-50 disabled:text-slate-400"
+                  >
+                    <option value="">Select</option>
+                    {states.map((s) => (
+                      <option key={s.isoCode} value={s.isoCode}>
+                        {s.name}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                    <ChevronDownIcon />
+                  </div>
+                </div>
+              </div>
+
+              {/* City */}
+              <div className="space-y-1.5">
+                <label className="block text-sm font-medium text-slate-900" htmlFor="city">
+                  City
+                </label>
+                <div className="relative">
+                  <select
+                    id="city"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    disabled={!state || loadingLocations}
+                    className="w-full h-12 px-4 pr-10 rounded-lg border border-gray-200 bg-white text-slate-900 text-base focus:outline-none focus:ring-2 focus:ring-[#2b8cee]/20 focus:border-[#2b8cee] transition-all appearance-none disabled:bg-slate-50 disabled:text-slate-400"
+                  >
+                    <option value="">Select</option>
+                    {cities.map((c) => (
+                      <option key={c.name} value={c.name}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                    <ChevronDownIcon />
+                  </div>
+                </div>
               </div>
             </div>
+
+            {/* ZIP Code */}
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-slate-900" htmlFor="zip">
+                ZIP code
+              </label>
+              <input
+                id="zip"
+                type="text"
+                value={zipCode}
+                onChange={(e) => setZipCode(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                inputMode="numeric"
+                placeholder="00000"
+                className="w-full h-12 px-4 rounded-lg border border-gray-200 bg-white text-slate-900 placeholder:text-slate-400 text-base focus:outline-none focus:ring-2 focus:ring-[#2b8cee]/20 focus:border-[#2b8cee] transition-all"
+              />
+            </div>
           </div>
+        </main>
 
-          <div>
-            <label className="block text-base font-semibold mb-2" style={{ color: '#0B1120' }}>
-              ZIP code
-            </label>
-            <input
-              type="text"
-              value={zipCode}
-              onChange={(e) => setZipCode(e.target.value.replace(/\D/g, '').slice(0, 5))}
-              maxLength={5}
-              className="w-48 px-4 py-4 border-2 border-gray-300 rounded-lg text-lg focus:outline-none focus:border-gray-400"
-              style={{ backgroundColor: '#FFFFFF' }}
-            />
+        {/* Fixed Footer - Hidden when main footer is visible */}
+        {!isFooterVisible && (
+          <div className="fixed bottom-0 z-20 w-full max-w-[500px] bg-white/80 backdrop-blur-md border-t border-slate-100 p-4 flex flex-col gap-3" data-onboarding-footer>
+            {/* Continue Button */}
+            <button
+              onClick={handleContinue}
+              disabled={!isValid || loading}
+              className={`
+                flex w-full cursor-pointer items-center justify-center rounded-full h-14 px-5 text-base font-bold tracking-wide transition-all active:scale-[0.98]
+                ${isValid && !loading
+                  ? 'bg-[#2b8cee] hover:bg-[#2070c0] text-white shadow-lg shadow-[#2b8cee]/20'
+                  : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                }
+              `}
+            >
+              {loading ? 'Saving...' : 'Continue'}
+            </button>
+            
+            {/* Back Button */}
+            <button
+              onClick={handleBack}
+              className="flex w-full cursor-pointer items-center justify-center rounded-full bg-transparent py-2 text-slate-500 text-sm font-bold hover:text-slate-800 transition-colors"
+            >
+              Back
+            </button>
           </div>
-
-        </div>
-
-        <button
-          onClick={handleContinue}
-          disabled={loading || !addressLine1.trim() || !country || !state || !city || !zipCode.trim()}
-          className="w-full py-4 rounded-lg text-lg font-semibold mb-4 transition-opacity disabled:opacity-50"
-          style={{
-            background: 'linear-gradient(to right, #00A9E0, #6DD3EF)',
-            color: '#0B1120',
-            fontWeight: 500,
-          }}
-        >
-          {loading ? 'Saving...' : 'Continue'}
-        </button>
+        )}
       </div>
     </div>
   );
