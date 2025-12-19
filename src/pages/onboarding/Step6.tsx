@@ -136,10 +136,10 @@ export default function OnboardingStep6() {
         <main className="flex-1 flex flex-col px-6 pb-44">
           {/* Header Section */}
           <div className="mb-8 text-center">
-            <h1 className="text-slate-900 text-[28px] font-bold leading-tight tracking-tight mb-3">
+            <h1 className="text-slate-900 text-[22px] font-bold leading-tight tracking-tight mb-3">
               Confirm your residence
             </h1>
-            <p className="text-slate-500 text-base font-normal leading-relaxed">
+            <p className="text-slate-500 text-[14px] font-normal leading-relaxed">
               We need to know where you live and pay taxes to open your investment account.
             </p>
           </div>

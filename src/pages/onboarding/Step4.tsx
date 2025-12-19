@@ -131,7 +131,7 @@ export default function OnboardingStep4() {
         <main className="flex-1 flex flex-col px-6 pb-48">
           {/* Headline */}
           <div className="flex flex-col items-center text-center mt-2 mb-8">
-            <h1 className="text-slate-900 tracking-tight text-[28px] font-extrabold leading-[1.2] max-w-[320px]">
+            <h1 className="text-slate-900 tracking-tight text-[22px] font-extrabold leading-[1.2] max-w-[320px]">
               How did you hear about Hushh Fund A?
             </h1>
           </div>
