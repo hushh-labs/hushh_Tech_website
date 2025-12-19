@@ -30,6 +30,7 @@ import {
   Image,
   VisuallyHidden,
 } from "@chakra-ui/react";
+import { useFooterVisibility } from "../../utils/useFooterVisibility";
 import {
   Copy,
   Check,
@@ -172,6 +173,7 @@ const pulse = keyframes`
 const HushhUserProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const toast = useToast();
+  const isFooterVisible = useFooterVisibility();
   const [form, setForm] = useState<FormState>(defaultFormState);
   const [userId, setUserId] = useState<string | null>(null);
   const [investorProfile, setInvestorProfile] = useState<InvestorProfile | null>(null);
@@ -711,44 +713,56 @@ const HushhUserProfilePage: React.FC = () => {
   };
 
   return (
-    <Box minH="100vh" bg="white">
+    <Box 
+      minH="100vh" 
+      bg="#F8FAFC"
+      fontFamily="'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+    >
+      {/* Main Container matching Step3 pattern */}
       <Box
         as="form"
         onSubmit={handleSubmit}
+        position="relative"
         display="flex"
         flexDirection="column"
         minH="100vh"
-        maxW="960px"
+        maxW="500px"
         mx="auto"
-        px={{ base: 4, md: 8 }}
-        py={{ base: 6, md: 10 }}
         bg="white"
+        boxShadow="xl"
+        borderX="1px solid"
+        borderColor="#F1F5F9"
+        overflow="hidden"
       >
-        <Box pt={{ base: 8, md: 10 }} pb={{ base: 6, md: 8 }} px={{ base: 0, md: 2 }} animation={heroAnimation}>
-          <Box
-            bg="#FFFFFF"
-            border="1px solid #E5E7EB"
-            borderRadius="20px"
-            px={{ base: 5, md: 7 }}
-            py={{ base: 6, md: 7 }}
-            maxW="720px"
-            mx="auto"
+        {/* Main Content with bottom padding for fixed footer */}
+        <Box flex="1" px={6} pb="200px">
+          {/* Header Section - 22px title, 14px subtitle, center aligned */}
+          <Box 
+            pt={8} 
+            pb={6} 
+            textAlign="center"
+            animation={heroAnimation}
           >
             <Text
-              fontSize="12px"
-              letterSpacing="0.18em"
-              fontWeight="500"
-              color="#6B7280"
-              textTransform="uppercase"
-              mb={4}
+              fontSize="22px"
+              fontWeight="800"
+              color="#111827"
+              lineHeight="1.2"
+              letterSpacing="-0.02em"
+              mb={2}
             >
               Investor Profile
             </Text>
-            <Text fontSize={{ base: "34px", md: "36px" }} fontWeight="500" color="#0B1120" lineHeight="1.1">
-              Hello, {form.name || "there"}
+            <Text 
+              fontSize="14px" 
+              fontWeight="600" 
+              color="#6B7280"
+              letterSpacing="0.02em"
+              textTransform="uppercase"
+            >
+              {form.name ? `Hello, ${form.name}` : "Complete Your Profile"}
             </Text>
           </Box>
-        </Box>
 
         {/* Profile URL Share Card - Shows when profile is created */}
         {profileSlug && profileUrl && (
@@ -1576,37 +1590,65 @@ const HushhUserProfilePage: React.FC = () => {
           </Box>
         )}
 
-        <Box
-          mt={{ base: 6, md: 8 }}
-          borderTop="1px solid #F2F4F7"
-          pt={{ base: 5, md: 6 }}
-          pb={{ base: 7, md: 8 }}
-        >
-          <Button
-            type="submit"
-            isLoading={loading}
-            loadingText="Generating..."
-            size="lg"
-            w="full"
-            {...primaryCtaStyles}
-            _active={ctaActiveState}
-            transition="transform 0.12s ease-out, box-shadow 0.2s ease"
-          >
-            {investorProfile ? "Update Profile" : "Generate Investor Profile"}
-          </Button>
-          <Text mt={2} fontSize="sm" color="#475467" textAlign="center">
-            These details personalise your investor profile.
-          </Text>
-        </Box>
-
         {/* Developer Settings - Shows MCP endpoints when profile is created */}
         {profileSlug && (
           <Box 
-            px={{ base: 0, md: 2 }} 
             mt={6}
             animation={prefersReducedMotion ? undefined : `${fadeUp} 0.35s ease-out 0.15s both`}
           >
             <DeveloperSettings investorSlug={profileSlug} />
+          </Box>
+        )}
+        </Box>
+        {/* End of main content Box */}
+
+        {/* Fixed Footer - Hidden when main footer is visible (matching Step3 pattern) */}
+        {!isFooterVisible && (
+          <Box
+            position="fixed"
+            bottom={0}
+            left="50%"
+            transform="translateX(-50%)"
+            zIndex={20}
+            w="full"
+            maxW="500px"
+            bg="white"
+            borderTop="1px solid"
+            borderColor="#F1F5F9"
+            p={6}
+            boxShadow="0 -4px 20px rgba(0,0,0,0.03)"
+            data-onboarding-footer
+          >
+            {/* CTA Button */}
+            <Button
+              type="submit"
+              isLoading={loading}
+              loadingText="Generating..."
+              w="full"
+              h="56px"
+              bg="#2b8cee"
+              color="white"
+              fontSize="16px"
+              fontWeight="700"
+              borderRadius="full"
+              _hover={{ bg: "#2078d4" }}
+              _active={{ transform: "scale(0.98)" }}
+              _disabled={{ bg: "#E2E8F0", color: "#94A3B8" }}
+              transition="all 0.2s ease"
+            >
+              {investorProfile ? "Update Profile" : "Generate Investor Profile"}
+            </Button>
+
+            {/* Footer Note */}
+            <Text 
+              mt={3} 
+              fontSize="10px" 
+              color="#94A3B8" 
+              textAlign="center"
+              letterSpacing="0.02em"
+            >
+              These details personalise your investor profile
+            </Text>
           </Box>
         )}
       </Box>
