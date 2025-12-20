@@ -209,23 +209,6 @@ const PublicInvestorProfilePage: React.FC = () => {
         style={{ fontFamily: "'Inter', sans-serif" }}
       >
         <div className="max-w-md mx-auto min-h-screen flex flex-col relative pb-24">
-          
-          {/* Black Header */}
-          <header className="flex items-center justify-between px-4 py-4 sticky top-0 bg-black z-10">
-            <button 
-              onClick={handleBack}
-              className="p-2 -ml-2 text-white hover:bg-white/10 rounded-full transition-colors"
-            >
-              <ArrowLeft className="w-6 h-6" />
-            </button>
-            <h1 className="text-lg font-semibold text-white">Investor Profile</h1>
-            <button 
-              onClick={onCopy}
-              className="p-2 -mr-2 text-white hover:bg-white/10 rounded-full transition-colors"
-            >
-              {hasCopied ? <Check className="w-5 h-5" /> : <Share2 className="w-5 h-5" />}
-            </button>
-          </header>
 
           {/* Main Content Area */}
           <div className="flex-1 px-4 py-4 space-y-6">
@@ -271,7 +254,7 @@ const PublicInvestorProfilePage: React.FC = () => {
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <Share2 className="w-5 h-5 text-white" />
-                      <h3 className="text-lg font-semibold text-white">Your Investor Profile</h3>
+                      <h3 className="text-lg font-semibold text-white">{maskedData.name}'s Profile</h3>
                     </div>
                     <button
                       onClick={handleOpenProfile}
@@ -282,7 +265,7 @@ const PublicInvestorProfilePage: React.FC = () => {
                     </button>
                   </div>
                   <p className="text-sm text-white/90 mb-4">
-                    Share this link to let others view your profile
+                    Share this profile with others
                   </p>
 
                   {/* Profile URL Display */}
