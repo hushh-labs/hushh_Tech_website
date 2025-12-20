@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import { Settings, Zap, ArrowUp } from 'lucide-react';
 import { getOrCreateVisitorId } from '../utils/visitorId';
 import { ChatPaymentModal } from './ChatPaymentModal';
+import hushhLogo from './images/Hushhogo.png';
 
 type Message = { role: 'user' | 'assistant'; content: string; timestamp?: string };
 
@@ -18,7 +19,7 @@ interface AccessInfo {
   message?: string;
 }
 
-// Hushh Assistant Avatar Component
+// Hushh Assistant Avatar Component - Uses official Hushh logo
 const HushhAvatar = ({ size = 'md', showOnline = false }: { size?: 'sm' | 'md' | 'lg'; showOnline?: boolean }) => {
   const sizeClasses = {
     sm: 'w-8 h-8',
@@ -28,20 +29,12 @@ const HushhAvatar = ({ size = 'md', showOnline = false }: { size?: 'sm' | 'md' |
 
   return (
     <div className="relative">
-      <div className={`${sizeClasses[size]} rounded-full overflow-hidden bg-gradient-to-br from-[#2B8CEE] to-[#1a5fb4] shadow-lg`}>
+      <div className={`${sizeClasses[size]} rounded-full overflow-hidden bg-white shadow-lg border-2 border-[#2B8CEE]/20 flex items-center justify-center`}>
         <img 
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuC08-3GaLjs5qUt0RxfxZrjwSYnS21Obhn5xhgcEj_ZJccfPabdJxXVXTbqFSuJFnzYGN3Cs5dVhVvVSm2F3gh9SE2G1Es32wiQ60IM-VTZ93ySh6uTGAxTp59AJKc1Iy3YYM6bQJTQHHgrFTyVpkcXx1CjbVBlXiho5va9tOgzeHWrpMR8HCBn4mtlBhsVc4sLbrRyN9mCKXRCu94ycCgPDxTMQaAKEqqgEKCEeCxxhyXq1KkmPtQBsSAxL8NkYsKVqDT0FoUgjNDe"
+          src={hushhLogo}
           alt="Hushh Assistant"
-          className="w-full h-full object-cover"
-          onError={(e) => {
-            const target = e.target as HTMLImageElement;
-            target.style.display = 'none';
-          }}
+          className="w-[85%] h-[85%] object-contain"
         />
-        {/* Fallback gradient avatar */}
-        <div className="absolute inset-0 flex items-center justify-center text-white font-bold text-lg">
-          H
-        </div>
       </div>
       {showOnline && (
         <div className={`absolute ${size === 'lg' ? 'bottom-1 right-1 w-6 h-6' : 'bottom-0 right-0 w-3 h-3'} bg-green-500 border-2 border-white rounded-full`} />
@@ -270,7 +263,13 @@ export function InvestorChatWidget({ slug, investorName }: { slug: string; inves
 
   return (
     <>
-      <div className="flex flex-col h-full min-h-[600px] bg-white rounded-2xl overflow-hidden" style={{ fontFamily: "'Inter', 'Manrope', sans-serif" }}>
+      <div 
+        className="flex flex-col w-full h-full bg-white overflow-hidden" 
+        style={{ 
+          fontFamily: "'Inter', 'Manrope', sans-serif",
+          minHeight: 'calc(100vh - 180px)', // Full viewport minus header and footer
+        }}
+      >
         
         {/* Header Section */}
         <header className="flex flex-col bg-white pt-2 pb-2 sticky top-0 z-20 border-b border-slate-100">
