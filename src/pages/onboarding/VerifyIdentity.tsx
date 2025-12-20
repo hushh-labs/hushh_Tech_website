@@ -28,7 +28,6 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import config from '../../resources/config/config';
-import { useFooterVisibility } from '../../utils/useFooterVisibility';
 
 interface OnboardingData {
   legal_first_name?: string;
@@ -63,7 +62,6 @@ function VerifyIdentityPage() {
   });
 
   // Check authentication and load data
-  const isFooterVisible = useFooterVisibility();
   useEffect(() => {
     window.scrollTo(0, 0);
     loadUserData();
