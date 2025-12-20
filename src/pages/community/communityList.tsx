@@ -1,36 +1,23 @@
 // Path: /pages/community/communityList.tsx
+// Revamped Community Page - Clean minimal design
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import {
-  Container,
-  Heading,
   Box,
-  Select,
-  Spinner,
-  useToast,
-  Skeleton,
-  Image,
-  Text,
-  Alert,
-  AlertIcon,
-  Badge,
-  Flex,
-  SimpleGrid,
-  Card,
-  CardBody,
-  Link as ChakraLink,
-  VStack,
-  HStack,
-  Icon,
   Input,
   InputGroup,
   InputLeftElement,
-  InputRightElement,
-  IconButton,
+  Select,
+  Spinner,
+  Text,
+  VStack,
+  HStack,
+  Icon,
+  useToast,
 } from "@chakra-ui/react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { ChevronRightIcon, SearchIcon, CloseIcon } from "@chakra-ui/icons";
+import { FiSearch, FiChevronRight, FiArrowLeft, FiMenu } from "react-icons/fi";
 import NDARequestModal from "../../components/NDARequestModal";
 import NDADocumentModal from "../../components/NDADocumentModal";
 import config from "../../resources/config/config";
@@ -45,7 +32,7 @@ const PINNED_SLUGS = [
   "general/sell-the-wall-featured",
 ];
 
-// Supabase REST API settings (prefer env, fall back to legacy defaults)
+// Supabase REST API settings
 const ALOHA_FUNDS_API_BASE =
   (import.meta as any).env?.VITE_MARKET_SUPABASE_URL ||
   "https://spmxyqxjqxcyywkapong.supabase.co";
@@ -60,45 +47,36 @@ interface UnifiedPost {
   slug?: string;
   isApiReport?: boolean;
   description?: string;
+  category?: string;
 }
 
 const toTitleCase = (s: string) =>
   s.replace(/\w\S*/g, (t) => t[0].toUpperCase() + t.substr(1).toLowerCase());
 
-// Lazy-loaded image with skeleton
-const PostImage: React.FC<{ src: string; alt: string; height?: string }> = ({
-  src,
-  alt,
-  height = "180px",
-}) => {
-  const [loaded, setLoaded] = useState(false);
-  return (
-    <Skeleton isLoaded={loaded} height={height} borderRadius="md" mb={4}>
-      <Image
-        src={src}
-        alt={alt}
-        height={height}
-        width="100%"
-        objectFit="cover"
-        borderRadius="md"
-        onLoad={() => setLoaded(true)}
-      />
-    </Skeleton>
-  );
-};
-
 const CommunityList: React.FC = () => {
   const toast = useToast();
+  const navigate = useNavigate();
   const mountRef = useRef(true);
 
-  // 1) Local posts
+  // Local posts
   const localPosts = useMemo<PostData[]>(() => getPosts(), []);
 
-  // 2) API reports
+  // API reports state
   const [apiReports, setApiReports] = useState<UnifiedPost[]>([]);
   const [apiLoading, setApiLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
 
+  // UI state
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [ndaApproved, setNdaApproved] = useState(false);
+  const [session, setSession] = useState<any>(null);
+  const [showNdaModal, setShowNdaModal] = useState(false);
+  const [showNdaDocModal, setShowNdaDocModal] = useState(false);
+  const [ndaMetadata, setNdaMetadata] = useState<any>(null);
+  const [ndaLoading, setNdaLoading] = useState(false);
+
+  // Fetch API reports
   useEffect(() => {
     const fetchReports = async () => {
       setApiLoading(true);
@@ -112,7 +90,6 @@ const CommunityList: React.FC = () => {
             "Content-Type": "application/json",
           },
         });
-        // Only keep those with id & date
         setApiReports(
           resp.data
             .filter((r) => r.id && r.date)
@@ -130,9 +107,45 @@ const CommunityList: React.FC = () => {
     if (mountRef.current) fetchReports();
   }, []);
 
-  // 3) Combine localPosts + apiReports into a single date-sorted list
-  const combinedMarketUpdates = useMemo<UnifiedPost[]>(() => {
-    // Local "market" posts
+  // Build category lists
+  const publicPosts = useMemo(
+    () => localPosts.filter((p) => p.accessLevel === "Public"),
+    [localPosts]
+  );
+  const ndaPosts = useMemo(
+    () => localPosts.filter((p) => p.accessLevel === "NDA"),
+    [localPosts]
+  );
+
+  const categories = useMemo(() => {
+    const cats = Array.from(new Set(publicPosts.map((p) => p.category)));
+    return cats.filter(
+      (c) => !["market", "market updates"].includes(c.trim().toLowerCase())
+    );
+  }, [publicPosts]);
+
+  const dropdownOptions = useMemo(
+    () => ["All", ...categories, MARKET_UPDATES_OPTION, NDA_OPTION],
+    [categories]
+  );
+
+  // Get sample description
+  const getPostDescription = (post: UnifiedPost) => {
+    if (post.description) return post.description;
+    
+    if (post.title.toLowerCase().includes("ai") || post.title.toLowerCase().includes("artificial intelligence")) {
+      return "Exploring how artificial intelligence is revolutionizing portfolio management and risk assessment in modern financial markets.";
+    } else if (post.title.toLowerCase().includes("market")) {
+      return "Our latest analysis of market trends and investment opportunities in the current economic climate.";
+    } else if (post.title.toLowerCase().includes("review") || post.title.toLowerCase().includes("performance")) {
+      return "Comprehensive review of performance metrics and strategic adjustments for optimal results.";
+    } else {
+      return "Stay informed with our latest market insights, research findings, and company updates.";
+    }
+  };
+
+  // Combine and sort all posts
+  const allContentSorted = useMemo<UnifiedPost[]>(() => {
     const localMarket = localPosts
       .filter(
         (p) =>
@@ -146,66 +159,10 @@ const CommunityList: React.FC = () => {
         date: p.publishedAt,
         slug: p.slug,
         isApiReport: false,
-        description: p.description || "Our latest analysis of market trends and investment opportunities in the current economic climate.",
+        description: p.description || getPostDescription({id: p.slug, title: p.title, date: p.publishedAt}),
+        category: p.category,
       }));
 
-    const all = [...localMarket, ...apiReports];
-    return all.sort((a, b) => {
-      const da = parseDate(a.date)?.getTime() || 0;
-      const db = parseDate(b.date)?.getTime() || 0;
-      return db - da;
-    });
-  }, [localPosts, apiReports]);
-
-  // 4) Build category lists
-  const publicPosts = useMemo(
-    () => localPosts.filter((p) => p.accessLevel === "Public"),
-    [localPosts]
-  );
-  const ndaPosts = useMemo(
-    () => localPosts.filter((p) => p.accessLevel === "NDA"),
-    [localPosts]
-  );
-
-  const categories = useMemo(() => {
-    const cats = Array.from(new Set(publicPosts.map((p) => p.category)));
-    return cats.filter(
-      (c) =>
-        !["market", "market updates"].includes(c.trim().toLowerCase())
-    );
-  }, [publicPosts]);
-
-  const dropdownOptions = useMemo(
-    () => ["All", ...categories, MARKET_UPDATES_OPTION, NDA_OPTION],
-    [categories]
-  );
-
-  // 5) UI state
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [ndaApproved, setNdaApproved] = useState(false);
-  const [session, setSession] = useState<any>(null);
-  const [showNdaModal, setShowNdaModal] = useState(false);
-  const [showNdaDocModal, setShowNdaDocModal] = useState(false);
-  const [ndaMetadata, setNdaMetadata] = useState<any>(null);
-  const [ndaLoading, setNdaLoading] = useState(false);
-
-  // 6) Filtering logic
-  const filteredPosts = useMemo(() => {
-    if (selectedCategory === NDA_OPTION) {
-      return ndaApproved ? ndaPosts : [];
-    }
-    if (selectedCategory === "All") {
-      return publicPosts;
-    }
-    if (selectedCategory === MARKET_UPDATES_OPTION) {
-      return [];
-    }
-    return publicPosts.filter((p) => p.category === selectedCategory);
-  }, [selectedCategory, publicPosts, ndaPosts, ndaApproved]);
-
-  const allContentSorted = useMemo<UnifiedPost[]>(() => {
-    // Regular posts
     const regs = publicPosts
       .filter(
         (p) =>
@@ -218,16 +175,19 @@ const CommunityList: React.FC = () => {
         date: p.publishedAt,
         slug: p.slug,
         isApiReport: false,
-        description: p.description || "Comprehensive review of our first quarter performance and strategic adjustments.",
+        description: p.description || getPostDescription({id: p.slug, title: p.title, date: p.publishedAt}),
+        category: p.category,
       }));
-    const merged = [...regs, ...combinedMarketUpdates];
+
+    const merged = [...regs, ...localMarket, ...apiReports];
     return merged.sort((a, b) => {
       const da = parseDate(a.date)?.getTime() || 0;
       const db = parseDate(b.date)?.getTime() || 0;
       return db - da;
     });
-  }, [publicPosts, combinedMarketUpdates]);
+  }, [publicPosts, localPosts, apiReports]);
 
+  // Apply pinning
   const pinnedAllContent = useMemo<UnifiedPost[]>(() => {
     const orderMap = new Map(PINNED_SLUGS.map((slug, idx) => [slug, idx]));
     const pinned: UnifiedPost[] = [];
@@ -242,110 +202,57 @@ const CommunityList: React.FC = () => {
       }
     });
 
-    // Filter out any undefined in pinned, keep order
-    const compactPinned = pinned.filter(Boolean);
-    return [...compactPinned, ...rest];
+    return [...pinned.filter(Boolean), ...rest];
   }, [allContentSorted]);
 
-  // Helper function to get sample description based on title
-  const getPostDescription = (post: UnifiedPost) => {
-    if (post.description) return post.description;
-    
-    if (post.title.toLowerCase().includes("ai") || post.title.toLowerCase().includes("artificial intelligence")) {
-      return "Exploring how artificial intelligence is revolutionizing portfolio management and risk assessment.";
-    } else if (post.title.toLowerCase().includes("market")) {
-      return "Our latest analysis of market trends and investment opportunities in the current economic climate.";
-    } else if (post.title.toLowerCase().includes("review") || post.title.toLowerCase().includes("performance")) {
-      return "Comprehensive review of our first quarter performance and strategic adjustments for Q2.";
-    } else {
-      return "Stay informed with our latest market insights, research findings, and company updates.";
-    }
-  };
+  // Filter content based on search and category
+  const filteredContent = useMemo(() => {
+    let dataToSearch = pinnedAllContent;
 
-  // 6.5) Apply search filter on top of category filter
-  const searchFilteredContent = useMemo(() => {
-    if (!searchQuery.trim()) {
-      // No search query, return based on category selection
-      if (selectedCategory === MARKET_UPDATES_OPTION) {
-        return combinedMarketUpdates;
-      } else if (selectedCategory === "All") {
-        return pinnedAllContent;
-      } else if (selectedCategory === NDA_OPTION) {
-        return ndaApproved 
-          ? ndaPosts.map((p) => ({
-              id: p.slug,
-              title: p.title,
-              date: p.publishedAt,
-              slug: p.slug,
-              isApiReport: false,
-              description: p.description || getPostDescription({id: p.slug, title: p.title, date: p.publishedAt})
-            }))
-          : [];
-      } else {
-        return filteredPosts.map((p) => ({
-          id: p.slug,
-          title: p.title,
-          date: p.publishedAt,
-          slug: p.slug,
-          isApiReport: false,
-          description: p.description || getPostDescription({id: p.slug, title: p.title, date: p.publishedAt})
-        }));
-      }
-    }
-
-    // Apply search filter
-    const query = searchQuery.toLowerCase();
-    let dataToSearch: UnifiedPost[] = [];
-
-    if (selectedCategory === MARKET_UPDATES_OPTION) {
-      dataToSearch = combinedMarketUpdates;
-    } else if (selectedCategory === "All") {
-      dataToSearch = pinnedAllContent;
-    } else if (selectedCategory === NDA_OPTION) {
-      dataToSearch = ndaApproved 
-        ? ndaPosts.map((p) => ({
-            id: p.slug,
-            title: p.title,
-            date: p.publishedAt,
-            slug: p.slug,
-            isApiReport: false,
-            description: p.description || getPostDescription({id: p.slug, title: p.title, date: p.publishedAt})
-          }))
-        : [];
-    } else {
-      dataToSearch = filteredPosts.map((p) => ({
+    // Apply category filter
+    if (selectedCategory === NDA_OPTION) {
+      if (!ndaApproved) return [];
+      dataToSearch = ndaPosts.map((p) => ({
         id: p.slug,
         title: p.title,
         date: p.publishedAt,
         slug: p.slug,
         isApiReport: false,
-        description: p.description || getPostDescription({id: p.slug, title: p.title, date: p.publishedAt})
+        description: p.description || getPostDescription({id: p.slug, title: p.title, date: p.publishedAt}),
+        category: p.category,
       }));
+    } else if (selectedCategory === MARKET_UPDATES_OPTION) {
+      dataToSearch = pinnedAllContent.filter(
+        (p) => p.category?.toLowerCase().includes("market") || p.slug?.toLowerCase().includes("market")
+      );
+    } else if (selectedCategory !== "All") {
+      dataToSearch = pinnedAllContent.filter((p) => p.category === selectedCategory);
     }
 
+    // Apply search filter
+    if (!searchQuery.trim()) return dataToSearch;
+
+    const query = searchQuery.toLowerCase();
     return dataToSearch.filter((item) => {
       const titleMatch = item.title.toLowerCase().includes(query);
       const descMatch = (item.description || "").toLowerCase().includes(query);
-      // For local posts, also search by category
-      const post = localPosts.find(p => p.slug === item.slug);
-      const categoryMatch = post ? post.category.toLowerCase().includes(query) : false;
-      
+      const categoryMatch = (item.category || "").toLowerCase().includes(query);
       return titleMatch || descMatch || categoryMatch;
     });
-  }, [searchQuery, selectedCategory, combinedMarketUpdates, pinnedAllContent, filteredPosts, ndaPosts, ndaApproved, localPosts]);
+  }, [searchQuery, selectedCategory, pinnedAllContent, ndaPosts, ndaApproved]);
 
-  // 7) NDA / session setup (as you had it)
+  // Session setup
   useEffect(() => {
     config.supabaseClient?.auth.getSession().then(({ data }) => {
       setSession(data.session);
     });
-    const sub =
-      config.supabaseClient?.auth.onAuthStateChange((_e, s) => {
-        setSession(s);
-      })?.data.subscription;
+    const sub = config.supabaseClient?.auth.onAuthStateChange((_e, s) => {
+      setSession(s);
+    })?.data.subscription;
     return () => sub && sub.unsubscribe();
   }, []);
 
+  // NDA check
   const checkNda = useCallback(async () => {
     if (!session) {
       toast({ title: "Please sign in to view the files", status: "error" });
@@ -400,203 +307,233 @@ const CommunityList: React.FC = () => {
       if (!ok) return;
     }
     setSelectedCategory(cat);
-    localStorage.setItem(
-      "communityFilter",
-      cat === NDA_OPTION
-        ? "nda"
-        : cat === MARKET_UPDATES_OPTION
-        ? "market"
-        : "all"
-    );
   };
 
-  // 8) Render helpers
-  const renderLoader = () => (
-    <Flex justify="center" py={8}>
-      <Spinner size="xl" />
-    </Flex>
-  );
-  const renderError = (msg: string) => (
-    <Alert status="error" borderRadius="md" my={4}>
-      <AlertIcon />
-      {msg}
-    </Alert>
-  );
+  // Format date for display
+  const formatDisplayDate = (dateStr: string) => {
+    const formatted = formatShortDate(dateStr);
+    return formatted.toUpperCase();
+  };
 
-  const renderMarketItem = useCallback((p: UnifiedPost, index: number) => {
-    const dateFmt = formatShortDate(p.date);
-    const dateLabel = dateFmt.split(' ').join(' ');
-    let postDescription = getPostDescription(p);
-    
-    return (
-      <Card 
-        key={p.id} 
-        variant="outline" 
-        borderRadius="md" 
-        boxShadow="sm"
-        overflow="hidden"
-        transition="all 0.2s"
-        _hover={{ boxShadow: "md" }}
-      >
-        <CardBody p={6}>
-          <VStack align="flex-start" spacing={3}>
-            <Text color="#0AADBC" fontSize="sm" fontWeight="500">
-              {dateLabel} Post
-            </Text>
-            <Heading as="h3" size="md" fontWeight="500">
-              {p.title}
-            </Heading>
-            <Text 
-              color="gray.600" 
-              fontSize="md"
-              noOfLines={3}
-              height="4.5rem"
-              overflow="hidden"
-            >
-              {postDescription}
-            </Text>
-            <ChakraLink 
-              as={Link} 
-              to={p.isApiReport ? `/reports/${p.id}` : `/community/${p.slug}`}
-              color="#0AADBC"
-              fontWeight="medium"
-              display="flex"
-              alignItems="center"
-            >
-              Read More <Icon as={ChevronRightIcon} ml={1} />
-            </ChakraLink>
-          </VStack>
-        </CardBody>
-      </Card>
-    );
-  }, []);
-
-  // 9) Main JSX
   return (
-    <Container maxW="container.lg" py={8}>
-      <Heading mb={4} textAlign="center" fontSize={{ base: "2xl", md: "4xl" }}>
-        Latest Updates from{" "}
-        <Text as="span" color="#0AADBC" display="inline">
-          Hushh Technologies
-        </Text>
-      </Heading>
+    <Box 
+      bg="white" 
+      minH="100vh" 
+      maxW="480px" 
+      mx="auto"
+      fontFamily="'Manrope', sans-serif"
+    >
+      {/* Main Content */}
+      <Box px={5} pt={6} pb={12}>
+        {/* Page Title - CENTER ALIGNED */}
+        <VStack spacing={2} textAlign="center" mb={8}>
+          <Text 
+            fontSize="22px" 
+            fontWeight="700" 
+            lineHeight="1.3" 
+            color="#0d141b"
+            letterSpacing="-0.01em"
+          >
+            Latest Updates from{" "}
+            <Text as="span" color="#2b8cee" display="block">
+              Hushh Technologies
+            </Text>
+          </Text>
+          <Text 
+            fontSize="14px" 
+            fontWeight="500" 
+            color="#4A4A4A" 
+            lineHeight="1.5"
+            mt={1}
+          >
+            Insights, news, and privacy technology updates.
+          </Text>
+        </VStack>
 
-      <Text 
-        textAlign="center" 
-        fontSize={{ base: "md", md: "lg" }} 
-        color="gray.600" 
-        maxW="container.md" 
-        mx="auto" 
-        mb={8}
-      >
-        Stay informed with our latest market insights, research findings, and company updates.
-      </Text>
+        {/* Search and Filter */}
+        <VStack spacing={4} mb={8}>
+          {/* Search Input */}
+          <InputGroup size="lg">
+            <InputLeftElement pointerEvents="none" h="56px">
+              <Icon as={FiSearch} color="#94a3b8" boxSize={5} />
+            </InputLeftElement>
+            <Input
+              placeholder="Search articles..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              bg="white"
+              borderColor="#cfdbe7"
+              borderRadius="lg"
+              h="56px"
+              pl={12}
+              fontSize="16px"
+              color="#0d141b"
+              _placeholder={{ color: "#94a3b8" }}
+              _focus={{
+                borderColor: "#2b8cee",
+                boxShadow: "0 0 0 1px #2b8cee"
+              }}
+              _hover={{ borderColor: "#a1b5c8" }}
+              boxShadow="sm"
+            />
+          </InputGroup>
 
-      {/* Search Input */}
-      <Box mb={8} maxW="600px" mx="auto">
-        <InputGroup size="lg">
-          <InputLeftElement pointerEvents="none">
-            <SearchIcon color="gray.400" />
-          </InputLeftElement>
-          <Input
-            placeholder="Search posts, articles, and updates..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+          {/* Category Dropdown */}
+          <Select
+            value={selectedCategory}
+            onChange={(e) => onCategoryChange(e.target.value)}
             bg="white"
-            borderColor="gray.300"
-            _placeholder={{ color: "gray.400" }}
+            borderColor="#cfdbe7"
+            borderRadius="lg"
+            h="56px"
+            fontSize="16px"
+            color="#0d141b"
             _focus={{
-              borderColor: "#0AADBC",
-              boxShadow: "0 0 0 1px #0AADBC"
+              borderColor: "#2b8cee",
+              boxShadow: "0 0 0 1px #2b8cee"
             }}
-          />
-          {searchQuery && (
-            <InputRightElement>
-              <IconButton
-                aria-label="Clear search"
-                icon={<CloseIcon />}
-                size="sm"
-                variant="ghost"
-                onClick={() => setSearchQuery("")}
-                _hover={{ bg: "gray.100" }}
-              />
-            </InputRightElement>
-          )}
-        </InputGroup>
-      </Box>
-
-      <Box mb={8} display={{ md: "none" }}>
-        <Select
-          maxW="full"
-          value={selectedCategory}
-          onChange={(e) => onCategoryChange(e.target.value)}
-          bg="white"
-          borderColor="gray.300"
-        >
-          {dropdownOptions.map((opt) => (
-            <option key={opt} value={opt}>
-              {opt === NDA_OPTION || opt === MARKET_UPDATES_OPTION
-                ? opt
-                : toTitleCase(opt)}
-            </option>
-          ))}
-        </Select>
-      </Box>
-
-      <Box display={{ base: "none", md: "block" }} mb={8}>
-        <Flex justify="center">
-          <HStack spacing={4} wrap="wrap" justify="center">
+            _hover={{ borderColor: "#a1b5c8" }}
+            boxShadow="sm"
+            icon={<></>}
+            sx={{
+              '& option': {
+                bg: 'white',
+                color: '#0d141b',
+              }
+            }}
+          >
             {dropdownOptions.map((opt) => (
-              <Box 
-                key={opt}
-                px={4}
-                py={2}
-                borderRadius="md"
-                cursor="pointer"
-                bg={selectedCategory === opt ? "#0AADBC" : "transparent"}
-                color={selectedCategory === opt ? "white" : "gray.700"}
-                fontWeight={selectedCategory === opt ? "bold" : "normal"}
-                _hover={{ bg: selectedCategory === opt ? "#0AADBC" : "gray.100" }}
-                onClick={() => onCategoryChange(opt)}
-              >
-                {opt === NDA_OPTION || opt === MARKET_UPDATES_OPTION
-                  ? opt
-                  : toTitleCase(opt)}
+              <option key={opt} value={opt}>
+                {opt === "All" ? "Category: All" : toTitleCase(opt)}
+              </option>
+            ))}
+          </Select>
+        </VStack>
+
+        {/* Blog Post List */}
+        {apiLoading ? (
+          <Box textAlign="center" py={12}>
+            <Box
+              w={8}
+              h={8}
+              border="2px solid"
+              borderColor="#e2e8f0"
+              borderTopColor="#2b8cee"
+              borderRadius="full"
+              animation="spin 1s linear infinite"
+              mx="auto"
+            />
+          </Box>
+        ) : filteredContent.length > 0 ? (
+          <VStack spacing={0} align="stretch">
+            {filteredContent.map((post, index) => (
+              <Box key={post.id}>
+                {/* Post Article */}
+                <Box 
+                  as={Link}
+                  to={post.isApiReport ? `/reports/${post.id}` : `/community/${post.slug}`}
+                  display="block"
+                  py={6}
+                  _hover={{ '& h2': { color: '#2b8cee' } }}
+                  cursor="pointer"
+                  role="group"
+                >
+                  {/* Date with line */}
+                  <HStack spacing={2} mb={3}>
+                    <Text 
+                      fontSize="12px" 
+                      fontWeight="700" 
+                      letterSpacing="0.05em" 
+                      color="#2b8cee"
+                      textTransform="uppercase"
+                    >
+                      {formatDisplayDate(post.date)}
+                    </Text>
+                    <Box h="1px" w={8} bg="#2b8cee" opacity={0.2} />
+                  </HStack>
+
+                  {/* Title */}
+                  <Text 
+                    as="h2"
+                    fontSize="20px" 
+                    fontWeight="700" 
+                    color="#0d141b" 
+                    lineHeight="1.3"
+                    mb={3}
+                    transition="color 0.2s"
+                    noOfLines={2}
+                  >
+                    {post.title}
+                  </Text>
+
+                  {/* Description */}
+                  <Text 
+                    fontSize="16px" 
+                    color="#4A4A4A" 
+                    lineHeight="1.6"
+                    noOfLines={3}
+                    mb={3}
+                  >
+                    {getPostDescription(post)}
+                  </Text>
+
+                  {/* Read More */}
+                  <HStack 
+                    spacing={1} 
+                    color="#2b8cee" 
+                    fontSize="14px" 
+                    fontWeight="700"
+                    _groupHover={{ '& svg': { transform: 'translateX(4px)' } }}
+                  >
+                    <Text>Read More</Text>
+                    <Icon 
+                      as={FiChevronRight} 
+                      boxSize={4} 
+                      transition="transform 0.2s"
+                    />
+                  </HStack>
+                </Box>
+
+                {/* Divider (except last) */}
+                {index < filteredContent.length - 1 && (
+                  <Box h="1px" w="full" bg="#f1f5f9" />
+                )}
               </Box>
             ))}
-          </HStack>
-        </Flex>
-      </Box>
+          </VStack>
+        ) : (
+          <Box textAlign="center" py={12}>
+            <Text fontSize="16px" color="#4A4A4A" mb={2}>
+              {searchQuery 
+                ? `No results found for "${searchQuery}"`
+                : selectedCategory === NDA_OPTION && !ndaApproved
+                ? "Please complete NDA approval to view sensitive documents"
+                : "No content available"}
+            </Text>
+            {searchQuery && (
+              <Text fontSize="14px" color="#94a3b8">
+                Try adjusting your search terms or browse by category
+              </Text>
+            )}
+          </Box>
+        )}
 
-      {/* Loading or Error */}
-      {apiLoading && selectedCategory === MARKET_UPDATES_OPTION
-        ? renderLoader()
-        : apiError && selectedCategory === MARKET_UPDATES_OPTION
-        ? renderError(apiError)
-        : (
-            <Box>
-              {searchFilteredContent.length > 0 ? (
-                <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
-                  {searchFilteredContent.map((p, index) => renderMarketItem(p, index))}
-                </SimpleGrid>
-              ) : (
-                <Box textAlign="center" py={12}>
-                  <Text fontSize="lg" color="gray.500" mb={2}>
-                    {searchQuery 
-                      ? `No results found for "${searchQuery}"`
-                      : selectedCategory === NDA_OPTION && !ndaApproved
-                      ? "Please complete NDA approval to view sensitive documents"
-                      : "No content available"}
-                  </Text>
-                  {searchQuery && (
-                    <Text fontSize="sm" color="gray.400">
-                      Try adjusting your search terms or browse by category
-                    </Text>
-                  )}
-                </Box>
-              )}
-            </Box>
-          )}
+        {/* Loading Indicator */}
+        {!apiLoading && filteredContent.length > 0 && (
+          <Box textAlign="center" py={8}>
+            <Box
+              w={8}
+              h={8}
+              border="2px solid"
+              borderColor="#e2e8f0"
+              borderTopColor="#2b8cee"
+              borderRadius="full"
+              animation="spin 1s linear infinite"
+              mx="auto"
+            />
+          </Box>
+        )}
+      </Box>
 
       {/* NDA Modals */}
       <NDARequestModal
@@ -615,7 +552,14 @@ const CommunityList: React.FC = () => {
           setShowNdaDocModal(false);
         }}
       />
-    </Container>
+
+      {/* Spin animation */}
+      <style>{`
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
+    </Box>
   );
 };
 
