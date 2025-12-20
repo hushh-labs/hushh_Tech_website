@@ -2,6 +2,7 @@ import { Box, Icon, Tooltip } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { Mail } from 'lucide-react';
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 
 /**
  * FloatingContactBubble component
@@ -14,9 +15,19 @@ import React from 'react';
 const MotionBox = motion(Box);
 
 export default function FloatingContactBubble() {
+  const location = useLocation();
+  
+  // Hide on investor profile pages (chat and developer sections have their own layout)
+  const isInvestorProfilePage = location.pathname.startsWith('/investor/');
+  
   const handleClick = () => {
     window.location.href = 'mailto:invest@hushh.ai';
   };
+
+  // Don't render on investor profile pages
+  if (isInvestorProfilePage) {
+    return null;
+  }
 
   return (
     <Tooltip 

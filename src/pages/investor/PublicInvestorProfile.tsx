@@ -29,6 +29,14 @@ const PublicInvestorProfilePage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabType>('home');
   const [expandedFields, setExpandedFields] = useState<Set<string>>(new Set());
+  const contentRef = React.useRef<HTMLDivElement>(null);
+
+  // Handle tab change with scroll to top
+  const handleTabChange = (tab: TabType) => {
+    setActiveTab(tab);
+    // Scroll to top of viewport
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
   
   const profileUrl = `https://hushhtech.com/investor/${slug}`;
   const { hasCopied, onCopy } = useClipboard(profileUrl);
@@ -486,7 +494,7 @@ const PublicInvestorProfilePage: React.FC = () => {
           <nav className="fixed bottom-0 left-0 right-0 bg-black border-t border-gray-800 z-20">
             <div className="max-w-md mx-auto flex items-center justify-around py-2 px-4 safe-bottom">
               <button
-                onClick={() => setActiveTab('home')}
+                onClick={() => handleTabChange('home')}
                 className={`flex flex-col items-center gap-1 py-2 px-4 rounded-lg transition-colors ${
                   activeTab === 'home' 
                     ? 'text-[#2B8CEE]' 
@@ -497,7 +505,7 @@ const PublicInvestorProfilePage: React.FC = () => {
                 <span className="text-xs font-medium">Home</span>
               </button>
               <button
-                onClick={() => setActiveTab('chat')}
+                onClick={() => handleTabChange('chat')}
                 className={`flex flex-col items-center gap-1 py-2 px-4 rounded-lg transition-colors ${
                   activeTab === 'chat' 
                     ? 'text-[#2B8CEE]' 
@@ -508,7 +516,7 @@ const PublicInvestorProfilePage: React.FC = () => {
                 <span className="text-xs font-medium">Chat</span>
               </button>
               <button
-                onClick={() => setActiveTab('developer')}
+                onClick={() => handleTabChange('developer')}
                 className={`flex flex-col items-center gap-1 py-2 px-4 rounded-lg transition-colors ${
                   activeTab === 'developer' 
                     ? 'text-[#2B8CEE]' 
