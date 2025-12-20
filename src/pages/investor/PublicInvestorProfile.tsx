@@ -34,8 +34,10 @@ const PublicInvestorProfilePage: React.FC = () => {
   // Handle tab change with scroll to top
   const handleTabChange = (tab: TabType) => {
     setActiveTab(tab);
-    // Scroll to top of viewport
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Scroll to top of viewport - use multiple methods for reliability
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
   };
   
   const profileUrl = `https://hushhtech.com/investor/${slug}`;

@@ -139,27 +139,23 @@ export default function OnboardingStep1() {
     >
       <div className="relative flex min-h-screen w-full flex-col bg-white max-w-[500px] mx-auto shadow-xl overflow-hidden border-x border-slate-100">
         
-        {/* Fixed Header - Hidden when main footer is visible */}
-        {!isFooterVisible && (
-          <header className="fixed top-0 z-20 w-full max-w-[500px] flex items-center justify-between px-4 py-3 bg-white border-b border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)]" data-onboarding-header>
-            <button 
-              onClick={() => navigate(-1)}
-              aria-label="Go back"
-              className="flex size-10 shrink-0 items-center justify-center text-slate-900 rounded-full hover:bg-slate-50 transition-colors"
-            >
-              <BackIcon />
-            </button>
-            <button 
-              className="flex size-10 shrink-0 items-center justify-center text-slate-900 rounded-full hover:bg-slate-50 transition-colors"
-              aria-label="Help"
-            >
-              <HelpIcon />
-            </button>
-          </header>
-        )}
-        
-        {/* Spacer for fixed header */}
-        <div className="h-16" />
+        {/* Sticky Header */}
+        <header className="flex items-center px-4 pt-4 pb-2 bg-white sticky top-0 z-10">
+          <button 
+            onClick={() => navigate(-1)}
+            aria-label="Go back"
+            className="flex size-10 shrink-0 items-center justify-center text-slate-900 rounded-full hover:bg-slate-50 transition-colors"
+          >
+            <BackIcon />
+          </button>
+          <div className="flex-1" />
+          <button 
+            className="flex size-10 shrink-0 items-center justify-center text-slate-900 rounded-full hover:bg-slate-50 transition-colors"
+            aria-label="Help"
+          >
+            <HelpIcon />
+          </button>
+        </header>
 
         {/* Main Content */}
         <main className="flex-1 flex flex-col px-6 pb-52">
