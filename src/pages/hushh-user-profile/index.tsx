@@ -68,6 +68,7 @@ const HushhUserProfilePage: React.FC = () => {
   const [investorProfile, setInvestorProfile] = useState<InvestorProfile | null>(null);
   const [profileSlug, setProfileSlug] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [hasOnboardingData, setHasOnboardingData] = useState(false);
   const [isApplePassLoading, setIsApplePassLoading] = useState(false);
   const [isGooglePassLoading, setIsGooglePassLoading] = useState(false);
   const [editingField, setEditingField] = useState<string | null>(null);
@@ -242,12 +243,18 @@ const HushhUserProfilePage: React.FC = () => {
           .eq("user_id", user.id)
           .single();
 
-        if (existingProfile && existingProfile.investor_profile) {
-          setInvestorProfile(existingProfile.investor_profile);
-          // Load profile slug if available
+        if (existingProfile) {
+          // Always load the slug if it exists (regardless of investor_profile)
           if (existingProfile.slug) {
             setProfileSlug(existingProfile.slug);
           }
+          
+          // Load AI-generated profile if available
+          if (existingProfile.investor_profile) {
+            setInvestorProfile(existingProfile.investor_profile);
+          }
+          
+          // Prefill form from investor_profiles table
           setForm((prev) => ({
             ...prev,
             name: existingProfile.name || fullName,
@@ -267,12 +274,21 @@ const HushhUserProfilePage: React.FC = () => {
           .single();
 
         if (onboardingData) {
+          // Mark that user has completed onboarding
+          setHasOnboardingData(true);
+          
           const calculatedAge = onboardingData.date_of_birth
             ? new Date().getFullYear() - new Date(onboardingData.date_of_birth).getFullYear()
             : "";
 
+          // Build name from onboarding data
+          const onboardingName = onboardingData.legal_first_name && onboardingData.legal_last_name
+            ? `${onboardingData.legal_first_name} ${onboardingData.legal_last_name}`
+            : fullName;
+
           setForm((prev) => ({
             ...prev,
+            name: onboardingName || prev.name,
             age: calculatedAge || prev.age,
             // Pre-fill phone number from onboarding (Step 8)
             phoneCountryCode: onboardingData.phone_country_code || prev.phoneCountryCode,
@@ -292,6 +308,34 @@ const HushhUserProfilePage: React.FC = () => {
             dateOfBirth: onboardingData.date_of_birth || "",
             initialInvestmentAmount: onboardingData.initial_investment_amount || "",
           }));
+
+          // Auto-create investor_profiles row if user completed onboarding but doesn't have one
+          // This triggers the PostgreSQL slug generation trigger
+          if (onboardingData.is_completed && !existingProfile) {
+            const userName = onboardingName || user.email?.split('@')[0] || 'Investor';
+            const userAge = typeof calculatedAge === 'number' ? calculatedAge : 30;
+            
+            const { data: newProfile } = await supabase
+              .from("investor_profiles")
+              .upsert({
+                user_id: user.id,
+                name: userName,
+                email: user.email || "",
+                age: userAge,
+                phone_country_code: onboardingData.phone_country_code || "+1",
+                phone_number: onboardingData.phone_number || "",
+                organisation: null,
+                investor_profile: null, // No AI profile yet, just basic row for slug
+                user_confirmed: false,
+              })
+              .select("slug")
+              .single();
+
+            // Set the slug immediately if created
+            if (newProfile?.slug) {
+              setProfileSlug(newProfile.slug);
+            }
+          }
         }
       } catch (error) {
         console.error("Authentication check failed:", error);
@@ -1137,10 +1181,22 @@ const HushhUserProfilePage: React.FC = () => {
               disabled={loading}
               className="w-full bg-[#2B8CEE] hover:bg-blue-600 text-white font-semibold py-3.5 px-6 rounded-xl shadow-md shadow-blue-500/20 active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? "Generating..." : (investorProfile ? "Update Profile" : "Generate Investor Profile")}
+              {loading 
+                ? "Generating..." 
+                : investorProfile 
+                  ? "Update Profile" 
+                  : hasOnboardingData 
+                    ? "Enhance with AI" 
+                    : "Generate Investor Profile"
+              }
             </button>
             <p className="text-xs text-[#6B7280] text-center mt-4 leading-normal px-2">
-              These details personalise your investor profile.
+              {investorProfile 
+                ? "Update your AI-generated investor profile."
+                : hasOnboardingData
+                  ? "Generate an AI-powered profile from your data."
+                  : "These details personalise your investor profile."
+              }
             </p>
           </div>
         )}
