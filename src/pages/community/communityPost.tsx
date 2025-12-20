@@ -8,7 +8,14 @@ import {
   Text,
   Spinner,
   useToast,
+  Button,
+  VStack,
+  HStack,
+  Icon,
+  Link as ChakraLink,
 } from "@chakra-ui/react";
+import { FiDownload, FiExternalLink, FiArrowLeft } from "react-icons/fi";
+import { Link } from "react-router-dom";
 import { getPostBySlug, PostData } from "../../data/posts";
 import axios from "axios";
 import config from "../../resources/config/config";
@@ -109,13 +116,7 @@ const CommunityPost: React.FC = () => {
       // If all checks pass, set the post and stop loading.
       setPost(foundPost);
       setLoading(false);
-
-      // If the post has a PDF URL, open it in a new tab and redirect back to community
-      if (foundPost.pdfUrl) {
-        window.open(foundPost.pdfUrl, '_blank');
-        navigate("/community");
-        return;
-      }
+      // Note: PDF posts are now rendered with embedded viewer, no popup needed
     };
 
     loadPost();
@@ -131,14 +132,6 @@ const CommunityPost: React.FC = () => {
 
   if (!post) return null;
 
-  // If we get here and the post has a PDF URL, it means the PDF didn't open
-  // Let's try once more and then redirect
-  if (post.pdfUrl) {
-    window.open(post.pdfUrl, '_blank');
-    navigate("/community");
-    return null;
-  }
-
   const PostComponent = post.Component;
   const toTitleCase = (str: string) => {
     return str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
@@ -152,24 +145,121 @@ const CommunityPost: React.FC = () => {
     return formatShortDate(post.publishedAt);
   };
 
+  // If post has a PDF URL, render embedded PDF viewer instead of component
+  if (post.pdfUrl) {
+    return (
+      <Box bg="gray.50" minH="100vh" py={6} px={4}>
+        <Container maxW="container.xl">
+          {/* Back navigation */}
+          <ChakraLink 
+            as={Link} 
+            to="/community" 
+            display="inline-flex" 
+            alignItems="center" 
+            color="#0AADBC" 
+            fontWeight="500"
+            mb={4}
+            _hover={{ textDecoration: 'none', opacity: 0.8 }}
+          >
+            <Icon as={FiArrowLeft} mr={2} />
+            Back to Community
+          </ChakraLink>
+
+          {/* Post header */}
+          <VStack align="stretch" spacing={4} mb={6}>
+            <Text as="span" fontSize="sm" fontWeight="600" color="#0AADBC">
+              {toTitleCase(post.category)}
+            </Text>
+            <Heading as="h1" fontWeight="600" fontSize={{ base: 'xl', md: '2xl' }} color="gray.800">
+              {post.title}
+            </Heading>
+            <Text fontSize="sm" color="gray.600">
+              {getFormattedDate()}
+            </Text>
+            
+            {/* Action buttons */}
+            <HStack spacing={3}>
+              <Button
+                as="a"
+                href={post.pdfUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                leftIcon={<FiExternalLink />}
+                colorScheme="teal"
+                size="sm"
+              >
+                Open in New Tab
+              </Button>
+              <Button
+                as="a"
+                href={post.pdfUrl}
+                download
+                leftIcon={<FiDownload />}
+                variant="outline"
+                colorScheme="teal"
+                size="sm"
+              >
+                Download PDF
+              </Button>
+            </HStack>
+          </VStack>
+
+          {/* Embedded PDF viewer */}
+          <Box 
+            bg="white" 
+            borderRadius="lg" 
+            overflow="hidden" 
+            boxShadow="md"
+            border="1px solid"
+            borderColor="gray.200"
+          >
+            <Box
+              as="iframe"
+              src={`${post.pdfUrl}#toolbar=1&navpanes=1&scrollbar=1`}
+              width="100%"
+              height={{ base: '70vh', md: '80vh' }}
+              border="none"
+              title={post.title}
+            />
+          </Box>
+
+          {/* Fallback message for mobile */}
+          <Text fontSize="sm" color="gray.500" mt={4} textAlign="center">
+            Having trouble viewing? Use the buttons above to open in a new tab or download the PDF.
+          </Text>
+        </Container>
+      </Box>
+    );
+  }
+
+  // Regular post with component
   return (
     <Box bg="white" minH="100vh" py={12} px={4}>
       <Container maxW="container.md">
+        {/* Back navigation */}
+        <ChakraLink 
+          as={Link} 
+          to="/community" 
+          display="inline-flex" 
+          alignItems="center" 
+          color="#0AADBC" 
+          fontWeight="500"
+          mb={6}
+          _hover={{ textDecoration: 'none', opacity: 0.8 }}
+        >
+          <Icon as={FiArrowLeft} mr={2} />
+          Back to Community
+        </ChakraLink>
+
         <Text as={'h2'} fontSize={{base:'sm',md:'md'}} fontWeight={'600'} color={'#0AADBC'}>
           {toTitleCase(post.category)}
         </Text>
-        {/* <Heading as="h1" fontWeight={'500'} mb={4} fontSize={{md:'xl',base:'lg'}} color="black">
-          {post.title}
-        </Heading> */}
         <Text fontSize="sm" color="gray.900" mb={8}>
           {getFormattedDate()}
         </Text>
         <Box color="white" lineHeight="tall" fontSize="lg">
           <PostComponent />
         </Box>
-        {/* <Text fontSize={'sm'} my={{md:'3rem',base:'1.5rem'}}>
-        © 2025 Hushh Technologies LLC. All Rights Reserved. The materials on this website are for illustration and discussion purposes only and do not constitute an offering. An offering may be made only by delivery of a confidential offering memorandum to appropriate investors. PAST PERFORMANCE IS NO GUARANTEE OF FUTURE RESULTS. 
-        </Text> */}
       </Container>
     </Box>
   );
