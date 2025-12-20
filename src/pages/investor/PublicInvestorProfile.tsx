@@ -31,14 +31,22 @@ const PublicInvestorProfilePage: React.FC = () => {
   const [expandedFields, setExpandedFields] = useState<Set<string>>(new Set());
   const contentRef = React.useRef<HTMLDivElement>(null);
 
-  // Handle tab change with scroll to top
+  // Handle tab change - state change only, scroll handled by useEffect
   const handleTabChange = (tab: TabType) => {
     setActiveTab(tab);
-    // Scroll to top of viewport - use multiple methods for reliability
-    window.scrollTo(0, 0);
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
   };
+
+  // Scroll to top when activeTab changes - ensures scroll happens AFTER React re-renders
+  useEffect(() => {
+    // Use setTimeout to ensure scroll happens after the DOM is updated with new content
+    const timer = setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }, 0);
+    
+    return () => clearTimeout(timer);
+  }, [activeTab]);
   
   const profileUrl = `https://hushhtech.com/investor/${slug}`;
   const { hasCopied, onCopy } = useClipboard(profileUrl);
