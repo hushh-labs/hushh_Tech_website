@@ -68,6 +68,7 @@ const HushhUserProfilePage: React.FC = () => {
   const [investorProfile, setInvestorProfile] = useState<InvestorProfile | null>(null);
   const [profileSlug, setProfileSlug] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [hasOnboardingData, setHasOnboardingData] = useState(false);
   const [isApplePassLoading, setIsApplePassLoading] = useState(false);
   const [isGooglePassLoading, setIsGooglePassLoading] = useState(false);
   const [editingField, setEditingField] = useState<string | null>(null);
@@ -242,12 +243,18 @@ const HushhUserProfilePage: React.FC = () => {
           .eq("user_id", user.id)
           .single();
 
-        if (existingProfile && existingProfile.investor_profile) {
-          setInvestorProfile(existingProfile.investor_profile);
-          // Load profile slug if available
+        if (existingProfile) {
+          // Always load the slug if it exists (regardless of investor_profile)
           if (existingProfile.slug) {
             setProfileSlug(existingProfile.slug);
           }
+          
+          // Load AI-generated profile if available
+          if (existingProfile.investor_profile) {
+            setInvestorProfile(existingProfile.investor_profile);
+          }
+          
+          // Prefill form from investor_profiles table
           setForm((prev) => ({
             ...prev,
             name: existingProfile.name || fullName,
@@ -267,6 +274,9 @@ const HushhUserProfilePage: React.FC = () => {
           .single();
 
         if (onboardingData) {
+          // Mark that user has completed onboarding
+          setHasOnboardingData(true);
+          
           const calculatedAge = onboardingData.date_of_birth
             ? new Date().getFullYear() - new Date(onboardingData.date_of_birth).getFullYear()
             : "";
@@ -1137,10 +1147,22 @@ const HushhUserProfilePage: React.FC = () => {
               disabled={loading}
               className="w-full bg-[#2B8CEE] hover:bg-blue-600 text-white font-semibold py-3.5 px-6 rounded-xl shadow-md shadow-blue-500/20 active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? "Generating..." : (investorProfile ? "Update Profile" : "Generate Investor Profile")}
+              {loading 
+                ? "Generating..." 
+                : investorProfile 
+                  ? "Update Profile" 
+                  : hasOnboardingData 
+                    ? "Enhance with AI" 
+                    : "Generate Investor Profile"
+              }
             </button>
             <p className="text-xs text-[#6B7280] text-center mt-4 leading-normal px-2">
-              These details personalise your investor profile.
+              {investorProfile 
+                ? "Update your AI-generated investor profile."
+                : hasOnboardingData
+                  ? "Generate an AI-powered profile from your data."
+                  : "These details personalise your investor profile."
+              }
             </p>
           </div>
         )}
