@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { FiMenu, FiX, FiChevronDown, FiUser, FiTrash2 } from "react-icons/fi";
+import { FiMenu, FiX, FiChevronDown, FiUser, FiTrash2, FiChevronDown as FiArrowDown } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import config from "../resources/config/config";
 import { Image, useToast, useBreakpointValue, useDisclosure } from "@chakra-ui/react";
@@ -57,8 +57,10 @@ export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const drawerRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const careerDropdownRef = useRef<HTMLDivElement>(null);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
+  const [showScrollIndicator, setShowScrollIndicator] = useState(true);
   const toast = useToast();
   const isMobile = useBreakpointValue({ base: true, lg: false });
 
@@ -171,6 +173,22 @@ export default function Navbar() {
     navigate("/");
   };
 
+  // Handle scroll to check if user reached bottom of menu
+  const handleMenuScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLDivElement;
+    const isNearBottom = target.scrollHeight - target.scrollTop - target.clientHeight < 50;
+    setShowScrollIndicator(!isNearBottom);
+  }, []);
+
+  // Check if menu needs scroll indicator when drawer opens
+  useEffect(() => {
+    if (isOpen && scrollContainerRef.current) {
+      const container = scrollContainerRef.current;
+      const needsScroll = container.scrollHeight > container.clientHeight;
+      setShowScrollIndicator(needsScroll);
+    }
+  }, [isOpen]);
+
   return (
     <>
       {/* Fixed Header with Navigation + Ticker - Dark Theme */}
@@ -279,7 +297,11 @@ export default function Navbar() {
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto">
+              <div 
+                ref={scrollContainerRef}
+                onScroll={handleMenuScroll}
+                className="flex-1 overflow-y-auto relative"
+              >
                 <div className="space-y-3">
                   {[
                     { path: "/", label: t('nav.home') },
@@ -398,6 +420,16 @@ export default function Navbar() {
                     </>
                   )}
                 </div>
+
+                {/* Scroll Indicator - Animated Down Arrow */}
+                {showScrollIndicator && (
+                  <div className="sticky bottom-0 left-0 right-0 flex justify-center pb-2 pt-4 pointer-events-none bg-gradient-to-t from-white via-white/90 to-transparent">
+                    <div className="scroll-indicator-arrow flex flex-col items-center gap-1">
+                      <span className="text-[10px] font-medium text-[#6B7280] uppercase tracking-wider">Scroll</span>
+                      <FiChevronDown className="w-5 h-5 text-[#0B1120]" />
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Bottom CTA */}
@@ -463,6 +495,20 @@ export default function Navbar() {
         /* Pause animation on hover */
         .ticker-mask:hover .ticker-track {
           animation-play-state: paused;
+        }
+        
+        /* Scroll indicator bounce animation */
+        .scroll-indicator-arrow {
+          animation: bounce-down 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes bounce-down {
+          0%, 100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(4px);
+          }
         }
       `}</style>
     </>
