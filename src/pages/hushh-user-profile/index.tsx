@@ -281,8 +281,14 @@ const HushhUserProfilePage: React.FC = () => {
             ? new Date().getFullYear() - new Date(onboardingData.date_of_birth).getFullYear()
             : "";
 
+          // Build name from onboarding data
+          const onboardingName = onboardingData.legal_first_name && onboardingData.legal_last_name
+            ? `${onboardingData.legal_first_name} ${onboardingData.legal_last_name}`
+            : fullName;
+
           setForm((prev) => ({
             ...prev,
+            name: onboardingName || prev.name,
             age: calculatedAge || prev.age,
             // Pre-fill phone number from onboarding (Step 8)
             phoneCountryCode: onboardingData.phone_country_code || prev.phoneCountryCode,
@@ -302,6 +308,34 @@ const HushhUserProfilePage: React.FC = () => {
             dateOfBirth: onboardingData.date_of_birth || "",
             initialInvestmentAmount: onboardingData.initial_investment_amount || "",
           }));
+
+          // Auto-create investor_profiles row if user completed onboarding but doesn't have one
+          // This triggers the PostgreSQL slug generation trigger
+          if (onboardingData.is_completed && !existingProfile) {
+            const userName = onboardingName || user.email?.split('@')[0] || 'Investor';
+            const userAge = typeof calculatedAge === 'number' ? calculatedAge : 30;
+            
+            const { data: newProfile } = await supabase
+              .from("investor_profiles")
+              .upsert({
+                user_id: user.id,
+                name: userName,
+                email: user.email || "",
+                age: userAge,
+                phone_country_code: onboardingData.phone_country_code || "+1",
+                phone_number: onboardingData.phone_number || "",
+                organisation: null,
+                investor_profile: null, // No AI profile yet, just basic row for slug
+                user_confirmed: false,
+              })
+              .select("slug")
+              .single();
+
+            // Set the slug immediately if created
+            if (newProfile?.slug) {
+              setProfileSlug(newProfile.slug);
+            }
+          }
         }
       } catch (error) {
         console.error("Authentication check failed:", error);
