@@ -328,7 +328,7 @@ const CommunityList: React.FC = () => {
         {/* Page Title - CENTER ALIGNED */}
         <VStack spacing={2} textAlign="center" mb={8}>
           <Text 
-            fontSize="22px" 
+            fontSize="32px" 
             fontWeight="700" 
             lineHeight="1.3" 
             color="#0d141b"
