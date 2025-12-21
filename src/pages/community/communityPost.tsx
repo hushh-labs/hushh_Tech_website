@@ -145,8 +145,11 @@ const CommunityPost: React.FC = () => {
     return formatShortDate(post.publishedAt);
   };
 
-  // If post has a PDF URL, render embedded PDF viewer instead of component
+  // If post has a PDF URL, render PDF viewer with mobile-friendly approach
   if (post.pdfUrl) {
+    // Check if mobile device
+    const isMobile = typeof window !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    
     return (
       <Box bg="gray.50" minH="100vh" py={6} px={4}>
         <Container maxW="container.xl">
@@ -156,8 +159,8 @@ const CommunityPost: React.FC = () => {
             to="/community" 
             display="inline-flex" 
             alignItems="center" 
-            color="#0AADBC" 
-            fontWeight="500"
+            color="#2b8cee" 
+            fontWeight="600"
             mb={4}
             _hover={{ textDecoration: 'none', opacity: 0.8 }}
           >
@@ -167,28 +170,36 @@ const CommunityPost: React.FC = () => {
 
           {/* Post header */}
           <VStack align="stretch" spacing={4} mb={6}>
-            <Text as="span" fontSize="sm" fontWeight="600" color="#0AADBC">
+            <Text as="span" fontSize="sm" fontWeight="600" color="#2b8cee">
               {toTitleCase(post.category)}
             </Text>
-            <Heading as="h1" fontWeight="600" fontSize={{ base: 'xl', md: '2xl' }} color="gray.800">
+            <Heading as="h1" fontWeight="700" fontSize={{ base: '22px', md: '28px' }} color="#0d141b">
               {post.title}
             </Heading>
-            <Text fontSize="sm" color="gray.600">
+            <Text fontSize="14px" color="#4A4A4A">
               {getFormattedDate()}
             </Text>
             
-            {/* Action buttons */}
-            <HStack spacing={3}>
+            {/* Primary action buttons - Large and prominent */}
+            <VStack spacing={3} w="full" pt={2}>
               <Button
                 as="a"
                 href={post.pdfUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 leftIcon={<FiExternalLink />}
-                colorScheme="teal"
-                size="sm"
+                bg="#2b8cee"
+                color="white"
+                size="lg"
+                w="full"
+                h="56px"
+                fontSize="16px"
+                fontWeight="600"
+                borderRadius="lg"
+                _hover={{ bg: '#1a6bbd' }}
+                _active={{ bg: '#1a6bbd' }}
               >
-                Open in New Tab
+                Open PDF Document
               </Button>
               <Button
                 as="a"
@@ -196,16 +207,24 @@ const CommunityPost: React.FC = () => {
                 download
                 leftIcon={<FiDownload />}
                 variant="outline"
-                colorScheme="teal"
-                size="sm"
+                borderColor="#2b8cee"
+                color="#2b8cee"
+                size="lg"
+                w="full"
+                h="56px"
+                fontSize="16px"
+                fontWeight="600"
+                borderRadius="lg"
+                _hover={{ bg: '#2b8cee', color: 'white' }}
               >
                 Download PDF
               </Button>
-            </HStack>
+            </VStack>
           </VStack>
 
-          {/* Embedded PDF viewer */}
+          {/* Embedded PDF viewer - Only on desktop */}
           <Box 
+            display={{ base: 'none', md: 'block' }}
             bg="white" 
             borderRadius="lg" 
             overflow="hidden" 
@@ -215,18 +234,33 @@ const CommunityPost: React.FC = () => {
           >
             <Box
               as="iframe"
-              src={`${post.pdfUrl}#toolbar=1&navpanes=1&scrollbar=1`}
+              src={`${post.pdfUrl}#toolbar=1&navpanes=1&scrollbar=1&view=FitH`}
               width="100%"
-              height={{ base: '70vh', md: '80vh' }}
+              height="80vh"
               border="none"
               title={post.title}
             />
           </Box>
 
-          {/* Fallback message for mobile */}
-          <Text fontSize="sm" color="gray.500" mt={4} textAlign="center">
-            Having trouble viewing? Use the buttons above to open in a new tab or download the PDF.
-          </Text>
+          {/* Mobile message */}
+          <Box 
+            display={{ base: 'block', md: 'none' }}
+            bg="white"
+            p={6}
+            borderRadius="lg"
+            textAlign="center"
+            boxShadow="sm"
+            border="1px solid"
+            borderColor="gray.200"
+          >
+            <Icon as={FiExternalLink} boxSize={12} color="#2b8cee" mb={4} />
+            <Text fontSize="16px" fontWeight="600" color="#0d141b" mb={2}>
+              PDF Document
+            </Text>
+            <Text fontSize="14px" color="#4A4A4A">
+              Tap "Open PDF Document" above to view the full document in your browser.
+            </Text>
+          </Box>
         </Container>
       </Box>
     );
