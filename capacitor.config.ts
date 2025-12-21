@@ -35,6 +35,17 @@ const config: CapacitorConfig = {
   
   // Plugins configuration
   plugins: {
+    // Live Update configuration for OTA updates
+    LiveUpdate: {
+      // URL where update bundles are hosted (Supabase Storage or your CDN)
+      updateUrl: 'https://hushh.ai/app-updates',
+      // Auto-update on app ready (background download)
+      autoUpdate: true,
+      // Show update available prompt to users
+      promptForUpdate: true,
+      // Channel for update targeting (production, beta, dev)
+      channel: 'production',
+    },
     // Splash screen config
     SplashScreen: {
       launchShowDuration: 2000,
