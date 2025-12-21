@@ -1,5 +1,5 @@
 // Path: /pages/community/communityList.tsx
-// Revamped Community Page - Clean minimal design
+// Revamped Community Page - Clean minimal design with Header/Bottom Nav
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import {
@@ -8,16 +8,17 @@ import {
   InputGroup,
   InputLeftElement,
   Select,
-  Spinner,
   Text,
   VStack,
   HStack,
   Icon,
   useToast,
+  Flex,
+  IconButton,
 } from "@chakra-ui/react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { FiSearch, FiChevronRight, FiArrowLeft, FiMenu } from "react-icons/fi";
+import { FiChevronRight, FiArrowLeft, FiSearch, FiMenu } from "react-icons/fi";
 import NDARequestModal from "../../components/NDARequestModal";
 import NDADocumentModal from "../../components/NDADocumentModal";
 import config from "../../resources/config/config";
@@ -315,36 +316,145 @@ const CommunityList: React.FC = () => {
     return formatted.toUpperCase();
   };
 
+  // Get post URL - route special posts to dedicated pages
+  const getPostUrl = (post: UnifiedPost) => {
+    if (post.isApiReport) {
+      return `/reports/${post.id}`;
+    }
+    
+    // Special posts with dedicated pages
+    if (post.slug === 'general/ai-powered-berkshire-hathaway') {
+      return '/ai-powered-berkshire';
+    }
+    if (post.slug === 'general/sell-the-wall-featured') {
+      return '/sell-the-wall';
+    }
+    
+    // Default community post route
+    return `/community/${post.slug}`;
+  };
+
+  // Handle navigation
+  const handleBackClick = () => {
+    navigate(-1);
+  };
+
   return (
     <Box 
-      bg="white" 
+      bg="#f8fafc" 
       minH="100vh" 
       maxW="480px" 
       mx="auto"
       fontFamily="'Manrope', sans-serif"
+      position="relative"
+      pb={6}
     >
+      {/* Sticky Header/Nav */}
+      <Box
+        as="header"
+        position="sticky"
+        top={0}
+        zIndex={50}
+        bg="rgba(248, 250, 252, 0.95)"
+        backdropFilter="blur(8px)"
+        borderBottom="1px solid"
+        borderColor="#f1f5f9"
+      >
+        <Flex
+          alignItems="center"
+          justifyContent="space-between"
+          p={4}
+          h="64px"
+        >
+          {/* Back Button */}
+          <Box
+            as="button"
+            onClick={handleBackClick}
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            w="40px"
+            h="40px"
+            borderRadius="full"
+            bg="white"
+            boxShadow="sm"
+            border="1px solid"
+            borderColor="#e2e8f0"
+            transition="all 0.2s"
+            _hover={{
+              bg: "#f8fafc",
+              transform: "scale(1.05)",
+            }}
+            _active={{
+              transform: "scale(0.95)",
+            }}
+          >
+            <Icon as={FiArrowLeft} boxSize={5} color="#0d141b" />
+          </Box>
+
+          {/* Right Icons */}
+          <HStack spacing={3}>
+            {/* Search Button */}
+            <Box
+              as="button"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              w="40px"
+              h="40px"
+              borderRadius="full"
+              transition="all 0.2s"
+              _hover={{
+                bg: "rgba(43, 140, 238, 0.1)",
+              }}
+            >
+              <Icon as={FiSearch} boxSize={6} color="#0d141b" />
+            </Box>
+
+            {/* Menu Button */}
+            <Box
+              as="button"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              w="40px"
+              h="40px"
+              borderRadius="full"
+              transition="all 0.2s"
+              _hover={{
+                bg: "rgba(43, 140, 238, 0.1)",
+              }}
+            >
+              <Icon as={FiMenu} boxSize={6} color="#0d141b" />
+            </Box>
+          </HStack>
+        </Flex>
+      </Box>
+
       {/* Main Content */}
       <Box px={5} pt={6} pb={12}>
-        {/* Page Title - CENTER ALIGNED */}
-        <VStack spacing={2} textAlign="center" mb={8}>
+        {/* Page Title - LEFT ALIGNED */}
+        <VStack spacing={2} align="flex-start" mb={8}>
           <Text 
             fontSize="32px" 
             fontWeight="700" 
-            lineHeight="1.3" 
+            lineHeight="1.15" 
             color="#0d141b"
-            letterSpacing="-0.01em"
+            letterSpacing="-0.02em"
+            textAlign="left"
           >
-            Latest Updates from{" "}
-            <Text as="span" color="#2b8cee" display="block">
+            Latest Updates from <br/>
+            <Text as="span" color="#2b8cee">
               Hushh Technologies
             </Text>
           </Text>
           <Text 
-            fontSize="14px" 
+            fontSize="16px" 
             fontWeight="500" 
             color="#4A4A4A" 
             lineHeight="1.5"
             mt={1}
+            textAlign="left"
           >
             Insights, news, and privacy technology updates.
           </Text>
@@ -354,8 +464,8 @@ const CommunityList: React.FC = () => {
         <VStack spacing={4} mb={8}>
           {/* Search Input */}
           <InputGroup size="lg">
-            <InputLeftElement pointerEvents="none" h="56px">
-              <Icon as={FiSearch} color="#94a3b8" boxSize={5} />
+            <InputLeftElement pointerEvents="none" h="56px" pl={3}>
+              <Icon as={FiSearch} boxSize={5} color="#94a3b8" />
             </InputLeftElement>
             <Input
               placeholder="Search articles..."
@@ -431,7 +541,7 @@ const CommunityList: React.FC = () => {
                 {/* Post Article */}
                 <Box 
                   as={Link}
-                  to={post.isApiReport ? `/reports/${post.id}` : `/community/${post.slug}`}
+                  to={getPostUrl(post)}
                   display="block"
                   py={6}
                   _hover={{ '& h2': { color: '#2b8cee' } }}
@@ -462,6 +572,7 @@ const CommunityList: React.FC = () => {
                     mb={3}
                     transition="color 0.2s"
                     noOfLines={2}
+                    textAlign="left"
                   >
                     {post.title}
                   </Text>
@@ -473,6 +584,7 @@ const CommunityList: React.FC = () => {
                     lineHeight="1.6"
                     noOfLines={3}
                     mb={3}
+                    textAlign="left"
                   >
                     {getPostDescription(post)}
                   </Text>
@@ -515,22 +627,6 @@ const CommunityList: React.FC = () => {
                 Try adjusting your search terms or browse by category
               </Text>
             )}
-          </Box>
-        )}
-
-        {/* Loading Indicator */}
-        {!apiLoading && filteredContent.length > 0 && (
-          <Box textAlign="center" py={8}>
-            <Box
-              w={8}
-              h={8}
-              border="2px solid"
-              borderColor="#e2e8f0"
-              borderTopColor="#2b8cee"
-              borderRadius="full"
-              animation="spin 1s linear infinite"
-              mx="auto"
-            />
           </Box>
         )}
       </Box>

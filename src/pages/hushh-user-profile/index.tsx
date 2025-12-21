@@ -431,7 +431,15 @@ const HushhUserProfilePage: React.FC = () => {
   };
 
   const handleBack = () => {
-    navigate(-1);
+    // More robust history check - use browser's history length
+    // which is more reliable than React Router's internal state
+    if (window.history.length > 2) {
+      // There's navigation history, go back
+      navigate(-1);
+    } else {
+      // No meaningful history (only current page or direct access), go to home
+      navigate('/');
+    }
   };
 
   const handleSave = () => {

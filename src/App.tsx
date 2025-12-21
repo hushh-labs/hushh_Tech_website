@@ -40,6 +40,7 @@ import KYCFormPage from './pages/kyc-form/page';
 import { Session } from '@supabase/supabase-js';
 import DiscoverFundA from './pages/discover-fund-a';
 import SellTheWallPage from './pages/sell-the-wall';
+import AIPoweredBerkshirePage from './pages/ai-powered-berkshire';
 import UserRegistration from './pages/UserRegistration';
 import ProtectedRoute from './components/ProtectedRoute';
 import YourProfilePage from './pages/your-profile';
@@ -71,6 +72,7 @@ import KYCDemoPage from './pages/kyc-demo';
 import KycFlowPage from './pages/kyc-flow';
 import A2APlaygroundPage from './pages/a2a-playground';
 import ReceiptGeneratorPage from './pages/receipt-generator';
+import MobileBottomNav from './components/MobileBottomNav';
 
 // Google Analytics configuration
 const GA_TRACKING_ID = 'G-R58S9WWPM0';
@@ -354,6 +356,11 @@ function App() {
                 <SellTheWallPage />
 
               } />
+              <Route path='/ai-powered-berkshire' element={
+
+                <AIPoweredBerkshirePage />
+
+              } />
               <Route path='/user-registration' element={
                 <ProtectedRoute>
                   <UserRegistration />
@@ -397,6 +404,8 @@ function App() {
             </Routes>
           </ContentWrapper>
           <Footer />
+          {/* Mobile Bottom Navigation - only visible on mobile */}
+          <MobileBottomNav />
         </div>
         
         {/* Dev Console Toggle Button - only shows when enabled but console is closed */}
