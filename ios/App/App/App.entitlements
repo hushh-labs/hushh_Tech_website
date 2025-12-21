@@ -5,7 +5,9 @@
 	<key>com.apple.developer.associated-domains</key>
 	<array>
 		<string>applinks:hushh.ai</string>
+		<string>applinks:www.hushh.ai</string>
 		<string>webcredentials:hushh.ai</string>
+		<string>webcredentials:www.hushh.ai</string>
 	</array>
 </dict>
 </plist>
