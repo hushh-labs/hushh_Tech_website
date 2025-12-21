@@ -13,12 +13,12 @@ import { useStockQuotes, StockQuote, STOCK_LOGOS } from "../hooks/useStockQuotes
 let tapCount = 0;
 let lastTapTime = 0;
 
-// Chip-based ticker component
+// Chip-based ticker component - Light theme design
 const TickerChip = ({ quote, isLoading }: { quote: StockQuote; isLoading?: boolean }) => {
   return (
-    <div className="group flex h-9 shrink-0 items-center gap-2 rounded-full bg-[#1a232e] border border-white/5 pl-2 pr-3 hover:border-white/10 transition-colors">
-      {/* Logo in white circle */}
-      <div className="flex w-6 h-6 items-center justify-center rounded-full bg-white shrink-0 overflow-hidden">
+    <div className="group flex h-10 shrink-0 items-center gap-2 rounded-full bg-white border border-gray-200 shadow-sm pl-2 pr-3.5 hover:shadow-md transition-all">
+      {/* Logo in gray circle */}
+      <div className="flex w-7 h-7 items-center justify-center rounded-full bg-gray-100 shrink-0 overflow-hidden">
         {quote.logo ? (
           <img
             src={quote.logo}
@@ -29,15 +29,15 @@ const TickerChip = ({ quote, isLoading }: { quote: StockQuote; isLoading?: boole
             }}
           />
         ) : (
-          <span className="text-[10px] font-bold text-black">{quote.displaySymbol.charAt(0)}</span>
+          <span className="text-[10px] font-bold text-gray-600">{quote.displaySymbol.charAt(0)}</span>
         )}
       </div>
       {/* Stock symbol - use displaySymbol for cleaner display */}
-      <span className="text-[11px] font-bold text-white leading-none">{quote.displaySymbol}</span>
+      <span className="text-[12px] font-bold text-gray-800 leading-none">{quote.displaySymbol}</span>
       {/* Percent change with arrow */}
-      <div className={`ml-0.5 flex items-center gap-0.5 ${quote.isUp ? 'text-green-400' : 'text-red-400'}`}>
-        <span className="text-[12px]">{quote.isUp ? '▲' : '▼'}</span>
-        <span className={`text-[11px] font-medium ${isLoading ? 'animate-pulse' : ''}`}>
+      <div className={`ml-0.5 flex items-center gap-0.5 ${quote.isUp ? 'text-green-600' : 'text-red-500'}`}>
+        <span className="text-[10px]">{quote.isUp ? '▲' : '▼'}</span>
+        <span className={`text-[11px] font-semibold ${isLoading ? 'animate-pulse' : ''}`}>
           {Math.abs(quote.percentChange).toFixed(1)}%
         </span>
       </div>
@@ -191,15 +191,15 @@ export default function Navbar() {
 
   return (
     <>
-      {/* Fixed Header with Navigation + Ticker - Dark Theme */}
+      {/* Fixed Header with Navigation + Ticker - Light Theme */}
       <header className="fixed w-full z-[999] top-0">
-        {/* Main Navigation Bar - BLACK Background (NOW ON TOP) */}
-        <nav className="flex w-full items-center justify-between bg-black px-4 py-3 border-b border-white/10">
+        {/* Main Navigation Bar - Soft Light Background */}
+        <nav className="flex w-full items-center justify-between bg-[#F8F9FA] px-4 h-16 border-b border-gray-200 transition-colors duration-300">
           {/* Left: Brand Lockup */}
           <Link to="/" className="flex items-center gap-3">
-            {/* Hushh Logo Image in Circle */}
+            {/* Hushh Logo Image in Circle with subtle gradient */}
             <div 
-              className="flex items-center justify-center w-10 h-10 rounded-full bg-white/10 shrink-0 cursor-pointer overflow-hidden"
+              className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 border border-gray-200/50 shadow-sm shrink-0 cursor-pointer overflow-hidden"
               onClick={(e) => {
                 e.preventDefault();
                 handleSecretGesture();
@@ -213,30 +213,30 @@ export default function Navbar() {
               />
             </div>
             {/* Brand Text - Stacked Layout */}
-            <h1 className="text-white text-[19px] font-extrabold leading-tight tracking-tight font-display">
-              Hushh <br/>
-              <span className="font-semibold text-white/80 text-sm">Technologies</span>
-            </h1>
+            <div className="flex flex-col">
+              <h1 className="text-[18px] font-bold leading-none tracking-tight text-gray-900">Hushh</h1>
+              <span className="text-[13px] text-gray-500 font-medium mt-0.5">Technologies</span>
+            </div>
           </Link>
 
           {/* Right: Utilities */}
           <div className="flex items-center gap-3">
-            {/* Language Selector - Dark Theme */}
-            <LanguageSwitcher variant="dark" />
+            {/* Language Selector */}
+            <LanguageSwitcher variant="light" />
             
-            {/* Hamburger Menu - Blue Accent */}
+            {/* Hamburger Menu - Blue Primary */}
             <button
               onClick={toggleDrawer}
-              className="flex items-center justify-center w-10 h-10 rounded-full bg-[#2b8cee] text-white active:scale-95 transition-transform shadow-[0_4px_12px_rgba(43,140,238,0.3)]"
+              className="flex items-center justify-center w-11 h-11 rounded-full bg-[#2F80ED] text-white active:scale-95 transition-transform shadow-lg shadow-blue-500/30 hover:bg-blue-600"
               aria-label="Toggle menu"
             >
-              <FiMenu className="w-6 h-6" />
+              <FiMenu className="w-5 h-5" />
             </button>
           </div>
         </nav>
 
-        {/* Chip-based Ticker Strip - BELOW Navigation (No Watchlist Label) */}
-        <section className="relative w-full bg-black py-2.5 border-b border-white/5">
+        {/* Chip-based Ticker Strip - BELOW Navigation */}
+        <section className="relative w-full bg-[#F8F9FA] py-2.5 border-b border-gray-200">
           {/* Ticker Marquee with Fade Mask */}
           <div className="ticker-mask relative flex w-full overflow-hidden">
             <div className="ticker-track flex items-center gap-3 px-4">

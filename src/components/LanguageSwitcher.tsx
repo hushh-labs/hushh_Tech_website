@@ -58,18 +58,18 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ variant = 'light' }
       {/* Language Selector Pill */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`group flex h-9 items-center gap-1.5 rounded-full px-2.5 transition-colors ${
+        className={`group flex h-9 items-center gap-1 px-3 py-1.5 rounded-full transition-colors ${
           isDark 
-            ? 'bg-white/5 active:bg-white/10 border border-white/5' 
-            : 'bg-[#f6f6f8] hover:bg-gray-200'
+            ? 'bg-gray-800 active:bg-gray-700 border border-gray-700' 
+            : 'bg-gray-100 hover:bg-gray-200 border border-transparent dark:bg-gray-800 dark:hover:bg-gray-700 dark:border-gray-700'
         }`}
         aria-label="Select language"
       >
-        <FiGlobe className={`w-4 h-4 ${isDark ? 'text-white' : 'text-gray-600 group-hover:text-gray-900'}`} />
-        <span className={`text-[13px] font-bold tracking-wide ${isDark ? 'text-white' : 'text-gray-700 group-hover:text-gray-900'}`}>
+        <FiGlobe className={`w-3.5 h-3.5 ${isDark ? 'text-gray-400' : 'text-gray-600 dark:text-gray-400'}`} />
+        <span className={`text-xs font-semibold ${isDark ? 'text-gray-300' : 'text-gray-700 dark:text-gray-300'}`}>
           {currentLang}
         </span>
-        <FiChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''} ${isDark ? 'text-white/70' : 'text-gray-500'}`} />
+        <FiChevronDown className={`w-3.5 h-3.5 transition-transform ${isOpen ? 'rotate-180' : ''} ${isDark ? 'text-gray-500' : 'text-gray-500'}`} />
       </button>
 
       {/* Dropdown Menu */}
