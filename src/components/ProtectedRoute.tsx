@@ -22,7 +22,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         if (!config.supabaseClient) {
           console.error("Supabase client is not initialized");
           console.info("[Hushh][ProtectedRoute] Missing Supabase client, cannot verify session");
-          navigate("/login");
+          navigate("/login", { replace: true });
           return;
         }
 
@@ -56,7 +56,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
           if (!session?.user) {
             console.error("[Hushh][ProtectedRoute] Session still missing after wait");
-            navigate("/login");
+            navigate("/login", { replace: true });
             return;
           }
         }
@@ -65,7 +65,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         if (!user) {
           // User is not authenticated, redirect to login
           console.info("[Hushh][ProtectedRoute] No user found after auth check");
-          navigate("/login");
+          navigate("/login", { replace: true });
           return;
         }
 
@@ -84,7 +84,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
           // User must complete onboarding first
           if (!isOnOnboardingPage) {
             console.log('Redirecting to onboarding - not completed yet');
-            navigate('/onboarding/step-1');
+            // Use replace: true to prevent infinite back button loop
+            // This replaces the current history entry instead of adding a new one
+            navigate('/onboarding/step-1', { replace: true });
             return;
           }
         }
@@ -93,7 +95,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         setIsAuthorized(true);
       } catch (error) {
         console.error("Error checking auth and onboarding:", error);
-        navigate("/login");
+        navigate("/login", { replace: true });
       } finally {
         setIsLoading(false);
         if (timeout) {
