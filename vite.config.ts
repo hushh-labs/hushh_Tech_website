@@ -22,10 +22,13 @@ export default defineConfig({
     outDir: 'dist',
     // strongly recommend cleaning to avoid stale assets on Vercel
     emptyOutDir: true,
-    // Enable sourcemaps for debugging production errors (iOS RangeError, etc.)
-    sourcemap: true,
+    // Disable sourcemaps in production to reduce memory usage on Vercel
+    // (Vercel 8GB limit can be exceeded with large assets + sourcemaps)
+    sourcemap: false,
     // Target ES2017+ for better iOS Safari compatibility
     target: 'es2017',
+    // Increase chunk size warning limit (we have large video files)
+    chunkSizeWarningLimit: 5000,
   },
   server: {
     proxy: {
