@@ -1,0 +1,20 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "WVDK9JW99C.ai.hushh.app",
+        "paths": [
+          "/auth/callback",
+          "/auth/callback/*",
+          "/auth/*"
+        ]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": [
+      "WVDK9JW99C.ai.hushh.app"
+    ]
+  }
+}
