@@ -9,7 +9,7 @@ import Footer from './components/Footer';
 import Login from './pages/Login'
 import Contact from './pages/Contact';
 import ScrollToTop from './components/ScrollToTop';
-import FloatingContactBubble from './components/FloatingContactBubble';
+// FloatingContactBubble removed as requested
 import { ChakraProvider } from '@chakra-ui/react';
 import theme from './theme';
 import Consumers from './pages/services/consumers';
@@ -189,7 +189,6 @@ function App() {
         <div className="min-h-screen flex flex-col">
           {/* Navbar - Sticky header with brand lockup */}
           <Navbar />
-          <FloatingContactBubble />
           {/* {session && <NDAPopup />} */}
           <ContentWrapper>
             <Routes>
