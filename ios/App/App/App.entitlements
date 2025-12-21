@@ -4,10 +4,10 @@
 <dict>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
-		<string>applinks:hushh.ai</string>
-		<string>applinks:www.hushh.ai</string>
-		<string>webcredentials:hushh.ai</string>
-		<string>webcredentials:www.hushh.ai</string>
+		<string>applinks:hushhtech.com</string>
+		<string>applinks:www.hushhtech.com</string>
+		<string>webcredentials:hushhtech.com</string>
+		<string>webcredentials:www.hushhtech.com</string>
 	</array>
 </dict>
 </plist>
