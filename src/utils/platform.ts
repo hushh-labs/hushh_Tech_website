@@ -42,15 +42,16 @@ export function getPlatform(): 'ios' | 'android' | 'web' {
 /**
  * Get the appropriate base URL for the current platform
  * - Web: Uses current origin
- * - Native: Uses production URL
+ * - Native: Uses production URL (hushhtech.com for Universal Links)
  */
 export function getBaseUrl(): string {
   if (isNativeApp()) {
-    // In native apps, use production URL
-    return 'https://hushh.ai';
+    // In native apps, use production URL with Universal Links support
+    // This MUST match the domain in AASA file and iOS entitlements
+    return 'https://www.hushhtech.com';
   }
   // On web, use current origin (works for both dev and prod)
-  return typeof window !== 'undefined' ? window.location.origin : 'https://hushh.ai';
+  return typeof window !== 'undefined' ? window.location.origin : 'https://www.hushhtech.com';
 }
 
 /**
