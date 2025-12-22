@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Hushh - Data Privacy</string>
+    <string name="title_activity_main">Hushh - Data Privacy</string>
+    <string name="package_name">ai.hushh.app</string>
+    <string name="custom_url_scheme">ai.hushh.app</string>
+</resources>

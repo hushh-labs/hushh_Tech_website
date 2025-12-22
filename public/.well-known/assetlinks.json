@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "ai.hushh.app",
+      "sha256_cert_fingerprints": [
+        "2A:D1:B0:2D:49:00:81:BC:09:47:51:6E:0B:49:3C:68:0F:3E:47:E6:0D:57:E7:FE:DC:0B:99:5E:CE:D5:EA:08"
+      ]
+    }
+  }
+]

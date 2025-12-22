@@ -1,0 +1,16 @@
+RELEASE NAME:
+Hushh v1.0.0 - Launch
+
+RELEASE NOTES (paste this):
+<en-US>
+Introducing Hushh - Your Data, Your Control, Your Profit.
+
+- HushhID: Complete digital identity with secure onboarding
+- AI-powered investor profile generation
+- Fund A discovery and investment tracking
+- Real-time stock quotes
+- Privacy-first data control with KYC verification
+- Multi-language support (EN, HI, AR, FR, ZH)
+
+Built by Hushh.ai
+</en-US>
