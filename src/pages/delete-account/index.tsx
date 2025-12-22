@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Container,
@@ -14,9 +14,16 @@ import {
   Link,
   Button,
   useColorModeValue,
+  useDisclosure,
+  Spinner,
+  Icon,
 } from '@chakra-ui/react';
+import { FiTrash2, FiLogIn } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
+import DeleteAccountModal from '../../components/DeleteAccountModal';
+import config from '../../resources/config/config';
 import { Helmet } from 'react-helmet';
 
 const DeleteAccountPage: React.FC = () => {
@@ -24,6 +31,67 @@ const DeleteAccountPage: React.FC = () => {
   const cardBg = useColorModeValue('white', '#1A1A1A');
   const textColor = useColorModeValue('#1A1A1A', '#FAFAFA');
   const mutedColor = useColorModeValue('#6B7280', '#9CA3AF');
+  
+  const navigate = useNavigate();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [userEmail, setUserEmail] = useState<string>('');
+
+  // Check if user is logged in
+  useEffect(() => {
+    const checkSession = async () => {
+      if (!config.supabaseClient) {
+        setIsLoading(false);
+        setIsLoggedIn(false);
+        return;
+      }
+
+      try {
+        const { data: { session } } = await config.supabaseClient.auth.getSession();
+        setIsLoggedIn(!!session);
+        if (session?.user?.email) {
+          setUserEmail(session.user.email);
+        }
+      } catch (error) {
+        console.error('Error checking session:', error);
+        setIsLoggedIn(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkSession();
+
+    // Listen for auth state changes
+    const { data: { subscription } } = config.supabaseClient?.auth.onAuthStateChange(
+      (event, session) => {
+        setIsLoggedIn(!!session);
+        if (session?.user?.email) {
+          setUserEmail(session.user.email);
+        }
+      }
+    ) || { data: { subscription: null } };
+
+    return () => {
+      subscription?.unsubscribe();
+    };
+  }, []);
+
+  // Handle successful account deletion
+  const handleAccountDeleted = () => {
+    onClose();
+    // Redirect to home page after deletion
+    navigate('/');
+  };
+
+  // Handle login redirect
+  const handleLoginRedirect = () => {
+    // Store the return URL
+    sessionStorage.setItem('returnUrl', '/delete-account');
+    navigate('/login');
+  };
 
   return (
     <>
@@ -31,7 +99,7 @@ const DeleteAccountPage: React.FC = () => {
         <title>Delete Account - Hushh</title>
         <meta
           name="description"
-          content="Learn how to delete your Hushh account and understand what data will be removed."
+          content="Delete your Hushh account and remove all your personal data from our systems."
         />
       </Helmet>
 
@@ -54,6 +122,89 @@ const DeleteAccountPage: React.FC = () => {
               <Text color={mutedColor} fontSize={{ base: 'md', md: 'lg' }}>
                 Hushh Technologies - Account Deletion Request
               </Text>
+            </Box>
+
+            {/* CTA Card - Delete Account Action */}
+            <Box
+              bg={cardBg}
+              borderRadius="16px"
+              p={{ base: 6, md: 8 }}
+              boxShadow="sm"
+              border="2px solid"
+              borderColor={useColorModeValue('#DC2626', '#F87171')}
+            >
+              <VStack spacing={5} align="center">
+                <Icon as={FiTrash2} boxSize={12} color="#DC2626" />
+                
+                {isLoading ? (
+                  <VStack spacing={3}>
+                    <Spinner size="lg" color="#DC2626" />
+                    <Text color={mutedColor}>Checking your session...</Text>
+                  </VStack>
+                ) : isLoggedIn ? (
+                  <>
+                    <VStack spacing={2}>
+                      <Heading as="h2" fontSize="xl" fontWeight="600" color={textColor}>
+                        Ready to Delete Your Account?
+                      </Heading>
+                      {userEmail && (
+                        <Text color={mutedColor} fontSize="sm">
+                          Logged in as: {userEmail}
+                        </Text>
+                      )}
+                    </VStack>
+                    <Text color={textColor} textAlign="center" maxW="400px">
+                      Click the button below to permanently delete your account and all associated data.
+                    </Text>
+                    <Button
+                      size="lg"
+                      bg="#DC2626"
+                      color="white"
+                      leftIcon={<FiTrash2 />}
+                      onClick={onOpen}
+                      borderRadius="12px"
+                      height="56px"
+                      px={8}
+                      fontSize="md"
+                      fontWeight="600"
+                      _hover={{ bg: '#B91C1C' }}
+                      _active={{ bg: '#991B1B' }}
+                    >
+                      Delete My Account
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <VStack spacing={2}>
+                      <Heading as="h2" fontSize="xl" fontWeight="600" color={textColor}>
+                        Login Required
+                      </Heading>
+                      <Text color={mutedColor} fontSize="sm">
+                        Please login to delete your account
+                      </Text>
+                    </VStack>
+                    <Text color={textColor} textAlign="center" maxW="400px">
+                      You need to be logged in to delete your account. Please login first to proceed.
+                    </Text>
+                    <Button
+                      size="lg"
+                      bg="#1A1A1A"
+                      color="white"
+                      leftIcon={<FiLogIn />}
+                      onClick={handleLoginRedirect}
+                      borderRadius="12px"
+                      height="56px"
+                      px={8}
+                      fontSize="md"
+                      fontWeight="600"
+                      _hover={{ bg: '#374151' }}
+                      _active={{ bg: '#4B5563' }}
+                    >
+                      Login to Delete Account
+                    </Button>
+                  </>
+                )}
+              </VStack>
             </Box>
 
             {/* Main Content Card */}
@@ -81,7 +232,7 @@ const DeleteAccountPage: React.FC = () => {
                     How to Delete Your Account
                   </Heading>
                   <Text color={textColor} mb={4}>
-                    You can delete your Hushh account directly from the app by following these steps:
+                    You can delete your Hushh account using the button above (if logged in) or from the app:
                   </Text>
                   <OrderedList spacing={3} pl={4} color={textColor}>
                     <ListItem>
@@ -210,6 +361,13 @@ const DeleteAccountPage: React.FC = () => {
 
         <Footer />
       </Box>
+
+      {/* Delete Account Modal */}
+      <DeleteAccountModal
+        isOpen={isOpen}
+        onClose={onClose}
+        onAccountDeleted={handleAccountDeleted}
+      />
     </>
   );
 };
