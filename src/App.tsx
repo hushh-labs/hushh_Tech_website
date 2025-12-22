@@ -26,6 +26,7 @@ import PrivacyPolicy from './pages/privacy-policy';
 import CareersPrivacyPolicy from './pages/career-privacy-policy';
 import CaliforniaPrivacyPolicy from './pages/california-privacy-policy';
 import EUUKPrivacyPolicy from './pages/eu-uk-privacy-policy';
+import DeleteAccountPage from './pages/delete-account';
 import { useState, useEffect, ReactNode } from 'react';
 import config from './resources/config/config';
 import NDAPopup from './components/NdaForm';
@@ -216,6 +217,7 @@ function App() {
               } />
               <Route path='/california-privacy-policy' element={<CaliforniaPrivacyPolicy />} />
               <Route path='/eu-uk-jobs-privacy-policy' element={<EUUKPrivacyPolicy />} />
+              <Route path='/delete-account' element={<DeleteAccountPage />} />
               <Route path="/community/*" element={
 
                 <CommunityPost />
