@@ -19,6 +19,25 @@ const config: CapacitorConfig = {
     scheme: 'hushh',
   },
   
+  // Android specific configuration
+  android: {
+    // Background color for splash and app
+    backgroundColor: '#000000',
+    // Allow mixed content (http on https)
+    allowMixedContent: false,
+    // Capture all external links in the app
+    captureInput: true,
+    // Use WebView debugging in development
+    webContentsDebuggingEnabled: false,
+    // Minimum SDK version
+    minWebViewVersion: 55,
+    // Build options
+    buildOptions: {
+      // Use release keystore
+      releaseType: 'AAB',
+    },
+  },
+  
   // Server configuration for production
   server: {
     // Use HTTPS in production

@@ -15,10 +15,18 @@
     "ios:export": "cd ios/App && xcodebuild -exportArchive -archivePath build/App.xcarchive -exportPath build/export -exportOptionsPlist ../ExportOptions.plist",
     "ios:deploy": "./scripts/ios-deploy.sh",
     "ios:deploy:build-only": "./scripts/ios-deploy.sh --no-upload",
-    "ios:upload": "xcrun altool --upload-app -f ios/App/build/export/App.ipa -t ios --apiKey $APP_STORE_API_KEY_ID --apiIssuer $APP_STORE_ISSUER_ID"
+    "ios:upload": "xcrun altool --upload-app -f ios/App/build/export/App.ipa -t ios --apiKey $APP_STORE_API_KEY_ID --apiIssuer $APP_STORE_ISSUER_ID",
+    "ios:testflight": "./scripts/ios-testflight.sh",
+    "android:sync": "npx cap sync android",
+    "android:open": "npx cap open android",
+    "android:build": "npm run build && npx cap sync android",
+    "android:playstore": "./scripts/android-playstore.sh",
+    "android:debug": "cd android && ./gradlew assembleDebug",
+    "android:release": "cd android && ./gradlew bundleRelease"
   },
   "dependencies": {
     "@ant-design/icons": "^5.5.1",
+    "@capacitor/android": "^8.0.0",
     "@capacitor/cli": "^8.0.0",
     "@capacitor/core": "^8.0.0",
     "@capacitor/ios": "^8.0.0",
