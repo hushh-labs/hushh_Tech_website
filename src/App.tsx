@@ -73,6 +73,7 @@ import KYCDemoPage from './pages/kyc-demo';
 import KycFlowPage from './pages/kyc-flow';
 import A2APlaygroundPage from './pages/a2a-playground';
 import ReceiptGeneratorPage from './pages/receipt-generator';
+import DeveloperDocsPage from './pages/developer-docs';
 import MobileBottomNav from './components/MobileBottomNav';
 
 // Google Analytics configuration
@@ -403,6 +404,7 @@ function App() {
               <Route path='/kyc-flow' element={<KycFlowPage />} />
               <Route path='/a2a-playground' element={<A2APlaygroundPage />} />
               <Route path='/receipt-generator' element={<ReceiptGeneratorPage />} />
+              <Route path='/developer-docs' element={<DeveloperDocsPage />} />
             </Routes>
           </ContentWrapper>
           <Footer />
