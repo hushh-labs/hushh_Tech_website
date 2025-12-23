@@ -193,8 +193,8 @@ const MainContent = ({ activeSection }: { activeSection: string }) => {
           How to Build Your App 🚀
         </Heading>
         <Text fontSize={{ base: 'lg', md: 'xl' }} color="gray.500" fontWeight="light" maxW="2xl">
-          Yeh guide itna simple hai ki 6 saal ka bacha bhi samajh jayega! 
-          Step by step follow karo aur apni app duniya ko dikhao.
+          This guide explains how to build and deploy the Hushh app for iOS, Android, and Web. 
+          Follow the step-by-step instructions with the exact commands and scripts used.
         </Text>
       </VStack>
 
@@ -231,10 +231,10 @@ const MainContent = ({ activeSection }: { activeSection: string }) => {
               </Flex>
               <VStack align="start" spacing={0}>
                 <Text fontWeight="bold" fontSize="lg" color="gray.900">
-                  App Store pe Publish Kaise Karein
+                  How to Publish to App Store (iOS)
                 </Text>
                 <Text fontSize="sm" color="gray.500">
-                  iPhone aur iPad ke liye (iOS)
+                  For iPhone and iPad devices
                 </Text>
               </VStack>
             </HStack>
@@ -244,24 +244,34 @@ const MainContent = ({ activeSection }: { activeSection: string }) => {
             <VStack align="stretch" spacing={6}>
               <Step
                 number={1}
-                title="Apple Developer Account Banao"
-                description="Pehle developer.apple.com pe jaake account banao. Yeh saal mein $99 (lagbhag ₹8,000) lagta hai. Bina iske app nahi upload ho sakti!"
+                title="Apple Developer Account Required"
+                description="You need an Apple Developer account ($99/year). Register at developer.apple.com. Without this, you cannot upload apps to App Store."
               />
               <Step
                 number={2}
-                title="iOS TestFlight Script Run Karo"
-                description="Terminal kholo aur yeh command run karo. Yeh automatically sab kuch kar dega - build, archive, aur upload!"
-                code="npm run ios:testflight"
+                title="Run the iOS TestFlight Script"
+                description="This script (scripts/ios-testflight.sh) automates everything: builds web app, syncs to Capacitor, archives in Xcode, exports IPA, and uploads to TestFlight. Uses App Store Connect API with key ID 2P753XQ823."
+                code={`# One command to build and upload to TestFlight
+npm run ios:testflight
+
+# Script location: scripts/ios-testflight.sh
+# What it does:
+# 1. npm run build (builds React app)
+# 2. npx cap sync ios (copies to iOS project)
+# 3. Increments CURRENT_PROJECT_VERSION in project.pbxproj
+# 4. xcodebuild archive (creates .xcarchive)
+# 5. xcodebuild exportArchive (creates IPA)
+# 6. xcrun altool --upload-app (uploads to TestFlight)`}
               />
               <Step
                 number={3}
-                title="TestFlight pe Dekho"
-                description="Jab upload ho jaye, App Store Connect pe jaake TestFlight section mein dekho. 10-30 minute mein Apple process kar dega."
+                title="Wait for Apple Processing"
+                description="After upload, Apple processes the build (10-30 minutes). You'll receive an email when ready. Check TestFlight section in App Store Connect."
               />
               <Step
                 number={4}
-                title="Review ke liye Bhejo"
-                description="TestFlight se testing kar lo, phir 'App Store' tab mein jaake review ke liye submit karo. Apple 1-2 din mein review karta hai."
+                title="Submit for Review"
+                description="Test with TestFlight, then submit to App Store review. Apple reviews in 1-2 days. Go to App Store tab > Submit for Review."
               />
             </VStack>
           </AccordionPanel>
@@ -298,10 +308,10 @@ const MainContent = ({ activeSection }: { activeSection: string }) => {
               </Flex>
               <VStack align="start" spacing={0}>
                 <Text fontWeight="bold" fontSize="lg" color="gray.900">
-                  Android Build Kaise Banayein
+                  How to Build for Android
                 </Text>
                 <Text fontSize="sm" color="gray.500">
-                  Samsung, Pixel, OnePlus, sab ke liye
+                  For Samsung, Pixel, OnePlus, and all Android devices
                 </Text>
               </VStack>
             </HStack>
@@ -311,27 +321,38 @@ const MainContent = ({ activeSection }: { activeSection: string }) => {
             <VStack align="stretch" spacing={6}>
               <Step
                 number={1}
-                title="Android Studio Install Karo"
-                description="developer.android.com se Android Studio download karo. Yeh free hai aur Android apps banane ke liye zaruri hai."
+                title="Install Android Studio"
+                description="Download Android Studio from developer.android.com. It's free and required for building Android apps. Also install Java JDK 17+."
               />
               <Step
                 number={2}
-                title="Web Build Banao aur Sync Karo"
-                description="Pehle web build banao, phir Android mein copy karo. Yeh commands run karo:"
-                code={`npm run build
-npx cap sync android`}
+                title="Build Web App and Sync to Capacitor"
+                description="First build the React web app, then copy it to the Android project using Capacitor sync command."
+                code={`# Build the React web app (creates dist/ folder)
+npm run build
+
+# Sync web assets to Android project
+npx cap sync android
+
+# This copies dist/ to android/app/src/main/assets/public/`}
               />
               <Step
                 number={3}
-                title="AAB (App Bundle) Banao"
-                description="Yeh signed bundle hai jo Google Play pe upload hota hai. JAVA_HOME set karke run karo:"
-                code={`export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
-cd android && ./gradlew bundleRelease`}
+                title="Create Signed AAB (App Bundle)"
+                description="Build a signed Android App Bundle (.aab) for Google Play. The keystore is at android/app/keystores/. Version is set in android/app/build.gradle (currently versionCode 11, versionName 1.0.8)."
+                code={`# Set JAVA_HOME to Android Studio's JDK
+export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+
+# Build signed release bundle
+cd android && ./gradlew bundleRelease
+
+# Output: android/app/build/outputs/bundle/release/app-release.aab
+# Size: ~115 MB`}
               />
               <Step
                 number={4}
-                title="Google Play Console pe Upload Karo"
-                description="play.google.com/console pe jaao. Naya release banao aur app-release.aab file upload karo. 'Internal Testing' se shuru karo!"
+                title="Upload to Google Play Console"
+                description="Go to play.google.com/console. Create a new release and upload the .aab file. Start with 'Internal Testing' track, then promote to 'Open Testing' or 'Production'."
               />
             </VStack>
           </AccordionPanel>
@@ -368,10 +389,10 @@ cd android && ./gradlew bundleRelease`}
               </Flex>
               <VStack align="start" spacing={0}>
                 <Text fontWeight="bold" fontSize="lg" color="gray.900">
-                  React Web Build Kaise Banayein
+                  How to Build React Web App
                 </Text>
                 <Text fontSize="sm" color="gray.500">
-                  Website ke liye production build
+                  Production build for website deployment
                 </Text>
               </VStack>
             </HStack>
@@ -381,29 +402,47 @@ cd android && ./gradlew bundleRelease`}
             <VStack align="stretch" spacing={6}>
               <Step
                 number={1}
-                title="Dependencies Install Karo"
-                description="Pehle sab packages install karo. Yeh sirf pehli baar ya naye packages add karne pe karna padta hai."
-                code="npm install"
+                title="Install Dependencies"
+                description="Install all npm packages. Only needed first time or when package.json changes."
+                code={`# Install all dependencies from package.json
+npm install
+
+# This creates node_modules/ folder with all packages`}
               />
               <Step
                 number={2}
-                title="Production Build Banao"
-                description="Yeh command chhoti, fast files banata hai jo website pe load hoti hain. Build 'dist' folder mein banti hai."
-                code="npm run build"
+                title="Create Production Build"
+                description="Build optimized, minified files for production. Uses Vite bundler. Also generates sitemap.xml and robots.txt via post-build scripts."
+                code={`# Build command (defined in package.json)
+npm run build
+
+# What this runs:
+# 1. vite build (creates dist/ folder with optimized JS/CSS)
+# 2. node scripts/generate-sitemap.js
+# 3. node scripts/generate-robots.js
+
+# Output: dist/ folder (~4.8MB JS bundle gzipped)`}
               />
               <Step
                 number={3}
-                title="Local mein Test Karo"
-                description="Deploy karne se pehle locally check kar lo ki sab sahi hai:"
-                code="npm run preview"
+                title="Test Locally Before Deploy"
+                description="Preview the production build locally to verify everything works correctly."
+                code={`# Start local preview server
+npm run preview
+
+# Opens at http://localhost:4173`}
               />
               <Step
                 number={4}
-                title="Vercel pe Deploy Karo"
-                description="Git push karo aur Vercel automatically deploy kar dega! Ya manual bhi kar sakte ho."
-                code={`git add .
-git commit -m "New build"
-git push`}
+                title="Deploy to Vercel"
+                description="Push to GitHub and Vercel auto-deploys. Connected to main branch. Site: hushh.ai"
+                code={`# Commit and push changes
+git add .
+git commit -m "Your commit message"
+git push
+
+# Vercel automatically deploys from GitHub
+# Check: vercel.com/dashboard for build status`}
               />
             </VStack>
           </AccordionPanel>
@@ -421,8 +460,8 @@ git push`}
       >
         <HStack justify="space-between" flexWrap="wrap" gap={4}>
           <VStack align="start" spacing={1}>
-            <Text fontWeight="bold" color="gray.900">Kya yeh guide helpful thi? 🤔</Text>
-            <Text fontSize="sm" color="gray.500">Hum feedback sunna chahte hain!</Text>
+            <Text fontWeight="bold" color="gray.900">Was this guide helpful? 🤔</Text>
+            <Text fontSize="sm" color="gray.500">We value your feedback!</Text>
           </VStack>
           <HStack spacing={3}>
             <Box
@@ -438,7 +477,7 @@ git push`}
               transition="all 0.2s"
               _hover={{ borderColor: 'green.400' }}
             >
-              👍 Haan
+              👍 Yes
             </Box>
             <Box
               as="button"
@@ -453,7 +492,7 @@ git push`}
               transition="all 0.2s"
               _hover={{ borderColor: 'red.400' }}
             >
-              👎 Nahi
+              👎 No
             </Box>
           </HStack>
         </HStack>
