@@ -8,9 +8,6 @@ import q5 from '../../../components/images/market-updates/dmu28feb/q5.jpg';
 import q6 from '../../../components/images/market-updates/dmu28feb/q6.jpg';
 import q7 from '../../../components/images/market-updates/dmu28feb/q7.jpg';
 import q8 from '../../../components/images/market-updates/dmu28feb/q8.jpg';
-import video1 from '../../../components/images/market-updates/dmu28feb/v1.mp4';
-import video2 from '../../../components/images/market-updates/dmu28feb/v2.mp4';
-import video3 from '../../../components/images/market-updates/dmu28feb/v3.mp4';
 import MarketUpdateGallery from '../../../components/MarketUpdateGallery';
 
 
@@ -130,14 +127,8 @@ const Dmu28Feb = () => {
       </Heading>
       <MarketUpdateGallery 
         date="dmu28feb" 
-        imagePattern='q{i}.jpg'
-        title = "Supporting Charts & Data"
+        title="Supporting Charts & Data"
       />
-      <Box display="flex" flexDirection={{ base: 'column', md: 'row' }} justifyContent="center" alignItems="center" mt={4}>
-        <Box as="video" src={video1} controls width={{ base: '100%', md: '30%' }} mb={{ base: 4, md: 0 }} mr={{ md: 2 }} />
-        <Box as="video" src={video2} controls width={{ base: '100%', md: '30%' }} mb={{ base: 4, md: 0 }} mr={{ md: 2 }} />
-        <Box as="video" src={video3} controls width={{ base: '100%', md: '30%' }} />
-      </Box>
     </Box>
   );
 };
