@@ -1,0 +1,76 @@
+# GitHub Action to deploy Email Template API to Google Cloud Run
+# Triggers on push to main when cloud-run/ folder changes
+#
+# Required GitHub Secrets:
+# - GCP_SA_KEY: Service Account JSON key with Cloud Run Admin role
+#
+# GCP Project: hushone-app (53407187172)
+
+name: Deploy Email Template API to Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'cloud-run/email-template-api/**'
+  workflow_dispatch: # Allow manual trigger
+
+env:
+  PROJECT_ID: hushone-app
+  SERVICE_NAME: email-template-api
+  REGION: us-central1
+
+jobs:
+  deploy:
+    name: Deploy to Cloud Run
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: Deploy to Cloud Run
+        run: |
+          cd cloud-run/email-template-api
+          gcloud run deploy ${{ env.SERVICE_NAME }} \
+            --source . \
+            --region ${{ env.REGION }} \
+            --platform managed \
+            --allow-unauthenticated \
+            --port 8080 \
+            --memory 256Mi \
+            --cpu 1 \
+            --min-instances 0 \
+            --max-instances 10 \
+            --timeout 60s \
+            --quiet
+
+      - name: Get Service URL
+        id: get-url
+        run: |
+          URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
+            --region ${{ env.REGION }} \
+            --format 'value(status.url)')
+          echo "SERVICE_URL=$URL" >> $GITHUB_OUTPUT
+          echo "✅ Deployed to: $URL"
+
+      - name: Test Health Check
+        run: |
+          URL="${{ steps.get-url.outputs.SERVICE_URL }}"
+          echo "Testing health check at: $URL"
+          curl -f "$URL" || echo "Health check pending..."

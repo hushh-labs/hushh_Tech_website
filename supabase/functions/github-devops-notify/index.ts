@@ -9,12 +9,12 @@
  * 
  * Architecture:
  * - Edge Function receives webhook from GitHub
- * - Calls Vercel API endpoint to get email HTML template
+ * - Calls Google Cloud Run API to get email HTML template
  * - Sends email using Gmail API
  * 
  * Updated: Dec 26, 2025
- * - Moved email template to Vercel API endpoint
- * - Edge function now calls /api/email-templates/pr-notification
+ * - Migrated email template from Vercel to Google Cloud Run
+ * - Cloud Run URL: email-template-api-53407187172.us-central1.run.app
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
@@ -27,8 +27,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, X-Hub-Signature-256, X-GitHub-Event, X-GitHub-Delivery",
 };
 
-// Vercel API endpoint for email template
-const EMAIL_TEMPLATE_API = "https://hushh.ai/api/email-templates/pr-notification";
+// Google Cloud Run API endpoint for email template
+const EMAIL_TEMPLATE_API = "https://email-template-api-53407187172.us-central1.run.app/pr-notification";
 
 /**
  * Verify GitHub webhook signature using HMAC-SHA256
@@ -77,7 +77,7 @@ function formatToIST(isoTimestamp: string): string {
 }
 
 /**
- * PR Data interface matching what the Vercel API expects
+ * PR Data interface matching what the Cloud Run API expects
  */
 interface PRData {
   prNumber: number;
@@ -158,8 +158,8 @@ function extractPRData(payload: any): PRData | null {
 }
 
 /**
- * Fetch email template from Vercel API endpoint
- * This is the key architectural change - template UI is now in main codebase
+ * Fetch email template from Google Cloud Run API
+ * This is the key architectural change - template UI is now in main codebase (cloud-run/)
  */
 async function fetchEmailTemplate(prData: PRData): Promise<{ subject: string; html: string } | null> {
   try {
@@ -293,12 +293,12 @@ serve(async (req: Request) => {
 
     console.log(`Processing merged PR #${prData.prNumber}: ${prData.prTitle}`);
 
-    // Fetch email template from Vercel API (UI is in main codebase)
+    // Fetch email template from Cloud Run API (UI is in main codebase: cloud-run/)
     const emailTemplate = await fetchEmailTemplate(prData);
     if (!emailTemplate) {
       return new Response(JSON.stringify({ 
-        error: "Failed to fetch email template from API",
-        details: "Could not get HTML template from /api/email-templates/pr-notification"
+        error: "Failed to fetch email template from Cloud Run API",
+        details: "Could not get HTML template from email-template-api Cloud Run service"
       }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },

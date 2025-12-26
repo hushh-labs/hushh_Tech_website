@@ -1,32 +1,39 @@
 /**
- * Vercel API Endpoint for GitHub PR Notification Email Template
+ * Google Cloud Run API for GitHub PR Notification Email Template
  * 
- * This endpoint receives PR data and returns the HTML email template.
- * The Edge Function calls this to get the email UI.
+ * This API receives PR data and returns the HTML email template.
+ * The Supabase Edge Function calls this to get the email UI.
  * 
- * POST /api/email-templates/pr-notification
+ * POST /pr-notification
  * Body: { prData: PRData }
  * Returns: { html: string, subject: string }
  * 
- * Updated: Dec 26, 2025
+ * GCP Project: hushone-app
+ * Created: Dec 26, 2025
  */
 
-export default async function handler(req, res) {
-  // CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+import express from 'express';
+import cors from 'cors';
 
-  // Handle preflight
-  if (req.method === 'OPTIONS') {
-    return res.status(204).end();
-  }
+const app = express();
+const PORT = process.env.PORT || 8080;
 
-  // Only accept POST
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+// Middleware
+app.use(cors());
+app.use(express.json());
 
+// Health check endpoint
+app.get('/', (req, res) => {
+  res.json({ 
+    status: 'healthy',
+    service: 'Hushh Email Template API',
+    version: '1.0.0',
+    endpoints: ['/pr-notification']
+  });
+});
+
+// PR Notification Email Template Endpoint
+app.post('/pr-notification', (req, res) => {
   try {
     const { prData } = req.body;
 
@@ -50,7 +57,7 @@ export default async function handler(req, res) {
       message: error.message,
     });
   }
-}
+});
 
 /**
  * Generate email subject line (ASCII only)
@@ -140,7 +147,7 @@ function formatDescription(description) {
 }
 
 /**
- * Generate the full HTML email content - New Tailwind-inspired UI
+ * Generate the full HTML email content - Tailwind-inspired UI
  */
 function generateEmailHtml(pr) {
   const description = formatDescription(pr.prDescription);
@@ -349,3 +356,8 @@ function generateEmailHtml(pr) {
 </html>
   `.trim();
 }
+
+// Start server
+app.listen(PORT, () => {
+  console.log(`🚀 Email Template API running on port ${PORT}`);
+});
