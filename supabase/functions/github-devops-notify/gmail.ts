@@ -111,20 +111,38 @@ async function getAccessToken(
 }
 
 /**
- * Create RFC 2822 formatted email message
+ * Encode subject with RFC 2047 for proper UTF-8/ASCII handling
+ */
+function encodeSubject(subject: string): string {
+  // Check if subject contains only ASCII characters
+  const isAscii = /^[\x00-\x7F]*$/.test(subject);
+  if (isAscii) {
+    return subject;
+  }
+  // Encode non-ASCII subjects using RFC 2047 Base64 encoding
+  const encoded = btoa(unescape(encodeURIComponent(subject)));
+  return `=?UTF-8?B?${encoded}?=`;
+}
+
+/**
+ * Create RFC 2822 formatted email message with multiple recipients support
  */
 function createEmailMessage(
   from: string,
-  to: string,
+  recipients: string[],
   subject: string,
   htmlContent: string
 ): string {
   const boundary = `boundary_${Date.now()}`;
+  const encodedSubject = encodeSubject(subject);
+  
+  // Join all recipients with comma for the To header
+  const toHeader = recipients.join(", ");
   
   const emailLines = [
     `From: Hushh DevOps <${from}>`,
-    `To: ${to}`,
-    `Subject: ${subject}`,
+    `To: ${toHeader}`,
+    `Subject: ${encodedSubject}`,
     `MIME-Version: 1.0`,
     `Content-Type: multipart/alternative; boundary="${boundary}"`,
     ``,
@@ -149,7 +167,7 @@ function createEmailMessage(
  * Send email using Gmail API
  */
 interface EmailParams {
-  to: string;
+  to: string | string[];  // Single recipient or array of recipients
   subject: string;
   htmlContent: string;
 }
@@ -178,7 +196,10 @@ export async function sendGmailNotification(params: EmailParams): Promise<EmailR
     // Handle newlines in private key (they may be escaped in env vars)
     const formattedPrivateKey = privateKey.replace(/\\n/g, "\n");
 
-    console.log(`Sending email from ${senderEmail} to ${params.to}`);
+    // Normalize recipients to array
+    const recipients = Array.isArray(params.to) ? params.to : [params.to];
+    
+    console.log(`Sending email from ${senderEmail} to ${recipients.join(", ")}`);
 
     // Get access token
     const accessToken = await getAccessToken(
@@ -187,10 +208,10 @@ export async function sendGmailNotification(params: EmailParams): Promise<EmailR
       senderEmail
     );
 
-    // Create email message
+    // Create email message with multiple recipients
     const rawMessage = createEmailMessage(
       senderEmail,
-      params.to,
+      recipients,
       params.subject,
       params.htmlContent
     );
@@ -223,7 +244,7 @@ export async function sendGmailNotification(params: EmailParams): Promise<EmailR
     }
 
     const result = await response.json();
-    console.log("Email sent successfully, message ID:", result.id);
+    console.log(`Email sent successfully to ${recipients.length} recipients, message ID:`, result.id);
 
     return {
       success: true,

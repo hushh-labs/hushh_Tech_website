@@ -2,10 +2,15 @@
  * GitHub DevOps Notify - Supabase Edge Function
  * 
  * Receives GitHub webhook events for PR merges and sends email notifications
- * to dev-ops@hushh.ai with PR details.
+ * to the DevOps team with PR details.
  * 
  * FROM: ankit@hushh.ai
- * TO: dev-ops@hushh.ai
+ * TO: DevOps Team (manish@, neelesh1@, ankit@, i-akshat@, suresh@)
+ * 
+ * Updated: Dec 26, 2025
+ * - Fixed subject line encoding (removed emojis, ASCII only)
+ * - Added support for multiple recipients
+ * - Professional formatting
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
@@ -243,9 +248,18 @@ serve(async (req: Request) => {
     const emailSubject = generateEmailSubject(prData);
     const emailHtml = generateEmailHtml(prData);
 
-    // Send email notification
+    // DevOps team recipients
+    const devOpsTeam = [
+      "manish@hushh.ai",
+      "neelesh1@hushh.ai",
+      "ankit@hushh.ai",
+      "i-akshat@hush1one.com",
+      "suresh@hushh.ai",
+    ];
+
+    // Send email notification to all team members
     const emailResult = await sendGmailNotification({
-      to: "dev-ops@hushh.ai",
+      to: devOpsTeam,
       subject: emailSubject,
       htmlContent: emailHtml,
     });

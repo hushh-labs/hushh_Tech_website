@@ -38,7 +38,7 @@ interface PRData {
 }
 
 /**
- * Generate email subject line
+ * Generate email subject line (ASCII only - no emojis to avoid encoding issues)
  */
 export function generateEmailSubject(pr: PRData): string {
   // Detect type from PR title or labels
@@ -46,7 +46,7 @@ export function generateEmailSubject(pr: PRData): string {
   const titleLower = pr.prTitle.toLowerCase();
   
   if (titleLower.startsWith("fix") || pr.labels.includes("bug")) {
-    type = "FIX";
+    type = "BUGFIX";
   } else if (titleLower.startsWith("feat") || pr.labels.includes("feature")) {
     type = "FEATURE";
   } else if (titleLower.startsWith("docs") || pr.labels.includes("documentation")) {
@@ -55,9 +55,14 @@ export function generateEmailSubject(pr: PRData): string {
     type = "REFACTOR";
   } else if (titleLower.startsWith("chore")) {
     type = "CHORE";
+  } else if (titleLower.startsWith("hotfix")) {
+    type = "HOTFIX";
+  } else if (titleLower.startsWith("release")) {
+    type = "RELEASE";
   }
 
-  return `🚀 [${type}] PR #${pr.prNumber} - ${pr.prTitle}`;
+  // Clean subject - ASCII only, no emojis
+  return `[Hushh DevOps] ${type}: PR #${pr.prNumber} merged to ${pr.baseBranch}`;
 }
 
 /**
