@@ -1,278 +1,479 @@
 /**
- * PR Notification Email Template - Pure JavaScript (Gmail-Safe)
- * 
- * This generates Gmail-compatible HTML using table-based layout
- * with bgcolor HTML attributes instead of CSS background-color.
- * 
- * Gmail strips: background-color CSS, border-radius, box-shadow, gradients
- * Gmail keeps: bgcolor attribute, border attribute, inline styles on td
+ * PR Notification Email Template - Gmail-safe (tables + bgcolor + inline styles)
+ * - DO NOT use Tailwind / scripts in emails (Gmail strips)
+ * - Use tables + bgcolor + inline styles for layout + colors
  */
 
-// Color palette
 const colors = {
-  primary: '#2563eb',
-  success: '#10b981',
-  danger: '#ef4444',
-  bgLight: '#f9fafb',
-  bgCard: '#ffffff',
-  bgMuted: '#f3f4f6',
-  bgBlue: '#eff6ff',
-  textDark: '#1f2937',
-  textMuted: '#6b7280',
-  border: '#e5e7eb',
-  borderBlue: '#93c5fd',
-  bgBlueBadge: '#dbeafe',
-  bgGreenBadge: '#d1fae5',
-  textBlue: '#1d4ed8',
-  textGreen: '#059669',
+  primary: "#2563eb",
+  primaryDark: "#1d4ed8",
+  success: "#10b981",
+  danger: "#ef4444",
+
+  bgPage: "#f9fafb",
+  bgCard: "#ffffff",
+  bgHeader: "#eff6ff",
+  bgMuted: "#f3f4f6",
+
+  border: "#e5e7eb",
+  textDark: "#111827",
+  textMuted: "#6b7280",
+
+  badgeBlueBg: "#dbeafe",
+  badgeBlueText: "#1d4ed8",
+  badgeGreenBg: "#d1fae5",
+  badgeGreenText: "#059669",
+
+  chipBg: "#e5e7eb",
+  chipText: "#374151",
 };
 
-// Helper to escape HTML
+const FONT_STACK =
+  "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, Helvetica, sans-serif";
+const MONO_STACK =
+  "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace";
+
 function escapeHtml(text) {
-  if (!text) return '';
+  if (text === null || text === undefined) return "";
   return String(text)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
-// Format description with basic markdown
-function formatDescription(description) {
-  if (!description) return '<p style="color: #6b7280; margin: 0;">No description provided.</p>';
-  
-  let html = escapeHtml(description);
-  
-  // Convert ## headers
-  html = html.replace(/^## (.+)$/gm, '<h4 style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #6b7280; margin: 24px 0 8px 0;">$1</h4>');
-  
-  // Convert markdown links
-  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color: #2563eb; text-decoration: none;">$1</a>');
-  
-  // Convert **bold**
-  html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-  
-  // Convert `code`
-  html = html.replace(/`([^`]+)`/g, '<code style="background: #f3f4f6; padding: 2px 6px; font-family: ui-monospace, monospace; font-size: 12px;">$1</code>');
-  
-  // Convert bullet points
-  html = html.replace(/^- (.+)$/gm, '&#8226; $1<br/>');
-  
-  // Convert numbered lists
-  html = html.replace(/^(\d+)\. (.+)$/gm, '$1. $2<br/>');
-  
-  // Convert line breaks
-  html = html.replace(/\n/g, '<br/>');
-  
-  return `<div style="color: #374151; font-size: 14px; line-height: 1.6;">${html}</div>`;
+function safeUrl(url) {
+  if (!url) return "#";
+  // very light safety; avoid breaking attributes
+  return String(url).replace(/"/g, "%22");
 }
 
-/**
- * Generate Gmail-Safe HTML Email using tables with bgcolor
- * @param {Object} pr - PR data object
- * @returns {string} - HTML email string
- */
+function formatInline(text) {
+  let html = escapeHtml(text);
+
+  // links: [text](url)
+  html = html.replace(
+    /\[([^\]]+)\]\(([^)]+)\)/g,
+    (_, label, url) =>
+      `<a href="${safeUrl(url)}" style="color:${colors.primary}; text-decoration:underline;">${escapeHtml(
+        label
+      )}</a>`
+  );
+
+  // **bold**
+  html = html.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+
+  // `code`
+  html = html.replace(
+    /`([^`]+)`/g,
+    `<span style="font-family:${MONO_STACK}; font-size:12px; background-color:${colors.bgMuted}; padding:2px 6px; border:1px solid ${colors.border};">$1</span>`
+  );
+
+  return html;
+}
+
+function formatDescription(md) {
+  if (!md || !String(md).trim()) {
+    return `<p style="margin:0; color:${colors.textMuted}; font-size:14px; line-height:1.6; font-family:${FONT_STACK};">
+      No description provided.
+    </p>`;
+  }
+
+  const lines = String(md).replace(/\r\n/g, "\n").split("\n");
+  let out = [];
+  let inUl = false;
+  let inOl = false;
+
+  const closeLists = () => {
+    if (inUl) {
+      out.push("</ul>");
+      inUl = false;
+    }
+    if (inOl) {
+      out.push("</ol>");
+      inOl = false;
+    }
+  };
+
+  for (const rawLine of lines) {
+    const line = rawLine.trimEnd();
+
+    // blank line -> paragraph break
+    if (!line.trim()) {
+      closeLists();
+      out.push(`<div style="height:10px; line-height:10px;">&nbsp;</div>`);
+      continue;
+    }
+
+    // headings
+    let m;
+    if ((m = line.match(/^###\s+(.+)$/))) {
+      closeLists();
+      out.push(
+        `<h4 style="margin:0 0 8px 0; font-family:${FONT_STACK}; font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:${colors.textMuted};">
+          ${formatInline(m[1])}
+        </h4>`
+      );
+      continue;
+    }
+    if ((m = line.match(/^##\s+(.+)$/))) {
+      closeLists();
+      out.push(
+        `<h3 style="margin:14px 0 8px 0; font-family:${FONT_STACK}; font-size:15px; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; color:${colors.textMuted};">
+          ${formatInline(m[1])}
+        </h3>`
+      );
+      continue;
+    }
+    if ((m = line.match(/^#\s+(.+)$/))) {
+      closeLists();
+      out.push(
+        `<h2 style="margin:14px 0 10px 0; font-family:${FONT_STACK}; font-size:16px; font-weight:800; color:${colors.textDark};">
+          ${formatInline(m[1])}
+        </h2>`
+      );
+      continue;
+    }
+
+    // unordered list
+    if ((m = line.match(/^- (.+)$/))) {
+      if (inOl) {
+        out.push("</ol>");
+        inOl = false;
+      }
+      if (!inUl) {
+        out.push(
+          `<ul style="margin:0; padding-left:18px; font-family:${FONT_STACK}; font-size:14px; line-height:1.6; color:${colors.textDark};">`
+        );
+        inUl = true;
+      }
+      out.push(`<li style="margin:0 0 6px 0;">${formatInline(m[1])}</li>`);
+      continue;
+    }
+
+    // ordered list
+    if ((m = line.match(/^(\d+)\.\s+(.+)$/))) {
+      if (inUl) {
+        out.push("</ul>");
+        inUl = false;
+      }
+      if (!inOl) {
+        out.push(
+          `<ol style="margin:0; padding-left:18px; font-family:${FONT_STACK}; font-size:14px; line-height:1.6; color:${colors.textDark};">`
+        );
+        inOl = true;
+      }
+      out.push(`<li style="margin:0 0 6px 0;">${formatInline(m[2])}</li>`);
+      continue;
+    }
+
+    // normal paragraph
+    closeLists();
+    out.push(
+      `<p style="margin:0; font-family:${FONT_STACK}; font-size:14px; line-height:1.7; color:${colors.textDark};">
+        ${formatInline(line)}
+      </p>`
+    );
+  }
+
+  closeLists();
+
+  return `<div>${out.join("")}</div>`;
+}
+
 export function generatePRNotificationEmail(pr) {
-  const authorInitial = pr?.author?.login?.charAt(0)?.toUpperCase() || 'U';
-  const mergerInitial = pr?.mergedBy?.login?.charAt(0)?.toUpperCase() || 'U';
-  const description = formatDescription(pr?.prDescription);
+  const prNumber = pr?.prNumber ?? "";
+  const prTitle = pr?.prTitle ?? "Pull Request";
+  const prUrl = safeUrl(pr?.prUrl);
+  const repoUrl = safeUrl(pr?.repoUrl);
+  const repoName = pr?.repoName ?? "Repository";
+
+  const baseBranch = pr?.baseBranch || "main";
+  const headBranch = pr?.headBranch || "feature";
+
+  const authorLogin = pr?.author?.login || "Unknown";
+  const mergerLogin = pr?.mergedBy?.login || "Unknown";
+  const authorUrl = safeUrl(pr?.author?.profileUrl);
+  const mergerUrl = safeUrl(pr?.mergedBy?.profileUrl);
+
+  const authorInitial = (authorLogin[0] || "U").toUpperCase();
+  const mergerInitial = (mergerLogin[0] || "U").toUpperCase();
+
+  const createdAt = pr?.createdAt || "N/A";
+  const mergedAt = pr?.mergedAt || "N/A";
+
+  const filesChanged = pr?.filesChanged ?? 0;
+  const additions = pr?.additions ?? 0;
+  const deletions = pr?.deletions ?? 0;
+
+  const descriptionHtml = formatDescription(pr?.prDescription);
+
+  const preheader = `PR #${prNumber} merged to ${baseBranch} • ${authorLogin} → ${mergerLogin}`;
 
   return `
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!doctype html>
+<html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>PR #${pr?.prNumber} Merged</title>
-  <!--[if mso]>
-  <style type="text/css">
-    body, table, td {font-family: Arial, Helvetica, sans-serif !important;}
-  </style>
-  <![endif]-->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PR #${escapeHtml(prNumber)} Merged</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; -webkit-font-smoothing: antialiased;">
-  
-  <!-- Outer Wrapper Table with bgcolor -->
-  <table role="presentation" cellpadding="0" cellspacing="0" width="100%" bgcolor="${colors.bgLight}" style="min-height: 100vh;">
+<body style="margin:0; padding:0; background-color:${colors.bgPage};">
+  <!-- Preheader (hidden) -->
+  <div style="display:none; max-height:0; overflow:hidden; opacity:0; color:transparent; mso-hide:all;">
+    ${escapeHtml(preheader)}
+  </div>
+
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${colors.bgPage}" style="background-color:${colors.bgPage};">
     <tr>
-      <td align="center" style="padding: 40px 16px;">
-        
-        <!-- Main Card Table -->
-        <table role="presentation" cellpadding="0" cellspacing="0" width="700" bgcolor="${colors.bgCard}" style="max-width: 700px; border: 1px solid ${colors.border};">
+      <td align="center" style="padding:24px 12px;">
+        <!-- Container -->
+        <table role="presentation" width="680" cellpadding="0" cellspacing="0" border="0"
+               bgcolor="${colors.bgCard}"
+               style="width:100%; max-width:680px; background-color:${colors.bgCard}; border:1px solid ${colors.border}; border-collapse:separate; overflow:hidden;">
           
-          <!-- Header Section -->
+          <!-- Header -->
           <tr>
-            <td bgcolor="${colors.bgBlue}" style="padding: 32px; border-bottom: 1px solid ${colors.border};">
-              <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+            <td bgcolor="${colors.bgHeader}" style="background-color:${colors.bgHeader}; padding:28px 24px; border-bottom:1px solid ${colors.border};">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                  <td>
-                    <span style="font-size: 36px; display: block; margin-bottom: 8px;">🎉</span>
-                    <h1 style="margin: 0 0 12px 0; font-size: 28px; font-weight: 700; color: ${colors.textDark};">Pull Request Merged!</h1>
-                    <p style="margin: 0; color: ${colors.textMuted}; font-size: 16px;">
-                      A new change has been merged to <code style="font-family: ui-monospace, monospace; background-color: ${colors.bgMuted}; padding: 4px 8px; font-size: 14px; color: ${colors.textDark};">${escapeHtml(pr?.baseBranch || 'main')}</code>
-                    </p>
+                  <td width="44" valign="top" style="padding-right:10px;">
+                    <div style="font-size:30px; line-height:30px;">🎉</div>
+                  </td>
+                  <td valign="top">
+                    <div style="font-family:${FONT_STACK}; font-size:30px; font-weight:800; color:${colors.textDark}; margin:0;">
+                      Pull Request Merged!
+                    </div>
+                    <div style="height:8px; line-height:8px;">&nbsp;</div>
+                    <div style="font-family:${FONT_STACK}; font-size:16px; color:${colors.textMuted}; line-height:1.5;">
+                      A new change has been merged to
+                      <span style="font-family:${MONO_STACK}; font-size:13px; background-color:${colors.bgMuted}; padding:3px 8px; border:1px solid ${colors.border}; color:${colors.textDark};">
+                        ${escapeHtml(baseBranch)}
+                      </span>
+                    </div>
                   </td>
                 </tr>
               </table>
             </td>
           </tr>
-          
-          <!-- Body Content -->
+
+          <!-- Body -->
           <tr>
-            <td style="padding: 32px;">
-              
+            <td style="padding:24px;">
+
               <!-- PR Title -->
-              <h2 style="margin: 0 0 24px 0; font-size: 20px; font-weight: 600; color: ${colors.textDark}; line-height: 1.4;">
-                <a href="${pr?.prUrl}" style="color: ${colors.textDark}; text-decoration: none;">#${pr?.prNumber} ${escapeHtml(pr?.prTitle)}</a>
-              </h2>
-              
-              <!-- Author & Merger Row -->
-              <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 24px;">
+              <div style="font-family:${FONT_STACK}; font-size:20px; font-weight:700; color:${colors.textDark}; line-height:1.35;">
+                <a href="${prUrl}" style="color:${colors.textDark}; text-decoration:none;">
+                  #${escapeHtml(prNumber)} ${escapeHtml(prTitle)}
+                </a>
+              </div>
+
+              <div style="height:18px; line-height:18px;">&nbsp;</div>
+
+              <!-- Raised/Merged By -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                  <td valign="top" width="50%" style="padding-right: 24px;">
-                    <p style="margin: 0 0 8px 0; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: ${colors.textMuted};">Raised By</p>
-                    <table role="presentation" cellpadding="0" cellspacing="0">
+                  <td width="50%" valign="top" style="padding-right:10px;">
+                    <div style="font-family:${FONT_STACK}; font-size:11px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; color:${colors.textMuted};">
+                      Raised By
+                    </div>
+                    <div style="height:6px; line-height:6px;">&nbsp;</div>
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                       <tr>
-                        <td width="24" height="24" bgcolor="${colors.bgBlueBadge}" style="text-align: center; vertical-align: middle;">
-                          <span style="color: ${colors.primary}; font-size: 11px; font-weight: 700; line-height: 24px;">${authorInitial}</span>
+                        <td width="26" height="26" bgcolor="${colors.badgeBlueBg}"
+                            style="background-color:${colors.badgeBlueBg}; text-align:center; vertical-align:middle;">
+                          <span style="font-family:${FONT_STACK}; font-size:12px; font-weight:800; color:${colors.badgeBlueText}; line-height:26px;">
+                            ${escapeHtml(authorInitial)}
+                          </span>
                         </td>
-                        <td style="padding-left: 8px;">
-                          <a href="${pr?.author?.profileUrl || '#'}" style="font-weight: 500; color: ${colors.textDark}; text-decoration: none; font-size: 14px;">${escapeHtml(pr?.author?.login || 'Unknown')}</a>
+                        <td style="padding-left:8px;">
+                          <a href="${authorUrl}" style="font-family:${FONT_STACK}; font-size:14px; font-weight:600; color:${colors.textDark}; text-decoration:none;">
+                            ${escapeHtml(authorLogin)}
+                          </a>
                         </td>
                       </tr>
                     </table>
                   </td>
-                  <td valign="top" width="50%">
-                    <p style="margin: 0 0 8px 0; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: ${colors.textMuted};">Merged By</p>
-                    <table role="presentation" cellpadding="0" cellspacing="0">
+
+                  <td width="50%" valign="top" style="padding-left:10px;">
+                    <div style="font-family:${FONT_STACK}; font-size:11px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; color:${colors.textMuted};">
+                      Merged By
+                    </div>
+                    <div style="height:6px; line-height:6px;">&nbsp;</div>
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                       <tr>
-                        <td width="24" height="24" bgcolor="${colors.bgGreenBadge}" style="text-align: center; vertical-align: middle;">
-                          <span style="color: ${colors.textGreen}; font-size: 11px; font-weight: 700; line-height: 24px;">${mergerInitial}</span>
+                        <td width="26" height="26" bgcolor="${colors.badgeGreenBg}"
+                            style="background-color:${colors.badgeGreenBg}; text-align:center; vertical-align:middle;">
+                          <span style="font-family:${FONT_STACK}; font-size:12px; font-weight:800; color:${colors.badgeGreenText}; line-height:26px;">
+                            ${escapeHtml(mergerInitial)}
+                          </span>
                         </td>
-                        <td style="padding-left: 8px;">
-                          <a href="${pr?.mergedBy?.profileUrl || '#'}" style="font-weight: 500; color: ${colors.textDark}; text-decoration: none; font-size: 14px;">${escapeHtml(pr?.mergedBy?.login || 'Unknown')}</a>
+                        <td style="padding-left:8px;">
+                          <a href="${mergerUrl}" style="font-family:${FONT_STACK}; font-size:14px; font-weight:600; color:${colors.textDark}; text-decoration:none;">
+                            ${escapeHtml(mergerLogin)}
+                          </a>
                         </td>
                       </tr>
                     </table>
                   </td>
                 </tr>
               </table>
-              
-              <!-- Timestamps & Branch Box -->
-              <table role="presentation" cellpadding="0" cellspacing="0" width="100%" bgcolor="${colors.bgLight}" style="border: 1px solid ${colors.border}; margin-bottom: 24px;">
+
+              <div style="height:18px; line-height:18px;">&nbsp;</div>
+
+              <!-- Timestamps + Branch box -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+                     bgcolor="${colors.bgPage}"
+                     style="background-color:${colors.bgPage}; border:1px solid ${colors.border};">
                 <tr>
-                  <td style="padding: 20px;">
-                    <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+                  <td style="padding:16px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                       <tr>
-                        <td width="50%" valign="top" style="padding-right: 16px;">
-                          <p style="margin: 0 0 6px 0; color: ${colors.primary}; font-weight: 600; font-size: 13px;">⏱ PR Raised</p>
-                          <p style="margin: 0; font-size: 13px; color: ${colors.textMuted};">${pr?.createdAt || 'N/A'}</p>
+                        <td width="50%" valign="top" style="padding-right:10px;">
+                          <div style="font-family:${FONT_STACK}; font-size:13px; font-weight:700; color:${colors.primary};">
+                            ⏱ PR Raised
+                          </div>
+                          <div style="height:6px; line-height:6px;">&nbsp;</div>
+                          <div style="font-family:${FONT_STACK}; font-size:13px; color:${colors.textMuted}; line-height:1.5;">
+                            ${escapeHtml(createdAt)}
+                          </div>
                         </td>
-                        <td width="50%" valign="top" style="padding-left: 16px;">
-                          <p style="margin: 0 0 6px 0; color: ${colors.success}; font-weight: 600; font-size: 13px;">✓ Merged</p>
-                          <p style="margin: 0; font-size: 13px; color: ${colors.textMuted};">${pr?.mergedAt || 'N/A'}</p>
+                        <td width="50%" valign="top" style="padding-left:10px;">
+                          <div style="font-family:${FONT_STACK}; font-size:13px; font-weight:700; color:${colors.success};">
+                            ✓ Merged
+                          </div>
+                          <div style="height:6px; line-height:6px;">&nbsp;</div>
+                          <div style="font-family:${FONT_STACK}; font-size:13px; color:${colors.textMuted}; line-height:1.5;">
+                            ${escapeHtml(mergedAt)}
+                          </div>
                         </td>
                       </tr>
                     </table>
-                    
-                    <!-- Branch Flow -->
-                    <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid ${colors.border};">
+
+                    <div style="height:12px; line-height:12px;">&nbsp;</div>
+
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid ${colors.border};">
                       <tr>
-                        <td>
-                          <span style="display: inline-block; background-color: ${colors.border}; color: ${colors.textDark}; padding: 4px 10px; font-family: ui-monospace, monospace; font-size: 12px;">${escapeHtml(pr?.headBranch || 'feature')}</span>
-                          <span style="color: ${colors.textMuted}; padding: 0 8px;">→</span>
-                          <span style="display: inline-block; background-color: ${colors.bgBlueBadge}; color: ${colors.textBlue}; padding: 4px 10px; border: 1px solid ${colors.borderBlue}; font-family: ui-monospace, monospace; font-size: 12px;">${escapeHtml(pr?.baseBranch || 'main')}</span>
+                        <td style="padding-top:12px; font-family:${MONO_STACK}; font-size:12px; color:${colors.textDark};">
+                          <span style="display:inline-block; background-color:${colors.chipBg}; padding:4px 10px; border:1px solid ${colors.border}; color:${colors.chipText};">
+                            ${escapeHtml(headBranch)}
+                          </span>
+                          <span style="color:${colors.textMuted}; padding:0 8px;">→</span>
+                          <span style="display:inline-block; background-color:${colors.badgeBlueBg}; padding:4px 10px; border:1px solid ${colors.border}; color:${colors.badgeBlueText};">
+                            ${escapeHtml(baseBranch)}
+                          </span>
                         </td>
                       </tr>
                     </table>
+
                   </td>
                 </tr>
               </table>
-              
-              <!-- Stats Row -->
-              <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 24px;">
+
+              <div style="height:18px; line-height:18px;">&nbsp;</div>
+
+              <!-- Stats -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                  <td valign="top" style="padding-right: 32px;">
-                    <p style="margin: 0 0 4px 0; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: ${colors.textMuted};">Files Changed</p>
-                    <span style="font-size: 18px; font-weight: 700; color: ${colors.textDark};">${pr?.filesChanged || 0}</span>
+                  <td valign="top" style="padding-right:18px;">
+                    <div style="font-family:${FONT_STACK}; font-size:11px; font-weight:800; letter-spacing:0.8px; text-transform:uppercase; color:${colors.textMuted};">
+                      Files Changed
+                    </div>
+                    <div style="height:6px; line-height:6px;">&nbsp;</div>
+                    <div style="font-family:${FONT_STACK}; font-size:18px; font-weight:800; color:${colors.textDark};">
+                      ${escapeHtml(filesChanged)}
+                    </div>
                   </td>
-                  <td valign="top" style="padding-right: 32px;">
-                    <p style="margin: 0 0 4px 0; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: ${colors.textMuted};">Additions</p>
-                    <span style="font-size: 18px; font-weight: 700; color: ${colors.success};">+${pr?.additions || 0}</span>
+
+                  <td valign="top" style="padding-right:18px;">
+                    <div style="font-family:${FONT_STACK}; font-size:11px; font-weight:800; letter-spacing:0.8px; text-transform:uppercase; color:${colors.textMuted};">
+                      Additions
+                    </div>
+                    <div style="height:6px; line-height:6px;">&nbsp;</div>
+                    <div style="font-family:${FONT_STACK}; font-size:18px; font-weight:800; color:${colors.success};">
+                      +${escapeHtml(additions)}
+                    </div>
                   </td>
+
                   <td valign="top">
-                    <p style="margin: 0 0 4px 0; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: ${colors.textMuted};">Deletions</p>
-                    <span style="font-size: 18px; font-weight: 700; color: ${colors.danger};">-${pr?.deletions || 0}</span>
+                    <div style="font-family:${FONT_STACK}; font-size:11px; font-weight:800; letter-spacing:0.8px; text-transform:uppercase; color:${colors.textMuted};">
+                      Deletions
+                    </div>
+                    <div style="height:6px; line-height:6px;">&nbsp;</div>
+                    <div style="font-family:${FONT_STACK}; font-size:18px; font-weight:800; color:${colors.danger};">
+                      -${escapeHtml(deletions)}
+                    </div>
                   </td>
                 </tr>
               </table>
-              
+
+              <div style="height:22px; line-height:22px;">&nbsp;</div>
+
               <!-- Divider -->
-              <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin: 24px 0;">
-                <tr>
-                  <td style="border-top: 1px solid ${colors.border};"></td>
-                </tr>
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr><td style="border-top:1px solid ${colors.border};"></td></tr>
               </table>
-              
-              <!-- Description Section -->
-              <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 24px;">
+
+              <div style="height:18px; line-height:18px;">&nbsp;</div>
+
+              <!-- Description -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
                   <td>
-                    <table role="presentation" cellpadding="0" cellspacing="0" style="margin-bottom: 16px;">
-                      <tr>
-                        <td style="vertical-align: middle; padding-right: 8px;">
-                          <span style="font-size: 20px;">📝</span>
-                        </td>
-                        <td style="vertical-align: middle;">
-                          <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: ${colors.textDark};">Description</h3>
-                        </td>
-                      </tr>
-                    </table>
-                    ${description}
+                    <div style="font-family:${FONT_STACK}; font-size:18px; font-weight:800; color:${colors.textDark};">
+                      📝 Description
+                    </div>
+                    <div style="height:10px; line-height:10px;">&nbsp;</div>
+                    ${descriptionHtml}
                   </td>
                 </tr>
               </table>
-              
+
+              <div style="height:24px; line-height:24px;">&nbsp;</div>
+
               <!-- CTA Button -->
-              <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 32px 0 40px 0;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                  <td bgcolor="${colors.primary}" style="padding: 14px 24px;">
-                    <a href="${pr?.prUrl}" target="_blank" style="display: inline-block; font-size: 15px; font-weight: 500; color: #ffffff; text-decoration: none;">
+                  <td bgcolor="${colors.primary}" style="background-color:${colors.primary};">
+                    <a href="${prUrl}" target="_blank"
+                       style="display:inline-block; font-family:${FONT_STACK}; font-size:15px; font-weight:700; color:#ffffff; text-decoration:none; padding:12px 18px;">
                       View Pull Request →
                     </a>
                   </td>
                 </tr>
               </table>
-              
+
+              <div style="height:22px; line-height:22px;">&nbsp;</div>
+
               <!-- Footer -->
-              <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-top: 1px solid ${colors.border}; padding-top: 24px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid ${colors.border};">
                 <tr>
-                  <td>
-                    <p style="margin: 0 0 8px 0; font-size: 13px; color: ${colors.textMuted};">
-                      This notification was sent by <strong style="color: ${colors.textDark};">Hushh DevOps Bot</strong>
-                    </p>
-                    <p style="margin: 0 0 16px 0; font-size: 13px; color: ${colors.textMuted};">
-                      <a href="${pr?.repoUrl}" style="color: ${colors.primary}; text-decoration: none;">${escapeHtml(pr?.repoName || 'Repository')}</a>
-                    </p>
-                    <p style="margin: 0; font-size: 11px; color: #9ca3af;">
+                  <td style="padding-top:16px;">
+                    <div style="font-family:${FONT_STACK}; font-size:13px; color:${colors.textMuted}; line-height:1.6;">
+                      This notification was sent by <strong style="color:${colors.textDark};">Hushh DevOps Bot</strong>
+                    </div>
+                    <div style="height:6px; line-height:6px;">&nbsp;</div>
+                    <div style="font-family:${FONT_STACK}; font-size:13px; color:${colors.textMuted};">
+                      <a href="${repoUrl}" style="color:${colors.primary}; text-decoration:none;">${escapeHtml(
+                        repoName
+                      )}</a>
+                    </div>
+                    <div style="height:10px; line-height:10px;">&nbsp;</div>
+                    <div style="font-family:${FONT_STACK}; font-size:11px; color:#9ca3af;">
                       © ${new Date().getFullYear()} Hushh.ai • Privacy-First Technology
-                    </p>
+                    </div>
                   </td>
                 </tr>
               </table>
-              
+
             </td>
           </tr>
-          
         </table>
-        <!-- End Main Card -->
-        
+        <!-- /Container -->
       </td>
     </tr>
   </table>
-  
 </body>
 </html>
   `.trim();

@@ -125,7 +125,21 @@ function encodeSubject(subject: string): string {
 }
 
 /**
+ * Encode content to base64 with line breaks (76 chars max per line)
+ */
+function encodeBase64WithLineBreaks(content: string): string {
+  const base64 = btoa(unescape(encodeURIComponent(content)));
+  // Split into 76-character lines as per RFC 2045
+  const lines: string[] = [];
+  for (let i = 0; i < base64.length; i += 76) {
+    lines.push(base64.slice(i, i + 76));
+  }
+  return lines.join("\r\n");
+}
+
+/**
  * Create RFC 2822 formatted email message with multiple recipients support
+ * Uses base64 encoding for HTML to preserve style= attributes correctly
  */
 function createEmailMessage(
   from: string,
@@ -139,6 +153,9 @@ function createEmailMessage(
   // Join all recipients with comma for the To header
   const toHeader = recipients.join(", ");
   
+  // Base64 encode the HTML content to preserve all style= attributes
+  const encodedHtml = encodeBase64WithLineBreaks(htmlContent);
+  
   const emailLines = [
     `From: Hushh DevOps <${from}>`,
     `To: ${toHeader}`,
@@ -148,14 +165,15 @@ function createEmailMessage(
     ``,
     `--${boundary}`,
     `Content-Type: text/plain; charset="UTF-8"`,
+    `Content-Transfer-Encoding: 7bit`,
     ``,
     `This email requires HTML support. Please view in an HTML-capable email client.`,
     ``,
     `--${boundary}`,
     `Content-Type: text/html; charset="UTF-8"`,
-    `Content-Transfer-Encoding: quoted-printable`,
+    `Content-Transfer-Encoding: base64`,
     ``,
-    htmlContent,
+    encodedHtml,
     ``,
     `--${boundary}--`,
   ];
