@@ -7,15 +7,18 @@
  * FROM: ankit@hushh.ai
  * TO: DevOps Team (manish@, neelesh1@, ankit@, i-akshat@, suresh@)
  * 
+ * Architecture:
+ * - Edge Function receives webhook from GitHub
+ * - Calls Vercel API endpoint to get email HTML template
+ * - Sends email using Gmail API
+ * 
  * Updated: Dec 26, 2025
- * - Fixed subject line encoding (removed emojis, ASCII only)
- * - Added support for multiple recipients
- * - Professional formatting
+ * - Moved email template to Vercel API endpoint
+ * - Edge function now calls /api/email-templates/pr-notification
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { sendGmailNotification } from "./gmail.ts";
-import { generateEmailHtml, generateEmailSubject } from "./template.ts";
 
 // CORS headers for preflight requests
 const corsHeaders = {
@@ -23,6 +26,9 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, X-Hub-Signature-256, X-GitHub-Event, X-GitHub-Delivery",
 };
+
+// Vercel API endpoint for email template
+const EMAIL_TEMPLATE_API = "https://hushh.ai/api/email-templates/pr-notification";
 
 /**
  * Verify GitHub webhook signature using HMAC-SHA256
@@ -71,7 +77,7 @@ function formatToIST(isoTimestamp: string): string {
 }
 
 /**
- * Extract relevant PR data from GitHub webhook payload
+ * PR Data interface matching what the Vercel API expects
  */
 interface PRData {
   prNumber: number;
@@ -105,6 +111,9 @@ interface PRData {
   repoUrl: string;
 }
 
+/**
+ * Extract relevant PR data from GitHub webhook payload
+ */
 function extractPRData(payload: any): PRData | null {
   try {
     const pr = payload.pull_request;
@@ -144,6 +153,46 @@ function extractPRData(payload: any): PRData | null {
     };
   } catch (error) {
     console.error("Error extracting PR data:", error);
+    return null;
+  }
+}
+
+/**
+ * Fetch email template from Vercel API endpoint
+ * This is the key architectural change - template UI is now in main codebase
+ */
+async function fetchEmailTemplate(prData: PRData): Promise<{ subject: string; html: string } | null> {
+  try {
+    console.log(`Fetching email template from ${EMAIL_TEMPLATE_API}`);
+    
+    const response = await fetch(EMAIL_TEMPLATE_API, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ prData }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Failed to fetch email template: ${response.status} - ${errorText}`);
+      return null;
+    }
+
+    const data = await response.json();
+    
+    if (!data.success || !data.html || !data.subject) {
+      console.error("Invalid response from email template API:", data);
+      return null;
+    }
+
+    console.log("Email template fetched successfully");
+    return {
+      subject: data.subject,
+      html: data.html,
+    };
+  } catch (error) {
+    console.error("Error fetching email template:", error);
     return null;
   }
 }
@@ -244,9 +293,17 @@ serve(async (req: Request) => {
 
     console.log(`Processing merged PR #${prData.prNumber}: ${prData.prTitle}`);
 
-    // Generate email content
-    const emailSubject = generateEmailSubject(prData);
-    const emailHtml = generateEmailHtml(prData);
+    // Fetch email template from Vercel API (UI is in main codebase)
+    const emailTemplate = await fetchEmailTemplate(prData);
+    if (!emailTemplate) {
+      return new Response(JSON.stringify({ 
+        error: "Failed to fetch email template from API",
+        details: "Could not get HTML template from /api/email-templates/pr-notification"
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     // DevOps team recipients
     const devOpsTeam = [
@@ -260,8 +317,8 @@ serve(async (req: Request) => {
     // Send email notification to all team members
     const emailResult = await sendGmailNotification({
       to: devOpsTeam,
-      subject: emailSubject,
-      htmlContent: emailHtml,
+      subject: emailTemplate.subject,
+      htmlContent: emailTemplate.html,
     });
 
     if (!emailResult.success) {
