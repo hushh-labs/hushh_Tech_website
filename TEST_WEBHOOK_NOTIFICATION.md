@@ -1,5 +1,11 @@
-# Email Notification Test
+# Edge Function Deployment Verification
 
-This PR tests the updated email notification system.
+Edge function `github-devops-notify` redeployed at Fri Dec 26 21:30:15 IST 2025
 
-Recipients: manish@, neelesh1@, ankit@, i-akshat@, suresh@
+## Fix Applied
+- Deployed updated template.ts with professional email design
+- Fixed: Emails not sending after PR #196, #197
+
+## Test
+This PR verifies the email notification system is working.
+
