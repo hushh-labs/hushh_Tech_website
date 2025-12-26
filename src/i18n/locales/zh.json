@@ -12,7 +12,25 @@
     "logout": "退出登录",
     "viewProfile": "查看个人资料",
     "home": "首页",
-    "kycStudio": "KYC工作室 Alpha"
+    "kycStudio": "KYC工作室 Alpha",
+    "deleteAccount": "删除账户"
+  },
+  "deleteAccount": {
+    "title": "删除账户",
+    "warningMessage": "此操作是永久性的，无法撤销。您的所有数据将从我们的系统中永久删除。",
+    "willDelete": "这将永久删除：",
+    "deleteItem1": "您的账户和个人资料信息",
+    "deleteItem2": "所有投资者数据和偏好设置",
+    "deleteItem3": "您的聊天记录和消息",
+    "deleteItem4": "所有相关文档和验证记录",
+    "confirmPrompt": "输入 DELETE 确认",
+    "cancel": "取消",
+    "confirmDelete": "删除账户",
+    "deleting": "正在删除...",
+    "successTitle": "账户已删除",
+    "successMessage": "您的账户和所有相关数据已被永久删除。",
+    "errorTitle": "删除失败",
+    "errorMessage": "无法删除您的账户。请重试或联系支持团队。"
   },
   "hero": {
     "eyebrow": "投资未来。",

@@ -13,6 +13,13 @@ import "@fontsource/dm-sans/500.css";
 import "@fontsource/dm-sans/600.css";
 import "@fontsource/dm-sans/700.css";
 
+// Note: Custom DevConsole is now integrated directly in App.tsx
+// Activation methods:
+// - Dev mode auto-enables in development
+// - Use ?debug=true URL parameter
+// - Tap Hushh logo 5 times rapidly
+// - Set localStorage.devMode = 'true'
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <App />

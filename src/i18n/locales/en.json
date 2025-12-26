@@ -12,7 +12,25 @@
     "logout": "Log Out",
     "viewProfile": "View Profile",
     "home": "Home",
-    "kycStudio": "KYC Studio Alpha"
+    "kycStudio": "KYC Studio Alpha",
+    "deleteAccount": "Delete Account"
+  },
+  "deleteAccount": {
+    "title": "Delete Account",
+    "warningMessage": "This action is permanent and cannot be undone. All your data will be permanently deleted from our systems.",
+    "willDelete": "This will permanently delete:",
+    "deleteItem1": "Your account and profile information",
+    "deleteItem2": "All your investor data and preferences",
+    "deleteItem3": "Your chat history and messages",
+    "deleteItem4": "All associated documents and verifications",
+    "confirmPrompt": "Type DELETE to confirm",
+    "cancel": "Cancel",
+    "confirmDelete": "Delete Account",
+    "deleting": "Deleting...",
+    "successTitle": "Account Deleted",
+    "successMessage": "Your account and all associated data have been permanently deleted.",
+    "errorTitle": "Deletion Failed",
+    "errorMessage": "Failed to delete your account. Please try again or contact support."
   },
   "hero": {
     "eyebrow": "Investing in the Future.",

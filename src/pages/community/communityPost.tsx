@@ -1,19 +1,20 @@
 // src/pages/community/CommunityPost.tsx
+// Full-screen immersive layout for all community posts
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
-  Container,
-  Heading,
   Box,
   Text,
   Spinner,
   useToast,
+  Button,
+  Icon,
+  IconButton,
 } from "@chakra-ui/react";
+import { FiArrowLeft, FiDownload, FiExternalLink } from "react-icons/fi";
 import { getPostBySlug, PostData } from "../../data/posts";
 import axios from "axios";
 import config from "../../resources/config/config";
-import { Session } from "@supabase/supabase-js";
-import { formatShortDate, formatLongDate, parseDate } from "../../utils/dateFormatter";
 
 const CommunityPost: React.FC = () => {
   // Extract the slug (using wildcard parameter for nested routes)
@@ -109,13 +110,6 @@ const CommunityPost: React.FC = () => {
       // If all checks pass, set the post and stop loading.
       setPost(foundPost);
       setLoading(false);
-
-      // If the post has a PDF URL, open it in a new tab and redirect back to community
-      if (foundPost.pdfUrl) {
-        window.open(foundPost.pdfUrl, '_blank');
-        navigate("/community");
-        return;
-      }
     };
 
     loadPost();
@@ -123,55 +117,261 @@ const CommunityPost: React.FC = () => {
 
   if (loading) {
     return (
-      <Box textAlign="center" py={8}>
-        <Spinner size="xl" />
+      <Box 
+        position="fixed"
+        top="64px"
+        left="0"
+        right="0"
+        bottom="0"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        bg="white"
+        zIndex="999"
+      >
+        <Spinner size="xl" color="#2b8cee" thickness="3px" />
       </Box>
     );
   }
 
   if (!post) return null;
 
-  // If we get here and the post has a PDF URL, it means the PDF didn't open
-  // Let's try once more and then redirect
+  const PostComponent = post.Component;
+
+  // Floating back button component
+  const FloatingBackButton = () => (
+    <IconButton
+      aria-label="Back to Community"
+      icon={<Icon as={FiArrowLeft} boxSize={5} />}
+      position="fixed"
+      top={{ base: "76px", md: "80px" }}
+      left={{ base: "12px", md: "20px" }}
+      zIndex="1001"
+      bg="rgba(255, 255, 255, 0.95)"
+      color="#0d141b"
+      borderRadius="full"
+      boxShadow="0 2px 12px rgba(0,0,0,0.15)"
+      size="md"
+      onClick={() => navigate("/community")}
+      _hover={{ 
+        bg: "white", 
+        transform: "scale(1.05)",
+        boxShadow: "0 4px 16px rgba(0,0,0,0.2)"
+      }}
+      _active={{ transform: "scale(0.95)" }}
+      transition="all 0.2s ease"
+    />
+  );
+
+  // If post has a PDF URL, render full-screen PDF viewer
   if (post.pdfUrl) {
-    window.open(post.pdfUrl, '_blank');
-    navigate("/community");
-    return null;
+    return (
+      <>
+        {/* Full-screen PDF container */}
+        <Box 
+          position="fixed"
+          top="64px"
+          left="0"
+          right="0"
+          bottom="0"
+          width="100vw"
+          height="calc(100vh - 64px)"
+          overflow="hidden"
+          zIndex="999"
+          bg="white"
+        >
+          {/* Desktop: Embedded PDF viewer */}
+          <Box
+            display={{ base: 'none', md: 'block' }}
+            width="100%"
+            height="100%"
+            position="relative"
+          >
+            {/* Desktop Back Button */}
+            <IconButton
+              aria-label="Back to Community"
+              icon={<Icon as={FiArrowLeft} boxSize={5} />}
+              position="absolute"
+              top="16px"
+              left="16px"
+              zIndex="1001"
+              bg="white"
+              color="#0d141b"
+              borderRadius="full"
+              boxShadow="0 2px 8px rgba(0,0,0,0.1)"
+              size="md"
+              onClick={() => navigate("/community")}
+              _hover={{ bg: 'gray.50' }}
+            />
+            <Box
+              as="iframe"
+              src={`${post.pdfUrl}#toolbar=1&navpanes=1&scrollbar=1&view=FitH`}
+              width="100%"
+              height="100%"
+              border="none"
+              title={post.title}
+            />
+          </Box>
+
+          {/* Mobile: Clean left-aligned design matching HTML template */}
+          <Box 
+            display={{ base: 'flex', md: 'none' }}
+            flexDirection="column"
+            height="100%"
+            bg="white"
+          >
+            {/* Top Navigation - Back Button */}
+            <Box p={4} pb={2}>
+              <IconButton
+                aria-label="Back to Community"
+                icon={<Icon as={FiArrowLeft} boxSize={6} />}
+                size="lg"
+                variant="ghost"
+                color="#0d141b"
+                borderRadius="full"
+                onClick={() => navigate("/community")}
+                _hover={{ bg: 'gray.100' }}
+              />
+            </Box>
+
+            {/* Main Content */}
+            <Box px={4} pt={4} flex="1">
+              {/* PDF Icon */}
+              <Box pb={6}>
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  h="64px"
+                  w="64px"
+                  borderRadius="2xl"
+                  bg="rgba(43, 140, 238, 0.1)"
+                >
+                  <Icon as={FiExternalLink} boxSize={9} color="#2b8cee" />
+                </Box>
+              </Box>
+
+              {/* Text Content */}
+              <Box pb={8}>
+                <Text 
+                  fontSize="22px" 
+                  fontWeight="700" 
+                  color="#0d141b" 
+                  lineHeight="1.3"
+                  letterSpacing="-0.01em"
+                  mb={3}
+                >
+                  {post.title}
+                </Text>
+                <Text 
+                  fontSize="14px" 
+                  fontWeight="400" 
+                  color="#6b7280" 
+                  lineHeight="1.5"
+                >
+                  Tap below to view the full PDF document in your browser.
+                </Text>
+              </Box>
+
+              {/* Action Buttons */}
+              <Box display="flex" flexDirection="column" gap={4}>
+                {/* Primary CTA */}
+                <Button
+                  as="a"
+                  href={post.pdfUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  bg="#2b8cee"
+                  color="white"
+                  w="full"
+                  h="56px"
+                  fontSize="16px"
+                  fontWeight="700"
+                  borderRadius="lg"
+                  boxShadow="sm"
+                  _hover={{ bg: '#2579d1' }}
+                  _active={{ bg: '#2579d1' }}
+                >
+                  Open PDF Document
+                </Button>
+
+                {/* Secondary CTA */}
+                <Button
+                  as="a"
+                  href={post.pdfUrl}
+                  download
+                  variant="outline"
+                  borderWidth="2px"
+                  borderColor="#2b8cee"
+                  color="#2b8cee"
+                  bg="transparent"
+                  w="full"
+                  h="56px"
+                  fontSize="16px"
+                  fontWeight="700"
+                  borderRadius="lg"
+                  _hover={{ bg: 'rgba(43, 140, 238, 0.05)' }}
+                  _active={{ bg: 'rgba(43, 140, 238, 0.1)' }}
+                >
+                  Download PDF
+                </Button>
+              </Box>
+            </Box>
+
+            {/* Bottom safe area */}
+            <Box h={8} w="full" />
+          </Box>
+        </Box>
+      </>
+    );
   }
 
-  const PostComponent = post.Component;
-  const toTitleCase = (str: string) => {
-    return str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
-  };
-  
-  // Format the date based on its format (supports both YYYY-MM-DD and DD/M/YYYY)
-  const getFormattedDate = () => {
-    if (!post.publishedAt) return 'Date unavailable';
-    
-    // Use formatShortDate which internally uses parseDate to handle both API and standard formats
-    return formatShortDate(post.publishedAt);
-  };
-
+  // Regular post with React component - Full-screen immersive layout
   return (
-    <Box bg="white" minH="100vh" py={12} px={4}>
-      <Container maxW="container.md">
-        <Text as={'h2'} fontSize={{base:'sm',md:'md'}} fontWeight={'600'} color={'#0AADBC'}>
-          {toTitleCase(post.category)}
-        </Text>
-        {/* <Heading as="h1" fontWeight={'500'} mb={4} fontSize={{md:'xl',base:'lg'}} color="black">
-          {post.title}
-        </Heading> */}
-        <Text fontSize="sm" color="gray.900" mb={8}>
-          {getFormattedDate()}
-        </Text>
-        <Box color="white" lineHeight="tall" fontSize="lg">
+    <>
+      {/* Floating Back Button */}
+      <FloatingBackButton />
+      
+      {/* Full-screen content container */}
+      <Box 
+        position="fixed"
+        top="64px"
+        left="0"
+        right="0"
+        bottom="0"
+        width="100vw"
+        height="calc(100vh - 64px)"
+        overflow="auto"
+        zIndex="999"
+        bg="white"
+        css={{
+          '&::-webkit-scrollbar': {
+            width: '8px',
+          },
+          '&::-webkit-scrollbar-track': {
+            background: '#f1f1f1',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            background: '#c1c1c1',
+            borderRadius: '4px',
+          },
+          '&::-webkit-scrollbar-thumb:hover': {
+            background: '#a1a1a1',
+          },
+        }}
+      >
+        {/* Post content */}
+        <Box 
+          maxW="900px" 
+          mx="auto" 
+          px={{ base: 4, md: 8 }}
+          py={{ base: 6, md: 10 }}
+          pt={{ base: "60px", md: "40px" }} // Extra top padding for floating button
+        >
           <PostComponent />
         </Box>
-        {/* <Text fontSize={'sm'} my={{md:'3rem',base:'1.5rem'}}>
-        © 2025 Hushh Technologies LLC. All Rights Reserved. The materials on this website are for illustration and discussion purposes only and do not constitute an offering. An offering may be made only by delivery of a confidential offering memorandum to appropriate investors. PAST PERFORMANCE IS NO GUARANTEE OF FUTURE RESULTS. 
-        </Text> */}
-      </Container>
-    </Box>
+      </Box>
+    </>
   );
 };
 

@@ -1,0 +1,202 @@
+---
+description: Clean Architecture + MVVM Rules for Hushh Intelligence
+globs:
+  - src/hushh-intelligence/**/*
+alwaysApply: true
+---
+
+# Hushh Intelligence - Clean Architecture + MVVM Rules
+
+When working in the `src/hushh-intelligence/` directory, follow these strict architectural rules:
+
+## Architecture Layers
+
+### 1. Core Layer (`core/`)
+- **NO external dependencies** - pure TypeScript only
+- Contains: config, constants, errors, types, utils
+- Can be imported by ANY layer
+- Example: `import { ENV } from '@/hushh-intelligence/core'`
+
+### 2. Domain Layer (`domain/`)
+- **NO React, NO external libs** - pure business logic
+- Depends ONLY on Core layer
+- Contains: entities, repository interfaces, use cases
+- Example entities: Agent, Chat, Message, KYC
+
+### 3. Data Layer (`data/`)
+- Implements domain interfaces
+- Depends on: Core, Domain
+- Contains: API clients, repository implementations, DTOs
+- Supabase calls happen HERE, not in domain
+
+### 4. Presentation Layer (`presentation/`)
+- React components and ViewModels
+- Depends on: Core, Domain, Data
+- Contains: viewmodels, views, pages, hooks
+- Views are DUMB - only render what ViewModel provides
+
+## Dependency Rule (CRITICAL)
+```
+✅ Presentation → Data → Domain → Core
+❌ Core → Domain → Data → Presentation (NEVER!)
+```
+
+## File Naming Conventions
+| Type | Pattern | Example |
+|------|---------|---------|
+| Entity | `PascalCase.ts` | `Agent.ts` |
+| Use Case | `VerbNounUseCase.ts` | `GetAgentUseCase.ts` |
+| Repository Interface | `INounRepository.ts` | `IAgentRepository.ts` |
+| Repository Impl | `NounRepositoryImpl.ts` | `AgentRepositoryImpl.ts` |
+| ViewModel | `NounViewModel.ts` | `AgentViewModel.ts` |
+| View | `NounComponent.tsx` | `AgentCard.tsx` |
+| Hook | `useNoun.ts` | `useAgent.ts` |
+
+## MVVM Pattern Rules
+
+### Views (React Components)
+```typescript
+// ✅ GOOD - View only renders
+const AgentCard = ({ agent, onEdit }: Props) => {
+  return (
+    <div>
+      <h1>{agent.name}</h1>
+      <button onClick={onEdit}>Edit</button>
+    </div>
+  );
+};
+
+// ❌ BAD - View has business logic
+const AgentCard = () => {
+  const [agent, setAgent] = useState();
+  useEffect(() => {
+    fetch('/api/agent').then(...); // NO! Use ViewModel
+  }, []);
+};
+```
+
+### ViewModels
+```typescript
+// ✅ GOOD - ViewModel handles state + logic
+export const useAgentViewModel = () => {
+  const [agent, setAgent] = useState<Agent | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const getAgentUseCase = useMemo(() => new GetAgentUseCase(agentRepo), []);
+
+  const fetchAgent = async (id: string) => {
+    setIsLoading(true);
+    try {
+      const result = await getAgentUseCase.execute(id);
+      setAgent(result);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { agent, isLoading, error, fetchAgent };
+};
+```
+
+### Use Cases
+```typescript
+// ✅ GOOD - One class, one action
+export class GetAgentUseCase {
+  constructor(private repository: IAgentRepository) {}
+
+  async execute(id: string): Promise<Agent> {
+    return this.repository.getById(id);
+  }
+}
+
+// ❌ BAD - Multiple responsibilities
+export class AgentUseCase {
+  getAgent() {}
+  updateAgent() {}
+  deleteAgent() {}
+}
+```
+
+### Repository Pattern
+```typescript
+// Domain Layer - Interface
+export interface IAgentRepository {
+  getById(id: string): Promise<Agent>;
+  create(agent: Agent): Promise<Agent>;
+}
+
+// Data Layer - Implementation
+export class AgentRepositoryImpl implements IAgentRepository {
+  constructor(private supabase: SupabaseClient) {}
+
+  async getById(id: string): Promise<Agent> {
+    const { data, error } = await this.supabase
+      .from('agents')
+      .select('*')
+      .eq('id', id)
+      .single();
+    
+    if (error) throw new ApiError(error.message);
+    return AgentMapper.toDomain(data);
+  }
+}
+```
+
+## Code Quality Checklist
+
+Before committing code in `hushh-intelligence/`:
+
+- [ ] Domain layer has NO React imports
+- [ ] Views don't call APIs directly
+- [ ] Use Cases have single responsibility
+- [ ] Repository interfaces are in `domain/repositories/`
+- [ ] DTOs have mappers to domain entities
+- [ ] ViewModels use hooks, not class components
+- [ ] All async operations have error handling
+- [ ] Types are defined in appropriate layer
+
+## Import Rules
+
+```typescript
+// ✅ GOOD - Layer-appropriate imports
+// In presentation layer:
+import { Agent } from '../domain/entities/Agent';
+import { GetAgentUseCase } from '../domain/usecases/agent/GetAgentUseCase';
+import { AgentRepositoryImpl } from '../data/repositories/AgentRepositoryImpl';
+
+// ❌ BAD - Crossing layer boundaries incorrectly
+// In domain layer:
+import { useState } from 'react'; // NO REACT IN DOMAIN!
+import { supabase } from '@/lib/supabase'; // NO SUPABASE IN DOMAIN!
+```
+
+## Error Handling Pattern
+
+```typescript
+// Use custom errors from core/errors
+import { ApiError, ValidationError } from '../core/errors';
+
+// In repository
+if (!data) throw new ApiError('Agent not found', 404);
+
+// In ViewModel
+try {
+  await useCase.execute(id);
+} catch (error) {
+  if (error instanceof ApiError) {
+    setError(error.message);
+  } else {
+    setError('An unexpected error occurred');
+  }
+}
+```
+
+## Testing Guidelines
+
+- Domain layer: Unit tests (pure functions)
+- Data layer: Integration tests (mock Supabase)
+- Presentation layer: Component tests (React Testing Library)
+- ViewModels: Hook tests (@testing-library/react-hooks)

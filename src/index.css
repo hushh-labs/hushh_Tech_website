@@ -1,8 +1,9 @@
+/* Google Fonts import must be first */
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap");
 
 :root {
   --font-main: "DM Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -115,17 +116,12 @@ h6 {
   background: linear-gradient(to right, #00A9E0, #6DD3EF);
 }
 
-/* Top marquee banner */
+/* Top marquee banner - inside fixed header, no need for own fixed positioning */
 .marquee-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 2000;
+  position: relative;
   width: 100%;
   height: 40px;
-  /* <-- explicit bar height */
   display: flex;
-  /* center contents vertically */
   align-items: center;
   overflow: hidden;
   background: linear-gradient(180deg, #f9fbff 0%, #f5f7fb 100%);
@@ -134,7 +130,6 @@ h6 {
   font-size: 13.5px;
   line-height: 1.65;
   border-bottom: 1px solid rgba(15, 23, 42, 0.06);
-  box-shadow: 0 8px 28px rgba(15, 23, 42, 0.08);
 }
 
 .marquee-track {

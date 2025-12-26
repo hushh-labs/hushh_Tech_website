@@ -2,13 +2,14 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
+import DevConsole, { initDevConsole } from './components/DevConsole';
 import Leadership from './components/Leadership';
 import Philosophy from './components/Philosophy';
 import Footer from './components/Footer';
 import Login from './pages/Login'
 import Contact from './pages/Contact';
 import ScrollToTop from './components/ScrollToTop';
-import FloatingContactBubble from './components/FloatingContactBubble';
+// FloatingContactBubble removed as requested
 import { ChakraProvider } from '@chakra-ui/react';
 import theme from './theme';
 import Consumers from './pages/services/consumers';
@@ -25,6 +26,7 @@ import PrivacyPolicy from './pages/privacy-policy';
 import CareersPrivacyPolicy from './pages/career-privacy-policy';
 import CaliforniaPrivacyPolicy from './pages/california-privacy-policy';
 import EUUKPrivacyPolicy from './pages/eu-uk-privacy-policy';
+import DeleteAccountPage from './pages/delete-account';
 import { useState, useEffect, ReactNode } from 'react';
 import config from './resources/config/config';
 import NDAPopup from './components/NdaForm';
@@ -39,6 +41,7 @@ import KYCFormPage from './pages/kyc-form/page';
 import { Session } from '@supabase/supabase-js';
 import DiscoverFundA from './pages/discover-fund-a';
 import SellTheWallPage from './pages/sell-the-wall';
+import AIPoweredBerkshirePage from './pages/ai-powered-berkshire';
 import UserRegistration from './pages/UserRegistration';
 import ProtectedRoute from './components/ProtectedRoute';
 import YourProfilePage from './pages/your-profile';
@@ -62,9 +65,16 @@ import OnboardingStep11 from './pages/onboarding/Step11';
 import OnboardingStep12 from './pages/onboarding/Step12';
 import OnboardingStep13 from './pages/onboarding/Step13';
 import OnboardingStep14 from './pages/onboarding/Step14';
+import OnboardingStep15 from './pages/onboarding/Step15';
+import VerifyIdentityPage from './pages/onboarding/VerifyIdentity';
+import VerifyCompletePage from './pages/onboarding/VerifyComplete';
+import MeetCeoPage from './pages/onboarding/MeetCeo';
 import KYCDemoPage from './pages/kyc-demo';
 import KycFlowPage from './pages/kyc-flow';
 import A2APlaygroundPage from './pages/a2a-playground';
+import ReceiptGeneratorPage from './pages/receipt-generator';
+import DeveloperDocsPage from './pages/developer-docs';
+import MobileBottomNav from './components/MobileBottomNav';
 
 // Google Analytics configuration
 const GA_TRACKING_ID = 'G-R58S9WWPM0';
@@ -109,149 +119,54 @@ const initializeGoogleAnalytics = () => {
   }
 };
 
+// Check if dev console should be enabled
+// DISABLED: Dev console is disabled for production
+const shouldEnableDevConsole = (): boolean => {
+  // Always return false to disable the dev console in production
+  return false;
+  
+  // Original logic (commented out):
+  // if (typeof window === 'undefined') return false;
+  // const urlParams = new URLSearchParams(window.location.search);
+  // if (urlParams.get('debug') === 'true') return true;
+  // if (localStorage.getItem('devMode') === 'true') return true;
+  // if (import.meta.env.DEV) return true;
+  // return false;
+};
+
 function App() {
   const [session, setSession] = useState<Session | null>(null);
-  const marqueeTickers = [
-    {
-      label: "Saudi Aramco",
-      logo: "https://www.nicepng.com/png/full/274-2744280_saudi-aramco-logo-saudi-aramco-logo-vector.png",
-    },
-    {
-      label: "GOOG",
-      logo: "https://thumbs.dreamstime.com/b/google-logo-vector-format-white-background-illustration-407571048.jpg",
-    },
-    {
-      label: "AAPL",
-      logo: "https://fabrikbrands.com/wp-content/uploads/Apple-Logo-History-1-1155x770.png",
-    },
-    {
-      label: "MSFT",
-      logo: "https://static.vecteezy.com/system/resources/previews/027/127/473/non_2x/microsoft-logo-microsoft-icon-transparent-free-png.png",
-    },
-    {
-      label: "NVDA",
-      logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVEu8tfOJpA-vMjPqyI2gEyaDjTaI7tSJFzQ&s",
-    },
-    {
-      label: "AMZN",
-      logo: "https://static.vecteezy.com/system/resources/previews/014/018/561/non_2x/amazon-logo-on-transparent-background-free-vector.jpg",
-    },
-    {
-      label: "BRK.B",
-      logo: "https://www.shutterstock.com/shutterstock/photos/2378735305/display_1500/stock-vector-brk-letter-logo-design-on-a-white-background-or-monogram-logo-design-for-entrepreneur-and-business-2378735305.jpg",
-    },
-    {
-      label: "META",
-      logo: "https://img.freepik.com/premium-vector/meta-company-logo_265339-667.jpg?semt=ais_hybrid&w=740&q=80",
-    },
-    {
-      label: "JPM",
-      logo: "https://e7.pngegg.com/pngimages/225/668/png-clipart-jpmorgan-chase-logo-bank-business-morgan-stanley-bank-text-logo.png",
-    },
-    {
-      label: "ICBC",
-      logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkYKU2DFnDgpOtiG7XP3N9Am69IFfZj5hLTg&s",
-    },
-    {
-      label: "China Construction Bank",
-      logo: "https://www.nfcw.com/wp-content/uploads/2021/06/china-construction-bank-logo-400W.jpg",
-    },
-    {
-      label: "XOM",
-      logo: "https://static.vecteezy.com/system/resources/previews/009/116/598/non_2x/com-logo-com-letter-com-letter-logo-design-initials-com-logo-linked-with-circle-and-uppercase-monogram-logo-com-typography-for-technology-business-and-real-estate-brand-vector.jpg",
-    },
-    {
-      label: "Agricultural Bank of China",
-      logo: "https://static.wikia.nocookie.net/logopedia/images/d/d6/ABC_china_symbol.svg/revision/latest/scale-to-width-down/1200?cb=20240204071833",
-    },
-    {
-      label: "TSM",
-      logo: "https://upload.wikimedia.org/wikipedia/en/thumb/6/63/Tsmc.svg/1200px-Tsmc.svg.png",
-    },
-    {
-      label: "Bank of China",
-      logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Bank_of_China_symbol.svg/2048px-Bank_of_China_symbol.svg.png",
-    },
-    {
-      label: "TM",
-      logo: "https://global.toyota/pages/global_toyota/mobility/toyota-brand/emblem_001.jpg",
-    },
-    {
-      label: "PetroChina",
-      logo: "https://upload.wikimedia.org/wikipedia/en/thumb/2/2b/Petrochina_logo.svg/250px-Petrochina_logo.svg.png",
-    },
-    {
-      label: "WMT",
-      logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRxwPUD4NGc7WTQVqDstT5ZPRQXm6ka0KTsmTsKfiY&usqp=CAE&s",
-    },
-    {
-      label: "TCEHY",
-      logo: "https://upload.wikimedia.org/wikipedia/commons/2/22/Tencent_Logo.svg",
-    },
-    {
-      label: "BAC",
-      logo: "https://www.bankofamerica.com/content/images/ContextualSiteGraphics/Logos/en_US/logos/bac-logo-v2.png",
-    },
-    {
-      label: "EQNR",
-      logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Equinor.svg/1200px-Equinor.svg.png",
-    },
-    {
-      label: "JNJ",
-      logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwR-mYiIkkCIY28ur2ZykKmYqL3FoOsBAmhg&s",
-    },
-    {
-      label: "DTE.DE",
-      logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT93q9uHQOWwfKPM_cy8AMa1cUWLTTxGCu0FA&s",
-    },
-    {
-      label: "CMCSA",
-      logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSj16S81rTASlKjG6D8at0GhqtCoyTuJJYEsQ&s",
-    },
-    {
-      label: "UNH",
-      logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR8eLWlU5eLw8UwmHHHdCn8oXiGv4aSHPPbiQ&s",
-    },
-    {
-      label: "HSBC",
-      logo: "https://i.pinimg.com/736x/4c/4a/d8/4c4ad867b77c17f313c5343fa95154c3.jpg",
-    },
-    {
-      label: "SHEL",
-      logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRm4vpK8XAVnLNzAxkomte0d1QEeb4aQ7_Whw&s",
-    },
-  ];
-
-  const marqueePrefix = "Introducing the hushh 27 alpha bets —";
-
-  const renderMarqueeChunk = (key: string) => (
-    <span className="marquee-chunk" key={key}>
-      <span className="marquee-prefix">{marqueePrefix}</span>
-      <span className="marquee-body">
-        {marqueeTickers.map((ticker, idx) => (
-          <React.Fragment key={`${key}-${ticker.label}-${idx}`}>
-            <span className="ticker inline-flex items-center gap-1">
-              <img
-                src={ticker.logo}
-                alt={`${ticker.label} logo`}
-                className="ticker-logo w-4 h-4 object-contain"
-              />
-              <span>{ticker.label}</span>
-            </span>
-            {idx !== marqueeTickers.length - 1 && (
-              <span className="ticker-sep">,</span>
-            )}
-          </React.Fragment>
-        ))}
-      </span>
-    </span>
-  );
-
-
+  const [isDevConsoleOpen, setIsDevConsoleOpen] = useState(false);
+  const [devConsoleEnabled, setDevConsoleEnabled] = useState(shouldEnableDevConsole());
   // Initialize Google Analytics
   useEffect(() => {
     initializeGoogleAnalytics();
   }, []);
+
+  // Initialize Dev Console if enabled
+  useEffect(() => {
+    if (devConsoleEnabled) {
+      initDevConsole();
+    }
+  }, [devConsoleEnabled]);
+
+  // Handle secret gesture for dev console (5 taps on logo)
+  const handleDevConsoleTrigger = () => {
+    if (!devConsoleEnabled) {
+      localStorage.setItem('devMode', 'true');
+      setDevConsoleEnabled(true);
+      initDevConsole();
+    }
+    setIsDevConsoleOpen(true);
+  };
+
+  // Make trigger available globally for Navbar
+  useEffect(() => {
+    (window as any).openDevConsole = handleDevConsoleTrigger;
+    return () => {
+      delete (window as any).openDevConsole;
+    };
+  }, [devConsoleEnabled]);
 
   // Fetch user session when app loads
   useEffect(() => {
@@ -276,17 +191,8 @@ function App() {
       <Router>
         <ScrollToTop />
         <div className="min-h-screen flex flex-col">
-          {/* Marquee Strip */}
-          <div className="marquee-container h-12 flex items-center overflow-hidden border-b border-gray-200">
-            <div className="marquee-track">
-              {renderMarqueeChunk("first")}
-              {renderMarqueeChunk("second")}
-            </div>
-          </div>
-          {/* Spacer so Navbar sits BELOW the marquee strip */}
-          <div className="marquee-spacer h-12" />
+          {/* Navbar - Sticky header with brand lockup */}
           <Navbar />
-          <FloatingContactBubble />
           {/* {session && <NDAPopup />} */}
           <ContentWrapper>
             <Routes>
@@ -312,6 +218,7 @@ function App() {
               } />
               <Route path='/california-privacy-policy' element={<CaliforniaPrivacyPolicy />} />
               <Route path='/eu-uk-jobs-privacy-policy' element={<EUUKPrivacyPolicy />} />
+              <Route path='/delete-account' element={<DeleteAccountPage />} />
               <Route path="/community/*" element={
 
                 <CommunityPost />
@@ -393,6 +300,26 @@ function App() {
                   <OnboardingStep14 />
                 </ProtectedRoute>
               } />
+              <Route path="/onboarding/step-15" element={
+                <ProtectedRoute>
+                  <OnboardingStep15 />
+                </ProtectedRoute>
+              } />
+              <Route path="/onboarding/verify" element={
+                <ProtectedRoute>
+                  <VerifyIdentityPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/onboarding/verify-complete" element={
+                <ProtectedRoute>
+                  <VerifyCompletePage />
+                </ProtectedRoute>
+              } />
+              <Route path="/onboarding/meet-ceo" element={
+                <ProtectedRoute>
+                  <MeetCeoPage />
+                </ProtectedRoute>
+              } />
               <Route path="/hushh-user-profile" element={
                 <ProtectedRoute>
                   <HushhUserProfilePage />
@@ -430,6 +357,11 @@ function App() {
               <Route path='/sell-the-wall' element={
 
                 <SellTheWallPage />
+
+              } />
+              <Route path='/ai-powered-berkshire' element={
+
+                <AIPoweredBerkshirePage />
 
               } />
               <Route path='/user-registration' element={
@@ -471,10 +403,47 @@ function App() {
               <Route path='/kyc-demo' element={<KYCDemoPage />} />
               <Route path='/kyc-flow' element={<KycFlowPage />} />
               <Route path='/a2a-playground' element={<A2APlaygroundPage />} />
+              <Route path='/receipt-generator' element={<ReceiptGeneratorPage />} />
+              <Route path='/developer-docs' element={<DeveloperDocsPage />} />
             </Routes>
           </ContentWrapper>
           <Footer />
+          {/* Mobile Bottom Navigation - only visible on mobile */}
+          <MobileBottomNav />
         </div>
+        
+        {/* Dev Console Toggle Button - only shows when enabled but console is closed */}
+        {devConsoleEnabled && !isDevConsoleOpen && (
+          <button
+            onClick={() => setIsDevConsoleOpen(true)}
+            style={{
+              position: 'fixed',
+              bottom: '20px',
+              right: '20px',
+              zIndex: 9999,
+              background: 'linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '12px',
+              padding: '12px 16px',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              boxShadow: '0 4px 15px rgba(14, 165, 233, 0.4)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+            }}
+          >
+            🔧 Console
+          </button>
+        )}
+        
+        {/* Dev Console Component */}
+        <DevConsole 
+          isOpen={isDevConsoleOpen} 
+          onClose={() => setIsDevConsoleOpen(false)} 
+        />
       </Router>
     </ChakraProvider>
   );

@@ -1,27 +1,99 @@
-import { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { FiMenu, FiX, FiChevronDown, FiUser } from "react-icons/fi";
+import { FiMenu, FiX, FiChevronDown, FiUser, FiTrash2, FiChevronDown as FiArrowDown } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import config from "../resources/config/config";
-import { Image, useToast, Avatar, useBreakpointValue } from "@chakra-ui/react";
+import { Image, useToast, useBreakpointValue, useDisclosure } from "@chakra-ui/react";
 import hushhLogo from "../components/images/Hushhogo.png";
 import LanguageSwitcher from "./LanguageSwitcher";
+import DeleteAccountModal from "./DeleteAccountModal";
+import { useStockQuotes, StockQuote, STOCK_LOGOS } from "../hooks/useStockQuotes";
+
+// Secret gesture state for dev console activation
+let tapCount = 0;
+let lastTapTime = 0;
+
+// Chip-based ticker component - Light theme design
+const TickerChip = ({ quote, isLoading }: { quote: StockQuote; isLoading?: boolean }) => {
+  return (
+    <div className="group flex h-10 shrink-0 items-center gap-2 rounded-full bg-white border border-gray-200 shadow-sm pl-2 pr-3.5 hover:shadow-md transition-all">
+      {/* Logo in gray circle */}
+      <div className="flex w-7 h-7 items-center justify-center rounded-full bg-gray-100 shrink-0 overflow-hidden">
+        {quote.logo ? (
+          <img
+            src={quote.logo}
+            alt={`${quote.displaySymbol} logo`}
+            className="w-4 h-4 object-contain"
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = 'none';
+            }}
+          />
+        ) : (
+          <span className="text-[10px] font-bold text-gray-600">{quote.displaySymbol.charAt(0)}</span>
+        )}
+      </div>
+      {/* Stock symbol - use displaySymbol for cleaner display */}
+      <span className="text-[12px] font-bold text-gray-800 leading-none">{quote.displaySymbol}</span>
+      {/* Percent change with arrow */}
+      <div className={`ml-0.5 flex items-center gap-0.5 ${quote.isUp ? 'text-green-600' : 'text-red-500'}`}>
+        <span className="text-[10px]">{quote.isUp ? '▲' : '▼'}</span>
+        <span className={`text-[11px] font-semibold ${isLoading ? 'animate-pulse' : ''}`}>
+          {Math.abs(quote.percentChange).toFixed(1)}%
+        </span>
+      </div>
+    </div>
+  );
+};
 
 export default function Navbar() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [session, setSession] = useState<any>(null);
   const [toastShown, setToastShown] = useState(false);
   const [careerDropdownOpen, setCareerDropdownOpen] = useState(false);
   const [mobileCareerDropdownOpen, setMobileCareerDropdownOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const { isOpen: isDeleteModalOpen, onOpen: onDeleteModalOpen, onClose: onDeleteModalClose } = useDisclosure();
   const navigate = useNavigate();
   const location = useLocation();
   const drawerRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const careerDropdownRef = useRef<HTMLDivElement>(null);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
+  const [showScrollIndicator, setShowScrollIndicator] = useState(true);
   const toast = useToast();
   const isMobile = useBreakpointValue({ base: true, lg: false });
+
+  // Fetch real-time stock quotes (refreshes every 2 minutes for 27 stocks)
+  const { quotes, loading: quotesLoading, lastUpdated } = useStockQuotes(120000);
+
+  // quotes already includes fallback data from the hook, so we can use it directly
+  const displayQuotes = quotes;
+
+  // Handle secret gesture - 5 rapid taps on logo to open dev console
+  const handleSecretGesture = () => {
+    const now = Date.now();
+    if (now - lastTapTime < 500) {
+      tapCount++;
+      if (tapCount >= 5) {
+        tapCount = 0;
+        // Open the dev console using the global function exposed by App.tsx
+        if ((window as any).openDevConsole) {
+          (window as any).openDevConsole();
+          toast({
+            title: '🔧 Developer Mode Activated',
+            description: 'Dev console is now available',
+            status: 'info',
+            duration: 2000,
+            isClosable: true,
+          });
+        }
+      }
+    } else {
+      tapCount = 1;
+    }
+    lastTapTime = now;
+  };
 
   useEffect(() => {
     if (!config.supabaseClient) return;
@@ -36,24 +108,23 @@ export default function Navbar() {
       setSession(session);
     });
     
-
     const cleanup = () => subscription?.unsubscribe();
     return cleanup;
   }, []);
-
 
   const handleLogout = async () => {
     if (!config.supabaseClient) return;
     
     try {
       await config.supabaseClient.auth.signOut();
-      setSession(null); // Ensure session is set to null after logout
+      setSession(null);
     } catch (error) {
       console.error("Error logging out of Supabase:", error);
     }
 
     localStorage.removeItem("isLoggedIn");
   };
+
   // Show welcome toast when a user is signed in (only once)
   useEffect(() => {
     if (session && !toastShown) {
@@ -96,150 +167,117 @@ export default function Navbar() {
     setProfileDropdownOpen((prev) => !prev);
   };
 
+  const handleAccountDeleted = () => {
+    setSession(null);
+    onDeleteModalClose();
+    navigate("/");
+  };
+
+  // Handle scroll to check if user reached bottom of menu
+  const handleMenuScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLDivElement;
+    const isNearBottom = target.scrollHeight - target.scrollTop - target.clientHeight < 50;
+    setShowScrollIndicator(!isNearBottom);
+  }, []);
+
+  // Check if menu needs scroll indicator when drawer opens
+  useEffect(() => {
+    if (isOpen && scrollContainerRef.current) {
+      const container = scrollContainerRef.current;
+      const needsScroll = container.scrollHeight > container.clientHeight;
+      setShowScrollIndicator(needsScroll);
+    }
+  }, [isOpen]);
+
   return (
-    <nav className="bg-white shadow-lg fixed w-full z-[999]" style={{ top: "38px" }}>
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex justify-between items-center h-16">
-          <Link to="/" className="text-xl flex flex-row items-center font-bold">
-          <Image src={hushhLogo} alt="Hushh Logo" className="w-12 h-12"/>
-            <p className="text-xl font-[500] blue-gradient-text">Hushh Technologies</p>
+    <>
+      {/* Fixed Header with Navigation + Ticker - Light Theme */}
+      <header className="fixed w-full z-[999] top-0">
+        {/* Main Navigation Bar - Soft Light Background */}
+        <nav className="flex w-full items-center justify-between bg-[#F8F9FA] px-4 h-16 border-b border-gray-200 transition-colors duration-300">
+          {/* Left: Brand Lockup */}
+          <Link to="/" className="flex items-center gap-3">
+            {/* Hushh Logo Image in Circle with subtle gradient */}
+            <div 
+              className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 border border-gray-200/50 shadow-sm shrink-0 cursor-pointer overflow-hidden"
+              onClick={(e) => {
+                e.preventDefault();
+                handleSecretGesture();
+              }}
+              title="Tap 5 times quickly to enable Developer Mode"
+            >
+              <Image 
+                src={hushhLogo} 
+                alt="Hushh Logo" 
+                className="w-7 h-7 object-contain"
+              />
+            </div>
+            {/* Brand Text - Stacked Layout */}
+            <div className="flex flex-col">
+              <h1 className="text-[18px] font-bold leading-none tracking-tight text-gray-900">Hushh</h1>
+              <span className="text-[13px] text-gray-500 font-medium mt-0.5">Technologies</span>
+            </div>
           </Link>
 
-          {/* Mobile: Language Switcher + Hamburger Menu */}
-          <div className="lg:hidden flex items-center gap-3">
-            <LanguageSwitcher />
+          {/* Right: Utilities */}
+          <div className="flex items-center gap-3">
+            {/* Language Selector */}
+            <LanguageSwitcher variant="light" />
+            
+            {/* Hamburger Menu - Blue Primary */}
             <button
               onClick={toggleDrawer}
-              className="text-gray-700 hover:text-gray-900 focus:outline-none"
+              className="flex items-center justify-center w-11 h-11 rounded-full bg-[#2F80ED] text-white active:scale-95 transition-transform shadow-lg shadow-blue-500/30 hover:bg-blue-600"
+              aria-label="Toggle menu"
             >
-              <FiMenu size={24} />
+              <FiMenu className="w-5 h-5" />
             </button>
           </div>
-{/* For Desktop View */}
-          <div className="hidden lg:flex items-center space-x-6">
-            {[
-              { path: "/about/leadership", label: t('nav.ourPhilosophy') },
-              { path: "/discover-fund-a", label: t('nav.fundA') },
-              { path: "/community", label: t('nav.community') },
-              { path: "/faq", label: t('nav.faq') },
-              { path: "/contact", label: t('nav.contact') },
-            ].map(({ path, label }) => (
-              <Link
-                key={path}
-                to={path}
-                className={`px-3 py-2 rounded ${
-                  isActive(path)
-                    ? " font-[500] text-[#0AADBC]"
-                    : "text-black-700 hover:text-gray-900"
-                }`}
-              >
-                {label}
-              </Link>
-            ))}
-            
-            {/* Career Dropdown with hover functionality */}
-            <div 
-              className="relative group" 
-              onMouseEnter={() => setCareerDropdownOpen(true)}
-              onMouseLeave={() => setCareerDropdownOpen(false)}
-            >
-              <button 
-                className={`px-3 py-2 rounded flex items-center ${
-                  isActive("/career") || isActive("/benefits")
-                    ? "font-[500] text-[#0AADBC]"
-                    : "text-black-700 hover:text-gray-900"
-                }`}
-              >
-                {t('nav.joinUs')} <FiChevronDown className="ml-1" />
-              </button>
-              
-              <div 
-                className={`absolute right-0 mt-0 w-48 bg-white rounded-md shadow-lg py-1 z-10 transition-opacity duration-300 ${
-                  careerDropdownOpen ? "opacity-100" : "opacity-0 invisible"
-                }`}
-                style={{ top: "100%", paddingTop: "10px" }}
-              >
-                <div className="pt-2"> {/* Added padding to create space between trigger and content */}
-                  <Link
-                    to="/career"
-                    className={`block px-4 py-2 text-sm ${
-                      isActive("/career") ? "font-[500] text-[#0AADBC]" : "text-gray-700 hover:bg-gray-100"
-                    }`}
-                  >
-                    {t('nav.careers')}
-                  </Link>
-                  <Link
-                    to="/benefits"
-                    className={`block px-4 py-2 text-sm ${
-                      isActive("/benefits") ? "font-[500] text-[#0AADBC]" : "text-gray-700 hover:bg-gray-100"
-                    }`}
-                  >
-                    {t('nav.benefits')}
-                  </Link>
-                </div>
-              </div>
+        </nav>
+
+        {/* Chip-based Ticker Strip - BELOW Navigation */}
+        <section className="relative w-full bg-[#F8F9FA] py-2.5 border-b border-gray-200">
+          {/* Ticker Marquee with Fade Mask */}
+          <div className="ticker-mask relative flex w-full overflow-hidden">
+            <div className="ticker-track flex items-center gap-3 px-4">
+              {/* First set of tickers */}
+              {displayQuotes.map((quote, idx) => (
+                <TickerChip 
+                  key={`first-${quote.symbol}-${idx}`} 
+                  quote={quote} 
+                  isLoading={quotesLoading && quotes.length === 0}
+                />
+              ))}
+              {/* Duplicate for seamless loop */}
+              {displayQuotes.map((quote, idx) => (
+                <TickerChip 
+                  key={`second-${quote.symbol}-${idx}`} 
+                  quote={quote}
+                  isLoading={quotesLoading && quotes.length === 0}
+                />
+              ))}
             </div>
-
-            {/* Language Switcher */}
-            <LanguageSwitcher />
-
-            {!isAuthenticated ? (
-              <button
-                onClick={() => navigate("/Login")}
-                className="bg-black text-white px-4 py-2 rounded"
-              >
-                {t('nav.login')}
-              </button>
-            ) : (
-              <>
-                <button
-                  onClick={handleLogout}
-                  className="bg-black text-white px-4 py-2 rounded"
-                >
-                  {t('nav.logout')}
-                </button>
-                {/* User Profile Dropdown */}
-                <div 
-                  className="relative"
-                  ref={profileDropdownRef}
-                >
-                  <button 
-                    onClick={toggleProfileDropdown}
-                    className="flex items-center focus:outline-none"
-                  >
-                    <Avatar
-                      src={session?.user?.user_metadata?.avatar_url || undefined}
-                      name={session?.user?.email || session?.user?.user_metadata?.full_name || ""}
-                      className="w-8 h-8 rounded-full cursor-pointer"
-                    />
-                  </button>
-                  
-                  <div 
-                    className={`absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 transition-opacity duration-300 ${
-                      profileDropdownOpen ? "opacity-100" : "opacity-0 invisible"
-                    }`}
-                  >
-                    <Link
-                      to="/hushh-user-profile"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      onClick={() => setProfileDropdownOpen(false)}
-                    >
-                      <div className="flex items-center">
-                        <FiUser className="mr-2" />
-                        {t('nav.viewProfile')}
-                      </div>
-                    </Link>
-                  </div>
-                </div>
-              </>
-            )}
           </div>
-        </div>
-      </div>
 
+          {/* Live Indicator - Small dot on right */}
+          {lastUpdated && (
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+              <span className="text-[9px] font-medium text-gray-500">
+                {lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </span>
+            </div>
+          )}
+        </section>
+      </header>
+
+      {/* Spacer for fixed header (ticker ~48px + nav ~64px = 112px) */}
+      <div className="h-28" />
+
+      {/* Mobile Drawer Menu */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-50 lg:hidden"
+          className="fixed inset-0 z-[1000]"
           style={{ background: "rgba(11, 17, 32, 0.30)" }}
           onClick={toggleDrawer}
         >
@@ -259,11 +297,16 @@ export default function Navbar() {
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto">
+              <div 
+                ref={scrollContainerRef}
+                onScroll={handleMenuScroll}
+                className="flex-1 overflow-y-auto relative"
+              >
                 <div className="space-y-3">
                   {[
                     { path: "/", label: t('nav.home') },
                     { path: "/about/leadership", label: t('nav.ourPhilosophy') },
+                    { path: "/discover-fund-a", label: t('nav.fundA') },
                     { path: "/community", label: t('nav.community') },
                     { path: "/a2a-playground", label: t('nav.kycStudio') },
                   ].map(({ path, label }) => {
@@ -274,11 +317,11 @@ export default function Navbar() {
                         onClick={() => handleLinkClick(path)}
                         className="relative w-full text-left"
                       >
-                        <div className="flex items-center h-14 text-[22px] leading-[1.2] text-[#0B1120] font-[500] active:bg-[rgba(0,169,224,0.06)] transition-colors duration-150 px-0">
+                        <div className="flex items-center h-14 text-[22px] leading-[1.2] text-[#0B1120] font-medium active:bg-[rgba(0,169,224,0.06)] transition-colors duration-150 px-0">
                           {active && (
-                            <span className="absolute left-[-12px] h-[18px] w-[2px] bg-[#00A9E0] rounded-full top-1/2 -translate-y-1/2" />
+                            <span className="absolute left-[-12px] h-[18px] w-[2px] bg-[#135bec] rounded-full top-1/2 -translate-y-1/2" />
                           )}
-                          <span className={active ? "font-[500]" : ""}>{label}</span>
+                          <span className={active ? "font-semibold text-[#135bec]" : ""}>{label}</span>
                         </div>
                       </button>
                     );
@@ -297,22 +340,23 @@ export default function Navbar() {
                         onClick={() => handleLinkClick(path)}
                         className="relative w-full text-left"
                       >
-                        <div className="flex items-center h-14 text-[22px] leading-[1.2] text-[#0B1120] font-[500] active:bg-[rgba(0,169,224,0.06)] transition-colors duration-150 px-0">
+                        <div className="flex items-center h-14 text-[22px] leading-[1.2] text-[#0B1120] font-medium active:bg-[rgba(0,169,224,0.06)] transition-colors duration-150 px-0">
                           {active && (
-                            <span className="absolute left-[-12px] h-[18px] w-[2px] bg-[#00A9E0] rounded-full top-1/2 -translate-y-1/2" />
+                            <span className="absolute left-[-12px] h-[18px] w-[2px] bg-[#135bec] rounded-full top-1/2 -translate-y-1/2" />
                           )}
-                          <span className={active ? "font-[500]" : ""}>{label}</span>
+                          <span className={active ? "font-semibold text-[#135bec]" : ""}>{label}</span>
                         </div>
                       </button>
                     );
                   })}
 
+                  {/* Career Dropdown */}
                   <div className="relative w-full text-left">
                     <button
                       onClick={() => setMobileCareerDropdownOpen(!mobileCareerDropdownOpen)}
-                      className="flex items-center h-14 text-[22px] leading-[1.2] text-[#0B1120] font-[500] active:bg-[rgba(0,169,224,0.06)] transition-colors duration-150 w-full text-left"
+                      className="flex items-center h-14 text-[22px] leading-[1.2] text-[#0B1120] font-medium active:bg-[rgba(0,169,224,0.06)] transition-colors duration-150 w-full text-left"
                     >
-                      <span className={(isActive("/career") || isActive("/benefits")) ? "font-[500]" : ""}>
+                      <span className={(isActive("/career") || isActive("/benefits")) ? "font-semibold text-[#135bec]" : ""}>
                         {t('nav.joinUs')}
                       </span>
                       <FiChevronDown
@@ -339,8 +383,8 @@ export default function Navbar() {
                               onClick={() => handleLinkClick(path)}
                               className="w-full text-left"
                             >
-                              <div className="flex items-center h-12 text-[18px] text-[#475569] font-[500] active:bg-[rgba(0,169,224,0.06)] rounded-md px-1">
-                                <span className={active ? "font-[500] text-[#0B1120]" : ""}>{label}</span>
+                              <div className="flex items-center h-12 text-[18px] text-[#475569] font-medium active:bg-[rgba(0,169,224,0.06)] rounded-md px-1">
+                                <span className={active ? "font-semibold text-[#135bec]" : ""}>{label}</span>
                               </div>
                             </button>
                           );
@@ -350,38 +394,63 @@ export default function Navbar() {
                   </div>
 
                   {isAuthenticated && (
-                    <button
-                      onClick={() => handleLinkClick("/user-registration")}
-                      className="w-full text-left"
-                    >
-                      <div className="flex items-center h-14 text-[22px] leading-[1.2] text-[#0B1120] font-[500] active:bg-[rgba(0,169,224,0.06)] transition-colors duration-150 px-0">
-                        <FiUser className="mr-2" />
-                        Edit Profile
-                      </div>
-                    </button>
+                    <>
+                      <div className="my-4 h-px bg-[#E5E7EB]" />
+                      <button
+                        onClick={() => handleLinkClick("/hushh-user-profile")}
+                        className="w-full text-left"
+                      >
+                        <div className="flex items-center h-14 text-[22px] leading-[1.2] text-[#0B1120] font-medium active:bg-[rgba(0,169,224,0.06)] transition-colors duration-150 px-0">
+                          <FiUser className="mr-3" />
+                          {t('nav.viewProfile')}
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => {
+                          setIsOpen(false);
+                          onDeleteModalOpen();
+                        }}
+                        className="w-full text-left"
+                      >
+                        <div className="flex items-center h-14 text-[22px] leading-[1.2] text-red-600 font-medium active:bg-red-50 transition-colors duration-150 px-0">
+                          <FiTrash2 className="mr-3" />
+                          {t('nav.deleteAccount')}
+                        </div>
+                      </button>
+                    </>
                   )}
                 </div>
+
+                {/* Scroll Indicator - Animated Down Arrow */}
+                {showScrollIndicator && (
+                  <div className="sticky bottom-0 left-0 right-0 flex justify-center pb-2 pt-4 pointer-events-none bg-gradient-to-t from-white via-white/90 to-transparent">
+                    <div className="scroll-indicator-arrow flex flex-col items-center gap-1">
+                      <span className="text-[10px] font-medium text-[#6B7280] uppercase tracking-wider">Scroll</span>
+                      <FiChevronDown className="w-5 h-5 text-[#0B1120]" />
+                    </div>
+                  </div>
+                )}
               </div>
 
+              {/* Bottom CTA */}
               <div className="mt-4 -mx-6 px-6 pt-3 pb-4 bg-white sticky bottom-0">
                 <div className="relative h-px w-full bg-[#E5E7EB] mb-4">
                   <span
                     aria-hidden
-                    className="absolute left-0 top-1/2 h-[2px] w-4 -translate-y-1/2 bg-[#00A9E0]"
+                    className="absolute left-0 top-1/2 h-[2px] w-4 -translate-y-1/2 bg-[#135bec]"
                   />
                 </div>
                 {!isAuthenticated ? (
                   <button
                     onClick={() => handleLinkClick("/Login")}
-                    className="w-full h-[54px] rounded-[16px] text-[17px] font-semibold tracking-[0.01em] text-[#0B1120] transition-[transform,filter] duration-150 active:scale-[0.985] active:brightness-[0.94] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00A9E0] focus-visible:ring-offset-2 focus-visible:ring-offset-white"
-                    style={{ background: "linear-gradient(to right, #00A9E0, #6DD3EF)", fontWeight: 500 }}
+                    className="w-full h-[54px] rounded-full text-[17px] font-semibold tracking-[0.01em] text-white bg-[#135bec] shadow-lg shadow-[#135bec]/30 transition-transform duration-150 active:scale-[0.985]"
                   >
                     {t('nav.login')}
                   </button>
                 ) : (
                   <button
                     onClick={handleLogout}
-                    className="w-full h-[54px] rounded-[16px] text-[17px] font-semibold tracking-[0.01em] text-[#0B1120] border border-[#E5E7EB] bg-white transition-colors duration-150 active:bg-[#F9FAFB]"
+                    className="w-full h-[54px] rounded-full text-[17px] font-semibold tracking-[0.01em] text-[#0B1120] border border-[#E5E7EB] bg-white transition-colors duration-150 active:bg-[#F9FAFB]"
                   >
                     {t('nav.logout')}
                   </button>
@@ -391,6 +460,57 @@ export default function Navbar() {
           </div>
         </div>
       )}
-    </nav>
+
+      {/* Delete Account Modal */}
+      <DeleteAccountModal
+        isOpen={isDeleteModalOpen}
+        onClose={onDeleteModalClose}
+        onAccountDeleted={handleAccountDeleted}
+      />
+
+      {/* Chip-based Ticker Styles */}
+      <style>{`
+        /* Ticker mask for fade edges */
+        .ticker-mask {
+          mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+          -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+        }
+        
+        /* Ticker animation */
+        .ticker-track {
+          display: flex;
+          animation: ticker-scroll 40s linear infinite;
+          width: max-content;
+        }
+        
+        @keyframes ticker-scroll {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
+        }
+        
+        /* Pause animation on hover */
+        .ticker-mask:hover .ticker-track {
+          animation-play-state: paused;
+        }
+        
+        /* Scroll indicator bounce animation */
+        .scroll-indicator-arrow {
+          animation: bounce-down 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes bounce-down {
+          0%, 100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(4px);
+          }
+        }
+      `}</style>
+    </>
   );
 }
