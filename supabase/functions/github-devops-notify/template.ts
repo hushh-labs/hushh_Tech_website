@@ -1,8 +1,8 @@
 /**
  * Email Template for GitHub PR Merge Notifications
  * 
- * Generates beautiful HTML emails for PR merge notifications
- * following Hushh brand guidelines
+ * Generates professional HTML emails for PR merge notifications
+ * following modern design principles with clean blue accent
  */
 
 interface PRData {
@@ -78,30 +78,49 @@ function escapeHtml(text: string): string {
 }
 
 /**
- * Convert markdown-style links and formatting to HTML
+ * Get initials from username
+ */
+function getInitials(username: string): string {
+  return username.charAt(0).toUpperCase();
+}
+
+/**
+ * Convert markdown-style formatting to HTML for description
  */
 function formatDescription(description: string): string {
-  if (!description) return "<p style='color: #6B7280;'>No description provided.</p>";
+  if (!description) return '<p style="color: #6b7280; margin: 0;">No description provided.</p>';
   
   let html = escapeHtml(description);
   
+  // Convert ## headers to styled sections
+  html = html.replace(/^## (.+)$/gm, '<h4 style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #6b7280; margin: 20px 0 8px 0;">$1</h4>');
+  
   // Convert markdown links [text](url) to HTML
-  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color: #4F46E5;">$1</a>');
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color: #2563eb; text-decoration: none;">$1</a>');
   
   // Convert **bold** to <strong>
   html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
   
   // Convert `code` to <code>
-  html = html.replace(/`([^`]+)`/g, '<code style="background: #F3F4F6; padding: 2px 6px; border-radius: 4px; font-family: monospace;">$1</code>');
+  html = html.replace(/`([^`]+)`/g, '<code style="background: #f3f4f6; padding: 1px 4px; border-radius: 3px; font-family: monospace; font-size: 12px;">$1</code>');
   
-  // Convert line breaks to <br>
-  html = html.replace(/\n/g, '<br>');
+  // Convert bullet points
+  html = html.replace(/^- (.+)$/gm, '<li style="margin: 4px 0;">$1</li>');
+  
+  // Wrap consecutive <li> items in <ul>
+  html = html.replace(/(<li[^>]*>.*<\/li>\n?)+/g, '<ul style="list-style: disc; padding-left: 20px; margin: 8px 0;">$&</ul>');
+  
+  // Convert numbered lists
+  html = html.replace(/^\d+\. (.+)$/gm, '<li style="margin: 4px 0;">$1</li>');
+  
+  // Convert line breaks to <br> (but not after block elements)
+  html = html.replace(/\n(?!<)/g, '<br>');
   
   return html;
 }
 
 /**
- * Generate the full HTML email content
+ * Generate the full HTML email content - Professional clean design
  */
 export function generateEmailHtml(pr: PRData): string {
   const description = formatDescription(pr.prDescription);
@@ -113,195 +132,169 @@ export function generateEmailHtml(pr: PRData): string {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PR #${pr.prNumber} Merged - ${escapeHtml(pr.prTitle)}</title>
+  <!--[if mso]>
+  <style type="text/css">
+    body, table, td {font-family: Arial, Helvetica, sans-serif !important;}
+  </style>
+  <![endif]-->
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #F9FAFB; line-height: 1.6;">
-  <table role="presentation" style="width: 100%; border-collapse: collapse;">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f9fafb; line-height: 1.5;">
+  
+  <!-- Main Container -->
+  <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f9fafb;">
     <tr>
-      <td align="center" style="padding: 40px 20px;">
-        <table role="presentation" style="width: 100%; max-width: 600px; border-collapse: collapse;">
+      <td align="center" style="padding: 40px 16px;">
+        
+        <!-- Email Card -->
+        <table role="presentation" style="width: 100%; max-width: 700px; border-collapse: collapse; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1); border: 1px solid #e5e7eb; overflow: hidden;">
           
           <!-- Header -->
           <tr>
-            <td style="background: linear-gradient(135deg, #1E1E1E 0%, #2D2D2D 100%); border-radius: 12px 12px 0 0; padding: 30px; text-align: center;">
-              <img src="https://hushh.ai/images/hushh-logo-white.png" alt="Hushh" style="height: 40px; margin-bottom: 20px;" />
-              <h1 style="color: #FFFFFF; margin: 0; font-size: 24px; font-weight: 600;">
-                🎉 Pull Request Merged!
-              </h1>
-              <p style="color: #A3A3A3; margin: 10px 0 0 0; font-size: 14px;">
-                A new change has been merged to <code style="background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px; color: #10B981;">${pr.baseBranch}</code>
-              </p>
+            <td style="background: linear-gradient(to right, #eff6ff, #ffffff); border-bottom: 1px solid #e5e7eb; padding: 32px;">
+              <table role="presentation" style="width: 100%;">
+                <tr>
+                  <td>
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                      <span style="font-size: 32px;">🎉</span>
+                      <h1 style="margin: 0; font-size: 24px; font-weight: 700; color: #111827; letter-spacing: -0.5px;">Pull Request Merged!</h1>
+                    </div>
+                    <p style="margin: 8px 0 0 0; color: #6b7280; font-size: 16px;">
+                      A new change has been merged to <code style="font-family: monospace; background: #f3f4f6; padding: 2px 8px; border-radius: 4px; font-size: 14px; color: #374151;">${escapeHtml(pr.baseBranch)}</code>
+                    </p>
+                  </td>
+                </tr>
+              </table>
             </td>
           </tr>
           
-          <!-- Main Content -->
+          <!-- Body Content -->
           <tr>
-            <td style="background-color: #FFFFFF; padding: 30px; border-left: 1px solid #E5E7EB; border-right: 1px solid #E5E7EB;">
+            <td style="padding: 24px 32px;">
               
-              <!-- PR Title & Number -->
+              <!-- PR Title -->
+              <h2 style="margin: 0 0 24px 0; font-size: 20px; font-weight: 600; color: #111827; line-height: 1.4;">
+                <a href="${pr.prUrl}" style="color: #111827; text-decoration: none;">#${pr.prNumber} ${escapeHtml(pr.prTitle)}</a>
+              </h2>
+              
+              <!-- Author Info Row -->
               <table role="presentation" style="width: 100%; margin-bottom: 24px;">
                 <tr>
-                  <td>
-                    <a href="${pr.prUrl}" style="text-decoration: none;">
-                      <h2 style="color: #111827; margin: 0; font-size: 20px; font-weight: 600;">
-                        <span style="color: #6366F1;">#${pr.prNumber}</span> ${escapeHtml(pr.prTitle)}
-                      </h2>
-                    </a>
-                  </td>
-                </tr>
-              </table>
-              
-              <!-- Labels -->
-              ${pr.labels.length > 0 ? `
-              <table role="presentation" style="width: 100%; margin-bottom: 20px;">
-                <tr>
-                  <td>
-                    ${pr.labels.map(label => `
-                      <span style="display: inline-block; background: #EEF2FF; color: #4F46E5; padding: 4px 10px; border-radius: 16px; font-size: 12px; font-weight: 500; margin-right: 6px; margin-bottom: 6px;">
-                        ${escapeHtml(label)}
-                      </span>
-                    `).join('')}
-                  </td>
-                </tr>
-              </table>
-              ` : ''}
-              
-              <!-- Author & Merger Info -->
-              <table role="presentation" style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
-                <tr>
-                  <!-- Created By -->
-                  <td style="width: 50%; vertical-align: top; padding-right: 10px;">
-                    <div style="background: #F9FAFB; border-radius: 8px; padding: 16px;">
-                      <p style="color: #6B7280; font-size: 12px; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.5px;">Raised By</p>
-                      <table role="presentation" style="width: 100%;">
-                        <tr>
-                          <td style="width: 40px; vertical-align: middle;">
-                            <img src="${pr.author.avatarUrl}" alt="${pr.author.login}" style="width: 36px; height: 36px; border-radius: 50%;" />
-                          </td>
-                          <td style="vertical-align: middle; padding-left: 10px;">
-                            <a href="${pr.author.profileUrl}" style="color: #111827; text-decoration: none; font-weight: 500;">${pr.author.login}</a>
-                          </td>
-                        </tr>
-                      </table>
+                  <td style="width: 50%; vertical-align: top; padding-right: 16px;">
+                    <p style="margin: 0 0 6px 0; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; color: #6b7280;">Raised By</p>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                      <div style="width: 24px; height: 24px; border-radius: 50%; background: #dbeafe; color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600;">${getInitials(pr.author.login)}</div>
+                      <a href="${pr.author.profileUrl}" style="font-weight: 500; color: #111827; text-decoration: none;">${escapeHtml(pr.author.login)}</a>
                     </div>
                   </td>
-                  
-                  <!-- Merged By -->
-                  <td style="width: 50%; vertical-align: top; padding-left: 10px;">
-                    <div style="background: #ECFDF5; border-radius: 8px; padding: 16px;">
-                      <p style="color: #059669; font-size: 12px; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.5px;">Merged By</p>
-                      <table role="presentation" style="width: 100%;">
-                        <tr>
-                          <td style="width: 40px; vertical-align: middle;">
-                            <img src="${pr.mergedBy.avatarUrl}" alt="${pr.mergedBy.login}" style="width: 36px; height: 36px; border-radius: 50%;" />
-                          </td>
-                          <td style="vertical-align: middle; padding-left: 10px;">
-                            <a href="${pr.mergedBy.profileUrl}" style="color: #111827; text-decoration: none; font-weight: 500;">${pr.mergedBy.login}</a>
-                          </td>
-                        </tr>
-                      </table>
+                  <td style="width: 50%; vertical-align: top; padding-left: 16px;">
+                    <p style="margin: 0 0 6px 0; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; color: #6b7280;">Merged By</p>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                      <div style="width: 24px; height: 24px; border-radius: 50%; background: #d1fae5; color: #059669; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600;">${getInitials(pr.mergedBy.login)}</div>
+                      <a href="${pr.mergedBy.profileUrl}" style="font-weight: 500; color: #111827; text-decoration: none;">${escapeHtml(pr.mergedBy.login)}</a>
                     </div>
                   </td>
                 </tr>
               </table>
               
-              <!-- Timestamps -->
-              <table role="presentation" style="width: 100%; margin-bottom: 24px;">
+              <!-- Timestamps & Branch Info Box -->
+              <table role="presentation" style="width: 100%; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 24px;">
                 <tr>
-                  <td style="padding: 12px 16px; background: #FEF3C7; border-radius: 8px;">
+                  <td style="padding: 16px;">
                     <table role="presentation" style="width: 100%;">
                       <tr>
-                        <td style="width: 50%;">
-                          <p style="color: #92400E; font-size: 12px; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">⏰ PR Raised</p>
-                          <p style="color: #451A03; font-size: 13px; margin: 4px 0 0 0; font-weight: 500;">${pr.createdAt}</p>
+                        <td style="width: 50%; vertical-align: top; padding-right: 12px;">
+                          <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                            <span style="color: #2563eb; font-weight: 600; font-size: 13px;">⏱ PR Raised</span>
+                          </div>
+                          <p style="margin: 0; font-size: 13px; color: #6b7280;">${pr.createdAt}</p>
                         </td>
-                        <td style="width: 50%;">
-                          <p style="color: #92400E; font-size: 12px; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">✅ Merged</p>
-                          <p style="color: #451A03; font-size: 13px; margin: 4px 0 0 0; font-weight: 500;">${pr.mergedAt}</p>
+                        <td style="width: 50%; vertical-align: top; padding-left: 12px;">
+                          <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                            <span style="color: #059669; font-weight: 600; font-size: 13px;">✓ Merged</span>
+                          </div>
+                          <p style="margin: 0; font-size: 13px; color: #6b7280;">${pr.mergedAt}</p>
                         </td>
                       </tr>
                     </table>
-                  </td>
-                </tr>
-              </table>
-              
-              <!-- Branch Flow -->
-              <table role="presentation" style="width: 100%; margin-bottom: 24px;">
-                <tr>
-                  <td style="text-align: center; padding: 16px; background: #F3F4F6; border-radius: 8px;">
-                    <code style="background: #374151; color: #F9FAFB; padding: 6px 12px; border-radius: 6px; font-size: 13px;">${escapeHtml(pr.headBranch)}</code>
-                    <span style="color: #9CA3AF; margin: 0 12px; font-size: 18px;">→</span>
-                    <code style="background: #10B981; color: #FFFFFF; padding: 6px 12px; border-radius: 6px; font-size: 13px;">${escapeHtml(pr.baseBranch)}</code>
-                  </td>
-                </tr>
-              </table>
-              
-              <!-- Stats -->
-              <table role="presentation" style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
-                <tr>
-                  <td style="width: 33.33%; text-align: center; padding: 16px; background: #F3F4F6; border-radius: 8px 0 0 8px;">
-                    <p style="color: #6B7280; font-size: 12px; margin: 0 0 4px 0; text-transform: uppercase;">Files Changed</p>
-                    <p style="color: #111827; font-size: 24px; font-weight: 700; margin: 0;">${pr.filesChanged}</p>
-                  </td>
-                  <td style="width: 33.33%; text-align: center; padding: 16px; background: #ECFDF5;">
-                    <p style="color: #059669; font-size: 12px; margin: 0 0 4px 0; text-transform: uppercase;">Additions</p>
-                    <p style="color: #059669; font-size: 24px; font-weight: 700; margin: 0;">+${pr.additions}</p>
-                  </td>
-                  <td style="width: 33.33%; text-align: center; padding: 16px; background: #FEF2F2; border-radius: 0 8px 8px 0;">
-                    <p style="color: #DC2626; font-size: 12px; margin: 0 0 4px 0; text-transform: uppercase;">Deletions</p>
-                    <p style="color: #DC2626; font-size: 24px; font-weight: 700; margin: 0;">-${pr.deletions}</p>
-                  </td>
-                </tr>
-              </table>
-              
-              <!-- Description -->
-              <table role="presentation" style="width: 100%; margin-bottom: 24px;">
-                <tr>
-                  <td>
-                    <h3 style="color: #374151; font-size: 14px; font-weight: 600; margin: 0 0 12px 0; text-transform: uppercase; letter-spacing: 0.5px;">
-                      📝 Description
-                    </h3>
-                    <div style="background: #F9FAFB; border-radius: 8px; padding: 16px; border-left: 4px solid #6366F1;">
-                      <div style="color: #374151; font-size: 14px;">
-                        ${description}
+                    
+                    <!-- Branch Flow -->
+                    <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #e5e7eb;">
+                      <div style="display: flex; align-items: center; gap: 8px; font-family: monospace; font-size: 13px;">
+                        <span style="background: #e5e7eb; color: #374151; padding: 4px 8px; border-radius: 4px;">${escapeHtml(pr.headBranch)}</span>
+                        <span style="color: #9ca3af;">→</span>
+                        <span style="background: #dbeafe; color: #1d4ed8; padding: 4px 8px; border-radius: 4px; border: 1px solid #93c5fd;">${escapeHtml(pr.baseBranch)}</span>
                       </div>
                     </div>
                   </td>
                 </tr>
               </table>
               
-              <!-- CTA Button -->
-              <table role="presentation" style="width: 100%;">
+              <!-- Stats Row -->
+              <table role="presentation" style="width: 100%; margin-bottom: 24px;">
                 <tr>
-                  <td style="text-align: center; padding: 20px 0;">
-                    <a href="${pr.prUrl}" style="display: inline-block; background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%); color: #FFFFFF; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 14px; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);">
+                  <td style="width: 33.33%; text-align: left;">
+                    <p style="margin: 0 0 4px 0; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; color: #6b7280;">Files Changed</p>
+                    <span style="font-size: 18px; font-weight: 700; color: #111827;">${pr.filesChanged}</span>
+                  </td>
+                  <td style="width: 33.33%; text-align: left;">
+                    <p style="margin: 0 0 4px 0; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; color: #6b7280;">Additions</p>
+                    <span style="font-size: 18px; font-weight: 700; color: #059669;">+${pr.additions}</span>
+                  </td>
+                  <td style="width: 33.33%; text-align: left;">
+                    <p style="margin: 0 0 4px 0; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; color: #6b7280;">Deletions</p>
+                    <span style="font-size: 18px; font-weight: 700; color: #dc2626;">-${pr.deletions}</span>
+                  </td>
+                </tr>
+              </table>
+              
+              <!-- Divider -->
+              <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;">
+              
+              <!-- Description Section -->
+              <div style="margin-bottom: 24px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+                  <span style="font-size: 18px;">📝</span>
+                  <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: #111827;">Description</h3>
+                </div>
+                <div style="color: #374151; font-size: 14px; line-height: 1.6;">
+                  ${description}
+                </div>
+              </div>
+              
+              <!-- CTA Button -->
+              <table role="presentation" style="width: 100%; margin: 32px 0;">
+                <tr>
+                  <td>
+                    <a href="${pr.prUrl}" style="display: inline-block; background-color: #2563eb; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 500; font-size: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
                       View Pull Request →
                     </a>
                   </td>
                 </tr>
               </table>
               
-            </td>
-          </tr>
-          
-          <!-- Footer -->
-          <tr>
-            <td style="background: #1E1E1E; border-radius: 0 0 12px 12px; padding: 24px 30px; text-align: center;">
-              <p style="color: #9CA3AF; font-size: 13px; margin: 0 0 8px 0;">
-                This notification was sent by <strong style="color: #FFFFFF;">Hushh DevOps Bot</strong>
-              </p>
-              <p style="color: #6B7280; font-size: 12px; margin: 0;">
-                <a href="${pr.repoUrl}" style="color: #6366F1; text-decoration: none;">${pr.repoName}</a>
-              </p>
-              <p style="color: #6B7280; font-size: 11px; margin: 16px 0 0 0;">
-                © ${new Date().getFullYear()} Hushh.ai • Privacy-First Technology
-              </p>
+              <!-- Footer within card -->
+              <div style="border-top: 1px solid #e5e7eb; padding-top: 24px; margin-top: 16px;">
+                <p style="margin: 0 0 8px 0; font-size: 13px; color: #6b7280;">
+                  This notification was sent by <strong style="color: #111827;">Hushh DevOps Bot</strong>
+                </p>
+                <p style="margin: 0 0 16px 0; font-size: 13px; color: #6b7280;">
+                  <a href="${pr.repoUrl}" style="color: #2563eb; text-decoration: none;">${escapeHtml(pr.repoName)}</a>
+                </p>
+                <p style="margin: 0; font-size: 11px; color: #9ca3af;">
+                  © ${new Date().getFullYear()} Hushh.ai • Privacy-First Technology
+                </p>
+              </div>
+              
             </td>
           </tr>
           
         </table>
+        <!-- End Email Card -->
+        
       </td>
     </tr>
   </table>
+  
 </body>
 </html>
   `.trim();
