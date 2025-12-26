@@ -380,6 +380,60 @@ supabase secrets set GMAIL_SENDER_EMAIL="new-sender@hushh.ai"
 
 ---
 
+---
+
+## Organization-Level Webhook (All Repos)
+
+As of December 26, 2025, we have configured an **organization-level webhook** that automatically applies to all 99 repositories in the `hushh-labs` organization.
+
+### Webhook Details
+
+| Property | Value |
+|----------|-------|
+| **Webhook ID** | `588384186` |
+| **Organization** | `hushh-labs` |
+| **Type** | Organization |
+| **Active** | `true` |
+| **Events** | `pull_request` |
+| **URL** | `https://ibsisfnjxeowvdtvgzff.supabase.co/functions/v1/github-devops-notify` |
+| **Created At** | 2025-12-26T21:23:46Z |
+
+### Benefits
+
+1. **Automatic Coverage**: All new repos created in the organization will automatically have the webhook
+2. **Single Point of Management**: Update once, affects all repos
+3. **Consistent Notifications**: All PRs merged to `main` across all repos will trigger email notifications
+
+### Managing the Webhook
+
+```bash
+# List organization webhooks
+gh api orgs/hushh-labs/hooks --jq '.[] | {id: .id, active: .active, events: .events}'
+
+# Send a test ping
+gh api orgs/hushh-labs/hooks/588384186/pings --method POST
+
+# Check recent deliveries
+gh api orgs/hushh-labs/hooks/588384186/deliveries --jq '.[0:5] | .[] | {event: .event, status: .status}'
+
+# Disable webhook (if needed)
+gh api orgs/hushh-labs/hooks/588384186 --method PATCH -f active=false
+
+# Delete webhook (if needed)
+gh api orgs/hushh-labs/hooks/588384186 --method DELETE
+```
+
+### Recipients
+
+Notifications are sent to the DevOps team:
+- `manish@hush1one.com`
+- `neelesh1@hush1one.com`
+- `ankit@hush1one.com`
+- `i-akshat@hush1one.com`
+- `suresh@hushh.ai`
+
+---
+
 ## Support
 
 For issues with this setup:
