@@ -1,7 +1,7 @@
 {
   "name": "hushh-email-template-api",
-  "version": "1.0.0",
-  "description": "Google Cloud Run API for Hushh Email Templates",
+  "version": "2.1.0",
+  "description": "Google Cloud Run API for Hushh Email Templates - Gmail Safe",
   "type": "module",
   "main": "index.js",
   "scripts": {
