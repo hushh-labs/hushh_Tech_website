@@ -1,5 +1,5 @@
-# Test Webhook Email Notification
+# Email Notification Test
 
-This file tests the DevOps webhook email notification system.
+This PR tests the updated email notification system.
 
-Created: Fri Dec 26 20:24:48 IST 2025
+Recipients: manish@, neelesh1@, ankit@, i-akshat@, suresh@
