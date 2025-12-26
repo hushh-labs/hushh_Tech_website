@@ -1,0 +1,20 @@
+{
+  "name": "hushh-email-template-api",
+  "version": "1.0.0",
+  "description": "Google Cloud Run API for Hushh Email Templates",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "cors": "^2.8.5"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "author": "Hushh.ai",
+  "license": "MIT"
+}
