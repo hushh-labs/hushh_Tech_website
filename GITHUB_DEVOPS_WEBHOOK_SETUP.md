@@ -390,7 +390,7 @@ As of December 26, 2025, we have configured an **organization-level webhook** th
 
 | Property | Value |
 |----------|-------|
-| **Webhook ID** | `588384186` |
+| **Webhook ID** | `588385072` |
 | **Organization** | `hushh-labs` |
 | **Type** | Organization |
 | **Active** | `true` |
@@ -411,16 +411,16 @@ As of December 26, 2025, we have configured an **organization-level webhook** th
 gh api orgs/hushh-labs/hooks --jq '.[] | {id: .id, active: .active, events: .events}'
 
 # Send a test ping
-gh api orgs/hushh-labs/hooks/588384186/pings --method POST
+gh api orgs/hushh-labs/hooks/588385072/pings --method POST
 
 # Check recent deliveries
-gh api orgs/hushh-labs/hooks/588384186/deliveries --jq '.[0:5] | .[] | {event: .event, status: .status}'
+gh api orgs/hushh-labs/hooks/588385072/deliveries --jq '.[0:5] | .[] | {event: .event, status: .status}'
 
 # Disable webhook (if needed)
-gh api orgs/hushh-labs/hooks/588384186 --method PATCH -f active=false
+gh api orgs/hushh-labs/hooks/588385072 --method PATCH -f active=false
 
 # Delete webhook (if needed)
-gh api orgs/hushh-labs/hooks/588384186 --method DELETE
+gh api orgs/hushh-labs/hooks/588385072 --method DELETE
 ```
 
 ### Recipients
