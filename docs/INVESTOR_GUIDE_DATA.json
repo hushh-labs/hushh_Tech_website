@@ -1,0 +1,217 @@
+{
+  "pageInfo": {
+    "route": "/investor-guide",
+    "title": "Investor Onboarding Guide",
+    "badge": "📘 INVESTOR GUIDE",
+    "description": "Your complete step-by-step guide to becoming a Hushh Fund A investor. Join the AI-Powered Berkshire Hathaway.",
+    "stats": {
+      "totalSteps": 17,
+      "estimatedTime": "~15 min"
+    }
+  },
+  
+  "onboardingPhases": [
+    {
+      "phase": 1,
+      "title": "Account Selection",
+      "description": "Choose your investment tier and get introduced to our AI-powered portfolio strategies.",
+      "icon": "🎯",
+      "color": "#2b8cee",
+      "steps": [
+        { "step": 1, "title": "Choose account type", "route": "/onboarding/step-1" },
+        { "step": 2, "title": "Portfolio intro", "route": "/onboarding/step-2" },
+        { "step": 3, "title": "Select share classes", "route": "/onboarding/step-3" },
+        { "step": 4, "title": "Referral source", "route": "/onboarding/step-4" }
+      ]
+    },
+    {
+      "phase": 2,
+      "title": "Personal Information",
+      "description": "Provide your details for regulatory compliance and account setup.",
+      "icon": "📋",
+      "color": "#10b981",
+      "steps": [
+        { "step": 5, "title": "Information intro", "route": "/onboarding/step-5" },
+        { "step": 6, "title": "Residence confirmation", "route": "/onboarding/step-6" },
+        { "step": 7, "title": "Account structure", "route": "/onboarding/step-7" },
+        { "step": 8, "title": "Phone number", "route": "/onboarding/step-8" },
+        { "step": 9, "title": "Legal name", "route": "/onboarding/step-9" },
+        { "step": 10, "title": "Address", "route": "/onboarding/step-10" },
+        { "step": 11, "title": "SSN & Date of Birth", "route": "/onboarding/step-11" }
+      ]
+    },
+    {
+      "phase": 3,
+      "title": "Investment Setup",
+      "description": "Confirm your investment allocation and set up payment details.",
+      "icon": "💰",
+      "color": "#f59e0b",
+      "steps": [
+        { "step": 12, "title": "Finish up CTA", "route": "/onboarding/step-12" },
+        { "step": 13, "title": "Confirm investment", "route": "/onboarding/step-13" },
+        { "step": 14, "title": "Recurring investment", "route": "/onboarding/step-14" },
+        { "step": 15, "title": "Wire transfer details", "route": "/onboarding/step-15" }
+      ]
+    },
+    {
+      "phase": 4,
+      "title": "Verification & Welcome",
+      "description": "Complete identity verification and meet our CEO.",
+      "icon": "✅",
+      "color": "#8b5cf6",
+      "steps": [
+        { "step": 16, "title": "Meet the CEO", "route": "/onboarding/meet-ceo" },
+        { "step": 17, "title": "Identity Verification", "route": "/onboarding/verify" }
+      ]
+    }
+  ],
+
+  "accountTiers": [
+    {
+      "id": "wealth_1m",
+      "minimum": "$1M",
+      "name": "Hushh Wealth Investment",
+      "description": "AI-powered wealth building",
+      "badge": null,
+      "borderColor": "#2b8cee",
+      "bgColor": "rgba(43, 140, 238, 0.05)"
+    },
+    {
+      "id": "wealth_5m",
+      "minimum": "$5M",
+      "name": "Premium Wealth Account",
+      "description": "Enhanced portfolio strategies",
+      "badge": "PREMIUM",
+      "borderColor": "#71717A",
+      "bgColor": "rgba(113, 113, 122, 0.05)"
+    },
+    {
+      "id": "ultra_25m",
+      "minimum": "$25M",
+      "name": "Ultra High Net Worth",
+      "description": "Bespoke solutions worldwide",
+      "badge": "ULTRA",
+      "borderColor": "#B8860B",
+      "bgColor": "rgba(184, 134, 11, 0.05)"
+    }
+  ],
+
+  "requirements": [
+    {
+      "icon": "🪪",
+      "title": "Government-issued ID",
+      "description": "Passport or Driver's License"
+    },
+    {
+      "icon": "🔢",
+      "title": "Social Security Number",
+      "description": "For tax reporting compliance"
+    },
+    {
+      "icon": "🏦",
+      "title": "Bank Account Details",
+      "description": "For wire transfers"
+    },
+    {
+      "icon": "💵",
+      "title": "Investment Amount",
+      "description": "Minimum $1M starting capital"
+    }
+  ],
+
+  "benefits": [
+    {
+      "iconName": "TrendingUpIcon",
+      "title": "AI-Powered Alpha",
+      "description": "Hushh Fund A: Multi-strategy alpha generation powered by cutting-edge AI technology."
+    },
+    {
+      "iconName": "ShieldIcon",
+      "title": "Security First",
+      "description": "Bank-grade encryption and regulatory compliance to protect your investments."
+    },
+    {
+      "iconName": "UsersIcon",
+      "title": "Dedicated Support",
+      "description": "Personal relationship managers for premium and ultra-tier accounts."
+    },
+    {
+      "iconName": "ClockIcon",
+      "title": "Quick Onboarding",
+      "description": "Complete your setup in under 15 minutes with our streamlined process."
+    }
+  ],
+
+  "fundA": {
+    "badge": "FLAGSHIP FUND",
+    "name": "Hushh Fund A",
+    "tagline": "AI-Powered Multi-Strategy Alpha",
+    "description": "The AI-Powered Berkshire Hathaway. Select from Class A, Class B, or Class C units based on your investment preferences.",
+    "shareClasses": [
+      {
+        "name": "Class A",
+        "description": "Long-term growth"
+      },
+      {
+        "name": "Class B",
+        "description": "Balanced approach"
+      },
+      {
+        "name": "Class C",
+        "description": "Flexible access"
+      }
+    ],
+    "learnMoreRoute": "/discover-fund-a"
+  },
+
+  "faq": [
+    {
+      "question": "How long does onboarding take?",
+      "answer": "Most investors complete the onboarding process in about 15 minutes. Identity verification may take an additional 1-2 business days."
+    },
+    {
+      "question": "What's the minimum investment?",
+      "answer": "Our Hushh Wealth Investment Account starts at $1 million minimum. Premium tier starts at $5M, and Ultra tier at $25M."
+    },
+    {
+      "question": "Is my information secure?",
+      "answer": "Absolutely. We use bank-grade encryption and comply with all federal regulations. Your SSN and banking details are encrypted end-to-end."
+    }
+  ],
+
+  "styling": {
+    "fontFamily": "'Manrope', sans-serif",
+    "maxWidth": "600px",
+    "primaryColor": "#2b8cee",
+    "heroBackground": "gradient from-slate-900 via-slate-800 to-slate-900",
+    "ctaButtonStyles": {
+      "height": "56px",
+      "borderRadius": "9999px",
+      "backgroundColor": "#2b8cee",
+      "hoverBackgroundColor": "#2563eb"
+    }
+  },
+
+  "ctaButtons": {
+    "primary": {
+      "loggedIn": "Start Onboarding",
+      "loggedOut": "Sign In & Start",
+      "redirectTo": "/onboarding/step-1"
+    },
+    "hero": {
+      "text": "Start Your Journey"
+    },
+    "fundA": {
+      "text": "Learn More About Fund A",
+      "route": "/discover-fund-a"
+    }
+  },
+
+  "footer": {
+    "disclaimer": "By continuing, you agree to our Privacy Policy and Terms of Service.",
+    "links": {
+      "privacyPolicy": "/privacy-policy",
+      "termsOfService": "/privacy-policy"
+    }
+  }
+}
