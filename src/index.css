@@ -36,6 +36,25 @@ h6 {
   font-weight: 300;
 }
 
+/* Material Symbols Icons - Override font-family for icon fonts */
+.material-symbols-outlined {
+  font-family: "Material Symbols Outlined" !important;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "liga";
+}
+
 /* DM Sans utility classes - variable weight from 300 to 700 */
 .red-hat-text-light {
   font-family: "DM Sans", sans-serif;

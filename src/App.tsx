@@ -69,6 +69,7 @@ import OnboardingStep15 from './pages/onboarding/Step15';
 import VerifyIdentityPage from './pages/onboarding/VerifyIdentity';
 import VerifyCompletePage from './pages/onboarding/VerifyComplete';
 import MeetCeoPage from './pages/onboarding/MeetCeo';
+import InvestorGuidePage from './pages/onboarding/InvestorGuide';
 import KYCDemoPage from './pages/kyc-demo';
 import KycFlowPage from './pages/kyc-flow';
 import A2APlaygroundPage from './pages/a2a-playground';
@@ -88,9 +89,10 @@ const ContentWrapper = ({ children }: { children: ReactNode }) => {
   const isOnboarding = location.pathname.startsWith('/onboarding');
   const isKycFlow = location.pathname.startsWith('/kyc-flow');
   const isA2APlayground = location.pathname.startsWith('/a2a-playground');
+  const isInvestorGuide = location.pathname === '/investor-guide';
 
   return (
-    <div className={`${isHomePage || isAuthCallback || isUserRegistration || isOnboarding || isKycFlow || isA2APlayground ? '' : 'mt-20'}`}>
+    <div className={`${isHomePage || isAuthCallback || isUserRegistration || isOnboarding || isKycFlow || isA2APlayground || isInvestorGuide ? '' : 'mt-20'}`}>
       {children}
     </div>
   );
@@ -230,6 +232,8 @@ function App() {
 
               } />
               <Route path="/auth/callback" element={<AuthCallback />} />
+              {/* Investor Onboarding Guide - Public landing page */}
+              <Route path="/investor-guide" element={<InvestorGuidePage />} />
               <Route path="/onboarding/step-1" element={
                 <ProtectedRoute>
                   <OnboardingStep1 />
