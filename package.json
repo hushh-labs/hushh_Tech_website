@@ -22,7 +22,13 @@
     "android:build": "npm run build && npx cap sync android",
     "android:playstore": "./scripts/android-playstore.sh",
     "android:debug": "cd android && ./gradlew assembleDebug",
-    "android:release": "cd android && ./gradlew bundleRelease"
+    "android:release": "cd android && ./gradlew bundleRelease",
+    "test:e2e": "npx playwright test",
+    "test:e2e:deepsearch": "npx playwright test deepsearch",
+    "test:e2e:ui": "npx playwright test --ui",
+    "test:e2e:headed": "npx playwright test --headed",
+    "test:e2e:report": "npx playwright show-report",
+    "test:e2e:debug": "npx playwright test --debug"
   },
   "dependencies": {
     "@ant-design/icons": "^5.5.1",
@@ -81,6 +87,7 @@
   },
   "devDependencies": {
     "@mdx-js/rollup": "^3.1.1",
+    "@playwright/test": "^1.57.0",
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
     "@types/react-helmet": "^6.1.11",
