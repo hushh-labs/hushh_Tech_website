@@ -16,6 +16,7 @@
 import express from 'express';
 import cors from 'cors';
 import { generatePRNotificationEmail } from './emails/PRNotification.js';
+import { generateSalesNotificationEmail } from './emails/SalesNotification.js';
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -29,9 +30,9 @@ app.get('/', (req, res) => {
   res.json({ 
     status: 'healthy',
     service: 'Hushh Email Template API',
-    version: '2.1.0',
+    version: '2.2.0',
     engine: 'Gmail-Safe Pure JS',
-    endpoints: ['/pr-notification']
+    endpoints: ['/pr-notification', '/sales-notification']
   });
 });
 
@@ -61,6 +62,35 @@ app.post('/pr-notification', async (req, res) => {
     console.error('Error generating email template:', error);
     return res.status(500).json({
       error: 'Failed to generate email template',
+      message: error.message,
+    });
+  }
+});
+
+// Sales Notification Email Template Endpoint
+app.post('/sales-notification', async (req, res) => {
+  try {
+    const { salesData } = req.body;
+
+    if (!salesData) {
+      return res.status(400).json({ error: 'Missing salesData in request body' });
+    }
+
+    // Generate Gmail-safe HTML email using the sales template
+    const result = generateSalesNotificationEmail(salesData);
+
+    console.log(`Generated sales email template for recipient: ${salesData.recipientName || 'Unknown'}`);
+
+    return res.status(200).json({
+      success: true,
+      subject: result.subject,
+      html: result.html,
+      text: result.text,
+    });
+  } catch (error) {
+    console.error('Error generating sales email template:', error);
+    return res.status(500).json({
+      error: 'Failed to generate sales email template',
       message: error.message,
     });
   }
