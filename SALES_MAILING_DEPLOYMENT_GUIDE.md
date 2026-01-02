@@ -73,7 +73,7 @@ curl https://email-template-api-53407187172.us-central1.run.app/
 
 ```bash
 # Deploy the sales-mailer function
-npx supabase functions deploy sales-mailer --project-ref xqgjqblobjrpqmwvlqof
+npx supabase functions deploy sales-mailer --project-ref ibsisfnjxeowvdtvgzff
 ```
 
 **Required secrets (already configured from github-devops-notify):**
@@ -83,8 +83,8 @@ npx supabase functions deploy sales-mailer --project-ref xqgjqblobjrpqmwvlqof
 
 If secrets need to be set:
 ```bash
-npx supabase secrets set GOOGLE_SERVICE_ACCOUNT_EMAIL="your-sa@project.iam.gserviceaccount.com" --project-ref xqgjqblobjrpqmwvlqof
-npx supabase secrets set GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n..." --project-ref xqgjqblobjrpqmwvlqof
+npx supabase secrets set GOOGLE_SERVICE_ACCOUNT_EMAIL="your-sa@project.iam.gserviceaccount.com" --project-ref ibsisfnjxeowvdtvgzff
+npx supabase secrets set GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n..." --project-ref ibsisfnjxeowvdtvgzff
 ```
 
 ### 3. Frontend Deployment
@@ -119,7 +119,7 @@ http://localhost:5173/sales-mailing
 ### API Request Format
 
 ```json
-POST https://xqgjqblobjrpqmwvlqof.supabase.co/functions/v1/sales-mailer
+POST https://ibsisfnjxeowvdtvgzff.supabase.co/functions/v1/sales-mailer
 Content-Type: application/json
 
 {
@@ -188,12 +188,12 @@ The sales email uses a luxury dark theme with:
 
 1. Check Supabase logs:
 ```bash
-npx supabase functions logs sales-mailer --project-ref xqgjqblobjrpqmwvlqof
+npx supabase functions logs sales-mailer --project-ref ibsisfnjxeowvdtvgzff
 ```
 
 2. Verify secrets are set:
 ```bash
-npx supabase secrets list --project-ref xqgjqblobjrpqmwvlqof
+npx supabase secrets list --project-ref ibsisfnjxeowvdtvgzff
 ```
 
 3. Check Gmail API quotas in Google Cloud Console

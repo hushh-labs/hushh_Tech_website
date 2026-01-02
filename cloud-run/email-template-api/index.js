@@ -16,7 +16,7 @@
 import express from 'express';
 import cors from 'cors';
 import { generatePRNotificationEmail } from './emails/PRNotification.js';
-import { generateSalesNotificationEmail } from './emails/SalesNotification.js';
+import { SalesNotification } from './emails/SalesNotification.js';
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -77,7 +77,7 @@ app.post('/sales-notification', async (req, res) => {
     }
 
     // Generate Gmail-safe HTML email using the sales template
-    const result = generateSalesNotificationEmail(salesData);
+    const result = SalesNotification(salesData);
 
     console.log(`Generated sales email template for recipient: ${salesData.recipientName || 'Unknown'}`);
 
