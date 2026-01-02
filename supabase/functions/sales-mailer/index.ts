@@ -9,12 +9,19 @@
  * 2. Extract recipient name from email
  * 3. Call Cloud Run for HTML template
  * 4. Send via Gmail API
+ * 5. Log to database for CRM tracking
  * 
  * Updated: Jan 2, 2026
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { sendGmailNotification } from "./gmail.ts";
+
+// Supabase client for logging
+const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
+const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 // CORS headers for preflight requests
 const corsHeaders = {
@@ -236,6 +243,22 @@ serve(async (req: Request) => {
           });
           successCount++;
           console.log(`✓ Email sent to ${recipientEmail}`);
+          
+          // Log to database
+          try {
+            await supabase.from('agent_mailer_logs').insert({
+              sender_email: from,
+              sender_name: senderName,
+              recipient_email: recipientEmail,
+              recipient_name: recipientName,
+              subject: emailTemplate.subject,
+              status: 'SENT',
+              gmail_message_id: emailResult.messageId,
+              template_used: 'sales_notification',
+            });
+          } catch (logError) {
+            console.error(`Failed to log email to DB:`, logError);
+          }
         } else {
           results.push({
             email: recipientEmail,
@@ -244,6 +267,22 @@ serve(async (req: Request) => {
           });
           failCount++;
           console.error(`✗ Failed to send to ${recipientEmail}: ${emailResult.error}`);
+          
+          // Log failure to database
+          try {
+            await supabase.from('agent_mailer_logs').insert({
+              sender_email: from,
+              sender_name: senderName,
+              recipient_email: recipientEmail,
+              recipient_name: recipientName,
+              subject: emailTemplate.subject,
+              status: 'FAILED',
+              error_message: emailResult.error,
+              template_used: 'sales_notification',
+            });
+          } catch (logError) {
+            console.error(`Failed to log failure to DB:`, logError);
+          }
         }
 
         // Rate limiting: wait 200ms between emails to avoid Gmail API limits
