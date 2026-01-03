@@ -70,16 +70,24 @@ export function SalesNotification(input = {}) {
   const confidentialRight = escapeHtml(d.confidentialRight ?? "© Hushh");
 
   // Updated Palette - White/Light Theme (Gmail-safe inline)
+  // Matches Tailwind design exactly: primary=#000000, highlight=#AD7D56, accent=#CDB49E, subtle=#555555
   const C = {
     primary: "#000000",
     highlight: "#AD7D56",
-    subtle: "#CDB49E",
+    accent: "#CDB49E",
+    subtle: "#555555",
     panel: "#FFFFFF",
-    bg: "#F9FAFB", // Tailwind bg-gray-50 approx
+    bg: "#F9FAFB", // Tailwind bg-gray-50
     text: "#000000",
     textMuted: "#555555",
-    borderSoft: "rgba(205, 180, 158, 0.20)",
-    borderSoft2: "rgba(205, 180, 158, 0.35)",
+    // Border colors matching Tailwind
+    borderAccent20: "rgba(205, 180, 158, 0.20)", // border-accent/20
+    borderAccent30: "rgba(205, 180, 158, 0.30)", // border-accent/30 - footer border
+    borderHighlight30: "rgba(173, 125, 86, 0.30)", // border-highlight/30 - vision lines
+    borderHighlight40: "rgba(173, 125, 86, 0.40)", // border-highlight/40 - badge border
+    // Background colors
+    bgAccent5: "rgba(205, 180, 158, 0.05)", // bg-accent/5 - footer bg
+    bgAccent10: "rgba(205, 180, 158, 0.10)", // bg-accent/10 - badge bg
     shadow: "0 20px 40px -10px rgba(0, 0, 0, 0.05)"
   };
 
@@ -117,7 +125,7 @@ export function SalesNotification(input = {}) {
     <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:${C.bg};">
       <tr>
         <td align="center" style="padding:48px 16px;">
-          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="640" style="width:640px;max-width:640px;background-color:${C.panel};box-shadow:${C.shadow};border:1px solid ${C.borderSoft};">
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="640" style="width:640px;max-width:640px;background-color:${C.panel};box-shadow:${C.shadow};border:1px solid ${C.borderAccent20};">
             <!-- top gradient bar -->
             <tr>
               <td style="height:4px;line-height:4px;background-color:#FFFFFF;background-image:${topBarGradient};opacity:0.50;">
@@ -247,21 +255,21 @@ export function SalesNotification(input = {}) {
               </td>
             </tr>
 
-            <!-- Footer -->
+            <!-- Footer: matches Tailwind bg-accent/5, border-accent/30, text-subtle/70 -->
             <tr>
               <td style="padding:0;">
-                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:rgba(205,180,158,0.10);">
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:${C.bgAccent5};">
                   <tr>
-                    <td style="height:1px;line-height:1px;background-color:${C.borderSoft};">&nbsp;</td>
+                    <td style="height:1px;line-height:1px;background-color:${C.borderAccent30};">&nbsp;</td>
                   </tr>
                   <tr>
-                    <td align="center" style="padding:18px 18px 22px 18px;">
+                    <td align="center" style="padding:24px 18px 28px 18px;">
                       <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                         <tr>
-                          <td style="font-family:Arial,Helvetica,sans-serif;font-size:9px;letter-spacing:4px;text-transform:uppercase;color:rgba(85,85,85,0.80);font-weight:600;padding-right:18px;white-space:nowrap;">
+                          <td style="font-family:Arial,Helvetica,sans-serif;font-size:9px;letter-spacing:5px;text-transform:uppercase;color:rgba(85,85,85,0.70);font-weight:500;padding-right:24px;white-space:nowrap;">
                             ${confidentialLeft}
                           </td>
-                          <td style="font-family:Arial,Helvetica,sans-serif;font-size:9px;letter-spacing:4px;text-transform:uppercase;color:rgba(85,85,85,0.80);font-weight:600;white-space:nowrap;">
+                          <td style="font-family:Arial,Helvetica,sans-serif;font-size:9px;letter-spacing:5px;text-transform:uppercase;color:rgba(85,85,85,0.70);font-weight:500;white-space:nowrap;">
                             ${confidentialRight}
                           </td>
                         </tr>
