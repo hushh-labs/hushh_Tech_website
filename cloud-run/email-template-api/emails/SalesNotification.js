@@ -1,4 +1,6 @@
 // cloud-run/email-template-api/emails/SalesNotification.js
+// Gmail-Safe Email Template - Hushh Technologies
+// Converted from Tailwind HTML to table-based layout
 
 export const escapeHtml = (val = "") =>
   String(val)
@@ -14,99 +16,162 @@ export const stripHtml = (val = "") =>
     .replace(/\s+/g, " ")
     .trim();
 
-export const withHighlight = (text, term, before, after) => {
-  const t = String(text ?? "");
-  const k = String(term ?? "");
-  if (!t || !k) return escapeHtml(t);
-  const idx = t.indexOf(k);
-  if (idx === -1) return escapeHtml(t);
-  const a = escapeHtml(t.slice(0, idx));
-  const b = escapeHtml(k);
-  const c = escapeHtml(t.slice(idx + k.length));
-  return `${a}${before}${b}${after}${c}`;
-};
-
 export function SalesNotification(input = {}) {
   const d = input || {};
 
-  const subject = escapeHtml(d.subject ?? "Hushh Fund A — ADFW Follow-up");
-
-  const recipientName = escapeHtml(d.recipientName ?? "[Name]");
-  const badgeText = escapeHtml(d.badgeText ?? "Hushh Fund A");
-  const subtitle = escapeHtml(d.subtitle ?? "ADFW Follow-up");
-
-  // NEW: Using Supabase-hosted Hushh logo
+  const subject = escapeHtml(d.subject ?? "Hushh Technologies — Investment Opportunity");
+  const recipientName = escapeHtml(d.recipientName ?? "");
+  
+  // Supabase-hosted Hushh logo
   const logoUrl = escapeHtml(
-    d.logoUrl ??
-      "https://ibsisfnjxeowvdtvgzff.supabase.co/storage/v1/object/public/assets/hushh-logo.png"
+    d.logoUrl ?? "https://ibsisfnjxeowvdtvgzff.supabase.co/storage/v1/object/public/assets/hushh-logo.png"
   );
 
-  const introText =
-    d.introText ??
-    "We met briefly in Abu Dhabi during ADFW in December. I've been reflecting on our exchange around long-duration capital and how sovereign institutions are thinking about durability in the current productivity cycle.";
-  const introHighlight = d.introHighlight ?? "long-duration capital";
+  // Content sections - customizable
+  const whoWeAreText = escapeHtml(
+    d.whoWeAreText ?? 
+    "Hushh Technologies is an investment management firm dedicated to redefining the financial landscape through innovation and integrity. We bridge the gap between complex market data and actionable investment strategies."
+  );
 
-  const visionLabel = escapeHtml(d.visionLabel ?? "The Vision");
-  const visionQuote =
-    d.visionQuote ??
-    "We are deliberately building Fund A as a concentrated, long-horizon vehicle focused on absolute free cash flow.";
-  const visionEmphasis = d.visionEmphasis ?? "Fund A";
-  const visionFooter = escapeHtml(d.visionFooter ?? "Preservation • Compounding • Velocity");
+  const inspirationItems = d.inspirationItems ?? [
+    "Driven by a passion for financial excellence.",
+    "Inspired by global market dynamics.",
+    "Commitment to sustainable growth."
+  ];
 
-  const askLine = escapeHtml(
-    d.askLine ??
-      "If it would be useful, I would appreciate the opportunity to have a quiet conversation to exchange perspectives sometime in the coming weeks."
+  const coreValues = d.coreValues ?? [
+    { title: "Integrity First", desc: "Upholding the highest standards in every decision." },
+    { title: "Radical Innovation", desc: "Embracing new technologies to stay ahead." },
+    { title: "Client Focus", desc: "Your financial goals are our primary mission." }
+  ];
+
+  const approachIntro = escapeHtml(
+    d.approachIntro ?? "We employ a rigorous, data-centric methodology to navigate volatility."
+  );
+
+  const approachItems = d.approachItems ?? [
+    "Algorithmic analysis of market trends.",
+    "Risk mitigation through diversified assets.",
+    "Transparent reporting and continuous monitoring."
+  ];
+
+  const whyItems = d.whyItems ?? [
+    "Proprietary AI-driven investment models.",
+    "A team of seasoned financial experts.",
+    "Adaptive strategies for any market condition."
+  ];
+
+  const quoteText = escapeHtml(
+    d.quoteText ?? "Welcome to the future of investment management, where tradition meets innovation."
   );
 
   const ctaText = escapeHtml(d.ctaText ?? "Connect");
   const ctaUrl = escapeHtml(d.ctaUrl ?? "https://calendly.com/hushh/office-hours-1-hour-focused-deep-dives");
 
-  // CONSTANT: Signature always shows "Manish" regardless of who sends
-  const senderName = escapeHtml("Manish");
-  const senderTitle = escapeHtml(d.senderTitle ?? "Hushh Fund A");
+  // Always Manish Sainani signature
+  const senderName = "Manish Sainani";
+  const senderTitle = "Co-Founder, CEO & CIO";
+  const companyName = "Hushh Technologies LLC";
 
-  const previewText = escapeHtml(d.previewText ?? `${subtitle} — ${badgeText}`);
-  const confidentialLeft = escapeHtml(d.confidentialLeft ?? "Private & Confidential");
-  const confidentialRight = escapeHtml(d.confidentialRight ?? "© Hushh");
-
-  // Updated Palette - White/Light Theme (Gmail-safe inline)
-  // Matches Tailwind design exactly: primary=#000000, highlight=#AD7D56, accent=#CDB49E, subtle=#555555
+  // Color palette matching Tailwind design
   const C = {
-    primary: "#000000",
-    highlight: "#AD7D56",
-    accent: "#CDB49E",
-    subtle: "#555555",
-    panel: "#FFFFFF",
-    bg: "#F9FAFB", // Tailwind bg-gray-50
-    text: "#000000",
-    textMuted: "#555555",
-    // Border colors matching Tailwind
-    borderAccent20: "rgba(205, 180, 158, 0.20)", // border-accent/20
-    borderAccent30: "rgba(205, 180, 158, 0.30)", // border-accent/30 - footer border
-    borderHighlight30: "rgba(173, 125, 86, 0.30)", // border-highlight/30 - vision lines
-    borderHighlight40: "rgba(173, 125, 86, 0.40)", // border-highlight/40 - badge border
-    // Background colors
-    bgAccent5: "rgba(205, 180, 158, 0.05)", // bg-accent/5 - footer bg
-    bgAccent10: "rgba(205, 180, 158, 0.10)", // bg-accent/10 - badge bg
-    shadow: "0 20px 40px -10px rgba(0, 0, 0, 0.05)"
+    primary: "#0088cc",
+    offBlack: "#000000",
+    bodyText: "#666666",
+    mutedText: "#979797",
+    sectionGray: "#eeeeee",
+    bg: "#F9FAFB",
+    white: "#FFFFFF",
+    lightBlue: "#f0f9ff",
+    borderLight: "#f0f0f0"
   };
 
-  const topBarGradient = `linear-gradient(to right, #FFFFFF 0%, rgba(173,125,86,0.40) 50%, #FFFFFF 100%)`;
-  const luxuryGradient = `linear-gradient(135deg, #AD7D56 0%, #CDB49E 50%, #AD7D56 100%)`;
+  // Build inspiration list HTML
+  const inspirationHtml = inspirationItems.map(item => `
+    <tr>
+      <td style="padding:10px 0;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <td valign="top" style="width:32px;padding-right:12px;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="background-color:${C.white};border-radius:50%;width:28px;height:28px;">
+                <tr>
+                  <td align="center" valign="middle" style="width:28px;height:28px;font-size:14px;color:${C.primary};">✓</td>
+                </tr>
+              </table>
+            </td>
+            <td valign="middle" style="font-family:'Manrope',Arial,sans-serif;font-size:15px;line-height:24px;color:${C.bodyText};font-weight:500;">
+              ${escapeHtml(item)}
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  `).join('');
 
-  const introHtml = withHighlight(
-    introText,
-    introHighlight,
-    `<span style="color:${C.highlight};font-weight:600;border-bottom:1px solid rgba(173,125,86,0.30);padding-bottom:2px;">`,
-    `</span>`
-  );
+  // Build core values HTML
+  const coreValuesHtml = coreValues.map((val, idx) => `
+    <tr>
+      <td style="padding:${idx === 0 ? '0' : '20px'} 0 ${idx === coreValues.length - 1 ? '0' : '20px'} 0;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <td valign="top" style="width:64px;padding-right:20px;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="background-color:${C.white};border-radius:16px;width:48px;height:48px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                <tr>
+                  <td align="center" valign="middle" style="width:48px;height:48px;font-family:'Manrope',Arial,sans-serif;font-size:18px;color:${C.primary};font-weight:700;">
+                    ${idx + 1}
+                  </td>
+                </tr>
+              </table>
+            </td>
+            <td valign="middle">
+              <div style="font-family:'Manrope',Arial,sans-serif;font-size:17px;font-weight:700;color:${C.offBlack};margin-bottom:4px;">
+                ${escapeHtml(val.title)}
+              </div>
+              <div style="font-family:'Manrope',Arial,sans-serif;font-size:15px;line-height:24px;color:${C.bodyText};">
+                ${escapeHtml(val.desc)}
+              </div>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  `).join('');
 
-  const visionHtml = withHighlight(
-    visionQuote,
-    visionEmphasis,
-    `<span style="color:${C.highlight};font-weight:600;border-bottom:1px solid rgba(173,125,86,0.30);padding-bottom:0px;">`,
-    `</span>`
-  );
+  // Build approach items HTML
+  const approachHtml = approachItems.map(item => `
+    <tr>
+      <td style="padding:8px 0;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <td valign="top" style="width:24px;padding-right:12px;padding-top:6px;">
+              <div style="width:10px;height:10px;border-radius:50%;background-color:${C.primary};"></div>
+            </td>
+            <td valign="middle" style="font-family:'Manrope',Arial,sans-serif;font-size:15px;line-height:24px;color:${C.bodyText};">
+              ${escapeHtml(item)}
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  `).join('');
+
+  // Build why items HTML
+  const whyHtml = whyItems.map(item => `
+    <tr>
+      <td style="padding:10px 12px;border-radius:16px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <td valign="top" style="width:28px;padding-right:12px;">
+              <span style="font-size:18px;color:${C.primary};">✓</span>
+            </td>
+            <td valign="middle" style="font-family:'Manrope',Arial,sans-serif;font-size:15px;line-height:24px;color:${C.bodyText};font-weight:500;">
+              ${escapeHtml(item)}
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  `).join('');
 
   const html = `<!doctype html>
 <html lang="en">
@@ -119,108 +184,161 @@ export function SalesNotification(input = {}) {
   <body style="margin:0;padding:0;background-color:${C.bg};">
     <!-- Preheader -->
     <div style="display:none;font-size:1px;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;mso-hide:all;">
-      ${previewText}
+      Hushh Technologies — Investment Management Excellence
     </div>
 
     <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:${C.bg};">
       <tr>
-        <td align="center" style="padding:48px 16px;">
-          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="640" style="width:640px;max-width:640px;background-color:${C.panel};box-shadow:${C.shadow};border:1px solid ${C.borderAccent20};">
-            <!-- top gradient bar -->
+        <td align="center" style="padding:20px 10px 40px 10px;">
+          <!-- Main Container - Mobile-like card -->
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="420" style="width:420px;max-width:420px;background-color:${C.white};border-radius:40px;box-shadow:0 25px 50px -12px rgba(0,0,0,0.15);overflow:hidden;">
+            
+            <!-- Header Bar -->
             <tr>
-              <td style="height:4px;line-height:4px;background-color:#FFFFFF;background-image:${topBarGradient};opacity:0.50;">
-                &nbsp;
-              </td>
-            </tr>
-
-            <!-- Header -->
-            <tr>
-              <td align="center" style="padding:48px 24px 40px 24px;">
-                <img src="${logoUrl}" width="80" height="80" alt="Hushh Logo" style="display:block;border:0;outline:none;text-decoration:none;width:80px;height:80px;opacity:1;" />
-
-                <div style="height:22px;line-height:22px;">&nbsp;</div>
-
-                <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border:1px solid rgba(173,125,86,0.40);background-color:rgba(205,180,158,0.10);border-radius:999px;">
-                  <tr>
-                    <td style="padding:8px 18px;font-family:Arial,Helvetica,sans-serif;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:${C.primary};font-weight:600;white-space:nowrap;">
-                      ${badgeText}
-                    </td>
-                  </tr>
-                </table>
-
-                <div style="height:12px;line-height:12px;">&nbsp;</div>
-
-                <div style="font-family:Arial,Helvetica,sans-serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${C.textMuted};font-weight:600;">
-                  ${subtitle}
-                </div>
-              </td>
-            </tr>
-
-            <!-- Body -->
-            <tr>
-              <td style="padding:0 32px 0 32px;">
+              <td style="padding:16px 24px;border-bottom:1px solid ${C.borderLight};background-color:${C.white};">
                 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
                   <tr>
-                    <td style="font-family:Georgia,'Times New Roman',Times,serif;font-size:30px;line-height:36px;color:${C.text};font-weight:400;padding:0 0 18px 0;">
-                      Dear ${recipientName},
+                    <td width="48" valign="middle">
+                      <span style="font-size:24px;color:${C.offBlack};">←</span>
                     </td>
+                    <td align="center" valign="middle" style="font-family:'Manrope',Arial,sans-serif;font-size:17px;font-weight:700;color:${C.offBlack};letter-spacing:-0.5px;">
+                      Hushh Technologies
+                    </td>
+                    <td width="48">&nbsp;</td>
                   </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Logo Section - Teal Background -->
+            <tr>
+              <td align="center" style="padding:32px 24px;background-color:${C.primary};">
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="background-color:rgba(255,255,255,0.15);border-radius:24px;padding:8px;">
                   <tr>
-                    <td style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:33px;color:rgba(0,0,0,0.90);font-weight:300;letter-spacing:0.3px;">
-                      ${introHtml}
+                    <td align="center" style="padding:16px 24px;">
+                      <img src="${logoUrl}" width="64" height="64" alt="Hushh Logo" style="display:block;border:0;outline:none;text-decoration:none;width:64px;height:64px;border-radius:16px;" />
                     </td>
                   </tr>
                 </table>
               </td>
             </tr>
 
-            <!-- Vision block -->
+            <!-- Who We Are Section -->
             <tr>
-              <td style="padding:34px 32px 0 32px;">
+              <td style="padding:40px 24px 32px 24px;">
                 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
                   <tr>
-                    <td style="height:1px;line-height:1px;background-color:rgba(205,180,158,0.50);">&nbsp;</td>
-                  </tr>
-                  <tr>
-                    <td align="center" style="padding:28px 8px;">
-                      <div style="font-family:Arial,Helvetica,sans-serif;font-size:9px;letter-spacing:5px;text-transform:uppercase;color:${C.highlight};font-weight:600;">
-                        ${visionLabel}
+                    <td>
+                      <div style="font-family:'Manrope',Arial,sans-serif;font-size:24px;font-weight:700;color:${C.offBlack};margin-bottom:16px;letter-spacing:-0.5px;">
+                        Who we are
                       </div>
-
-                      <div style="height:12px;line-height:12px;">&nbsp;</div>
-
-                      <div style="font-family:Georgia,'Times New Roman',Times,serif;font-size:22px;line-height:32px;color:${C.text};font-style:italic;text-align:center;">
-                        "${visionHtml}"
-                      </div>
-
-                      <div style="height:14px;line-height:14px;">&nbsp;</div>
-
-                      <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:18px;letter-spacing:4px;text-transform:uppercase;color:${C.textMuted};font-weight:600;opacity:0.80;">
-                        ${visionFooter}
+                      <div style="font-family:'Manrope',Arial,sans-serif;font-size:15px;line-height:26px;color:${C.bodyText};font-weight:500;text-align:justify;">
+                        ${whoWeAreText}
                       </div>
                     </td>
-                  </tr>
-                  <tr>
-                    <td style="height:1px;line-height:1px;background-color:rgba(205,180,158,0.50);">&nbsp;</td>
                   </tr>
                 </table>
               </td>
             </tr>
 
-            <!-- Ask + CTA -->
+            <!-- Our Inspiration Section - Gray Card -->
             <tr>
-              <td align="center" style="padding:30px 32px 0 32px;">
-                <div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:33px;color:rgba(0,0,0,0.90);font-weight:300;letter-spacing:0.3px;text-align:center;max-width:520px;">
-                  ${askLine}
-                </div>
-
-                <div style="height:20px;line-height:20px;">&nbsp;</div>
-
-                <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="background-color:${C.primary};border-radius:2px;box-shadow:0 10px 20px rgba(0,0,0,0.15);">
+              <td style="padding:0 24px 32px 24px;">
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:${C.sectionGray};border-radius:24px;padding:28px;">
                   <tr>
-                    <td align="center" style="padding:14px 26px;">
-                      <a href="${ctaUrl}" target="_blank" style="display:inline-block;font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:4px;text-transform:uppercase;font-weight:600;color:#FFFFFF;text-decoration:none;">
-                        ${ctaText}
+                    <td style="padding:24px;">
+                      <div style="font-family:'Manrope',Arial,sans-serif;font-size:24px;font-weight:700;color:${C.offBlack};margin-bottom:20px;letter-spacing:-0.5px;">
+                        Our Inspiration
+                      </div>
+                      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                        ${inspirationHtml}
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Core Values Section -->
+            <tr>
+              <td style="padding:0 24px 32px 24px;">
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                  <tr>
+                    <td>
+                      <div style="font-family:'Manrope',Arial,sans-serif;font-size:24px;font-weight:700;color:${C.offBlack};margin-bottom:28px;letter-spacing:-0.5px;">
+                        Core Values
+                      </div>
+                      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                        ${coreValuesHtml}
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Our Approach Section -->
+            <tr>
+              <td style="padding:0 24px 32px 24px;">
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                  <tr>
+                    <td>
+                      <div style="font-family:'Manrope',Arial,sans-serif;font-size:24px;font-weight:700;color:${C.offBlack};margin-bottom:16px;letter-spacing:-0.5px;">
+                        Our Approach
+                      </div>
+                      <div style="font-family:'Manrope',Arial,sans-serif;font-size:15px;line-height:24px;color:${C.bodyText};margin-bottom:20px;">
+                        ${approachIntro}
+                      </div>
+                      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                        ${approachHtml}
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Why Hushh Technologies Section - Light Blue Card -->
+            <tr>
+              <td style="padding:0 24px 32px 24px;">
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:${C.lightBlue};border-radius:24px;border:1px solid rgba(0,136,204,0.1);">
+                  <tr>
+                    <td style="padding:28px;">
+                      <div style="font-family:'Manrope',Arial,sans-serif;font-size:24px;font-weight:700;color:${C.offBlack};margin-bottom:24px;letter-spacing:-0.5px;">
+                        Why Hushh Technologies?
+                      </div>
+                      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                        ${whyHtml}
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Quote Section -->
+            <tr>
+              <td style="padding:24px 32px 40px 32px;">
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                  <tr>
+                    <td align="center">
+                      <div style="font-family:Georgia,'Times New Roman',serif;font-size:20px;line-height:32px;color:${C.primary};font-style:italic;text-align:center;font-weight:700;">
+                        "${quoteText}"
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- CTA Button -->
+            <tr>
+              <td align="center" style="padding:0 24px 48px 24px;">
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="background-color:${C.primary};border-radius:9999px;box-shadow:0 10px 30px rgba(0,136,204,0.3);">
+                  <tr>
+                    <td align="center" style="padding:16px 48px;">
+                      <a href="${ctaUrl}" target="_blank" style="display:inline-block;font-family:'Manrope',Arial,sans-serif;font-size:16px;font-weight:700;color:${C.white};text-decoration:none;">
+                        ${ctaText} →
                       </a>
                     </td>
                   </tr>
@@ -228,52 +346,39 @@ export function SalesNotification(input = {}) {
               </td>
             </tr>
 
-            <!-- Signature -->
+            <!-- Footer / Signature -->
             <tr>
-              <td align="center" style="padding:48px 32px 28px 32px;">
-                <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center">
+              <td style="padding:40px 24px 48px 24px;border-top:1px solid ${C.sectionGray};background-color:${C.white};">
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
                   <tr>
-                    <td align="center" style="padding-bottom:16px;">
-                      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="1">
-                        <tr>
-                          <td style="width:1px;height:40px;line-height:40px;background-color:${C.subtle};">&nbsp;</td>
-                        </tr>
-                      </table>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td align="center" style="font-family:Georgia,'Times New Roman',Times,serif;font-size:18px;line-height:22px;color:${C.text};font-weight:400;">
-                      ${senderName}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td align="center" style="padding-top:8px;font-family:Arial,Helvetica,sans-serif;font-size:9px;letter-spacing:4px;text-transform:uppercase;color:${C.highlight};font-weight:600;">
-                      ${senderTitle}
-                    </td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
-
-            <!-- Footer: matches Tailwind bg-accent/5, border-accent/30, text-subtle/70 -->
-            <tr>
-              <td style="padding:0;">
-                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:${C.bgAccent5};">
-                  <tr>
-                    <td style="height:1px;line-height:1px;background-color:${C.borderAccent30};">&nbsp;</td>
-                  </tr>
-                  <tr>
-                    <td align="center" style="padding:24px 18px 28px 18px;">
+                    <td>
+                      <div style="font-family:'Manrope',Arial,sans-serif;font-size:15px;color:${C.mutedText};font-weight:500;margin-bottom:20px;">
+                        Warm regards,
+                      </div>
                       <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                         <tr>
-                          <td style="font-family:Arial,Helvetica,sans-serif;font-size:9px;letter-spacing:5px;text-transform:uppercase;color:rgba(85,85,85,0.70);font-weight:500;padding-right:24px;white-space:nowrap;">
-                            ${confidentialLeft}
+                          <td valign="middle" style="width:56px;padding-right:16px;">
+                            <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:56px;height:56px;background-color:#f8f8f8;border-radius:50%;border:1px solid ${C.white};box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+                              <tr>
+                                <td align="center" valign="middle" style="font-family:'Manrope',Arial,sans-serif;font-size:16px;font-weight:700;color:${C.mutedText};">
+                                  MS
+                                </td>
+                              </tr>
+                            </table>
                           </td>
-                          <td style="font-family:Arial,Helvetica,sans-serif;font-size:9px;letter-spacing:5px;text-transform:uppercase;color:rgba(85,85,85,0.70);font-weight:500;white-space:nowrap;">
-                            ${confidentialRight}
+                          <td valign="middle">
+                            <div style="font-family:'Manrope',Arial,sans-serif;font-size:17px;font-weight:700;color:${C.offBlack};margin-bottom:4px;">
+                              ${escapeHtml(senderName)}
+                            </div>
+                            <div style="font-family:'Manrope',Arial,sans-serif;font-size:10px;font-weight:700;color:${C.primary};text-transform:uppercase;letter-spacing:1.5px;">
+                              ${escapeHtml(senderTitle)}
+                            </div>
                           </td>
                         </tr>
                       </table>
+                      <div style="font-family:'Manrope',Arial,sans-serif;font-size:13px;color:${C.mutedText};margin-top:12px;padding-left:72px;">
+                        ${escapeHtml(companyName)}
+                      </div>
                     </td>
                   </tr>
                 </table>
@@ -287,23 +392,42 @@ export function SalesNotification(input = {}) {
   </body>
 </html>`;
 
+  // Plain text version
   const text = [
-    `Dear ${stripHtml(recipientName)},`,
+    "HUSHH TECHNOLOGIES",
+    "==================",
     "",
-    stripHtml(introText),
+    "WHO WE ARE",
+    "-----------",
+    stripHtml(whoWeAreText),
     "",
-    `${stripHtml(visionLabel)}: ${stripHtml(visionQuote)}`,
-    stripHtml(visionFooter),
+    "OUR INSPIRATION",
+    "---------------",
+    ...inspirationItems.map(item => `• ${stripHtml(item)}`),
     "",
-    stripHtml(askLine),
+    "CORE VALUES",
+    "-----------",
+    ...coreValues.map((val, idx) => `${idx + 1}. ${val.title}: ${val.desc}`),
     "",
-    `${stripHtml(ctaText)}: ${stripHtml(ctaUrl)}`,
+    "OUR APPROACH",
+    "------------",
+    stripHtml(approachIntro),
+    ...approachItems.map(item => `• ${stripHtml(item)}`),
     "",
-    stripHtml(senderName),
-    stripHtml(senderTitle),
+    "WHY HUSHH TECHNOLOGIES?",
+    "-----------------------",
+    ...whyItems.map(item => `✓ ${stripHtml(item)}`),
     "",
-    `${stripHtml(confidentialLeft)} • ${stripHtml(confidentialRight)}`
+    `"${stripHtml(quoteText)}"`,
+    "",
+    `${ctaText}: ${ctaUrl}`,
+    "",
+    "---",
+    "Warm regards,",
+    senderName,
+    senderTitle,
+    companyName
   ].join("\n");
 
   return { subject, html, text };
-};
+}
