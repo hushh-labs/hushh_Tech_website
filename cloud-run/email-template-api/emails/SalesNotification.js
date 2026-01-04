@@ -22,7 +22,7 @@ export function SalesNotification(input = {}) {
   const subject = escapeHtml(d.subject ?? "Hushh Technologies — Investment Opportunity");
   const recipientName = escapeHtml(d.recipientName ?? "");
   
-  // Supabase-hosted Hushh logo
+  // Supabase-hosted Hushh logo (new design with "shush" gesture)
   const logoUrl = escapeHtml(
     d.logoUrl ?? "https://ibsisfnjxeowvdtvgzff.supabase.co/storage/v1/object/public/assets/hushh-logo.png"
   );
